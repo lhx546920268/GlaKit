@@ -1,0 +1,2 @@
+include ':app', ':glakit'
+rootProject.name='Glakit'
