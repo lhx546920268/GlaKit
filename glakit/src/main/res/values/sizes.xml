@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--  分割线高度  -->
+    <dimen name="divider_height">0.5dip</dimen>
+
+    <!--  标题栏按钮边距  -->
+    <dimen name="title_bar_margin">12dip</dimen>
+
+    <!--导航栏高度-->
+    <dimen name="title_bar_height">45dip</dimen>
+
+    <!--导航栏标题字体大小-->
+    <dimen name="title_bar_text_size">17sp</dimen>
+
+    <!--导航栏左右按钮字体大小-->
+    <dimen name="title_bar_item_text_size">14sp</dimen>
+</resources>
