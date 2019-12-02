@@ -54,6 +54,12 @@ class LoadingDrawable : BaseDrawable(), Animatable {
 
     //渐变数量
     var fadeCount = 5
+        set(value) {
+            if(value != field){
+                field = value
+                invalidateSelf()
+            }
+        }
 
     //当前开始位置
     private var start: Int = 0

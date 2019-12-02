@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--  返回按钮  -->
+    <drawable name="back_icon"/>
+
+    <!--  页面加载失败  -->
+    <drawable name="page_fail_icon"/>
+
+    <!--  空视图图标  -->
+    <drawable name="empty_icon"/>
+
+</resources>

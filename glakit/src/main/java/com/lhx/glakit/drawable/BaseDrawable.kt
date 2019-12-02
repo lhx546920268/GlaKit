@@ -11,7 +11,7 @@ import com.lhx.glakit.utils.ViewUtils
 /**
  * 基础drawable
  */
-abstract class BaseDrawable : Drawable {
+abstract class BaseDrawable : Drawable() {
 
     //画笔
     protected val paint = Paint()
@@ -24,8 +24,6 @@ abstract class BaseDrawable : Drawable {
 
     //内在盖度
     private var intrinsicHeight = -1
-
-    constructor()
 
     init {
         paint.strokeJoin = Paint.Join.ROUND

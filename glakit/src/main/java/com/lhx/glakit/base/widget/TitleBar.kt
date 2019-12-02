@@ -2,21 +2,21 @@ package com.lhx.glakit.base.widget
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.text.TextUtils
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.widget.TextView
-import androidx.core.content.ContextCompat
-
-import android.graphics.drawable.Drawable
-import android.util.TypedValue
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
-import com.lhx.glakit.utils.SizeUtils
+import com.lhx.glakit.drawable.DrawableUtils
 import kotlin.math.max
 import kotlin.math.min
+
 
 //标题栏
 class TitleBar: ViewGroup {
@@ -99,6 +99,31 @@ class TitleBar: ViewGroup {
             titleTextView?.visibility = View.VISIBLE
             this.titleView = titleTextView
         }
+    }
+
+    //显示返回按钮
+    fun setShowBackButton(show: Boolean): TextView? {
+        if (show) {
+            var drawable: Drawable? = null
+            val icon: Int = R.drawable.back_icon
+            var title: String? = null
+            if (icon != 0) {
+                drawable = ContextCompat.getDrawable(context, icon)
+                drawable = DrawableUtils.getTintDrawable(drawable!!, ContextCompat.getColor(context, R.color.title_bar_tint_color))
+            }
+            if (drawable == null) {
+                title = context.getString(R.string.title_bar_back_title)
+            }
+            val textView: TextView = setItem(title, null, true)
+            if (drawable != null) {
+                drawable.setBounds(0, 0, drawable.minimumWidth, drawable.minimumHeight)
+                textView.setCompoundDrawables(drawable, null, null, null)
+            }
+            return textView
+        } else {
+            setLeftItem(null)
+        }
+        return null
     }
 
 

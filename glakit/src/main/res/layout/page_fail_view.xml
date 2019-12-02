@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="10dp"
+    android:layout_gravity="center">
+
+    <!--加载失败显示-->
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/page_fail_icon"
+        android:id="@+id/logo"/>
+
+    <TextView
+        android:layout_marginTop="5dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/page_fail_title"
+        android:id="@+id/title"
+        android:textColor="@color/gray"
+        android:textSize="15sp"
+        android:layout_gravity="center_horizontal"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/page_fail_subtitle"
+        android:id="@+id/subtitle"
+        android:textColor="@color/gray"
+        android:textSize="15sp"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center_horizontal"/>
+
+</LinearLayout>

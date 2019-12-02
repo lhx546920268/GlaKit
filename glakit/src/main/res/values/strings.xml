@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">glakit</string>
+
+    <!--loading &#8230; 表示 ... 3个点-->
+    <string name="page_loading_text">正在载入&#8230;</string>
+    <string name="loading_text">加载中&#8230;</string>
+
+    <!--  加载失败  -->
+    <string name="page_fail_title">加载失败</string>
+    <string name="page_fail_subtitle">轻触屏幕重新加载</string>
+
+    <!--  空视图文字  -->
+    <string name="page_empty_title">没有数据</string>
+
+    <!--ImageLoader-->
+    <item name="tag_scale_type" type="id"/>
+    <item name="tag_background" type="id"/>
+    <item name="tag_loading_url" type="id"/>
+
+    <!--导航栏返回按钮-->
+    <string name="title_bar_back_title">返回</string>
 </resources>
