@@ -78,8 +78,8 @@ class BaseContainer: RelativeLayout {
         setBackgroundColor(Color.WHITE)
     }
 
-    //设置是否需要显示导航栏
-    fun setShowNavigationBar(show: Boolean) {
+    //设置是否需要显示标题栏
+    fun setShowTitleBar(show: Boolean) {
         if (show) { //创建导航栏
             if (titleBar == null) {
                 titleBar = TitleBar(context)
@@ -99,7 +99,7 @@ class BaseContainer: RelativeLayout {
         }
     }
 
-    fun isNavigationBarShowing(): Boolean {
+    fun isTitleBarShowing(): Boolean {
         return titleBar != null && titleBar!!.visibility == View.VISIBLE
     }
 
@@ -342,9 +342,9 @@ class BaseContainer: RelativeLayout {
                 removeView(this.bottomView)
             }
             this.bottomView = bottomView
-            if (loadingView == null) return
+            if (bottomView == null) return
 
-            val params = if (bottomView!!.layoutParams != null && bottomView.layoutParams is LayoutParams) {
+            val params = if (bottomView.layoutParams != null && bottomView.layoutParams is LayoutParams) {
                 bottomView.layoutParams as LayoutParams
             } else {
                 LayoutParams(LayoutParams.MATCH_PARENT, height)
