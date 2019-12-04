@@ -15,6 +15,7 @@ import com.lhx.glakit.base.constant.OverlayArea
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.loading.DefaultLoadingView
 import com.lhx.glakit.loading.LoadingView
+import com.lhx.glakit.utils.StringUtils
 
 
 //基础视图容器
@@ -78,6 +79,8 @@ class BaseContainer: RelativeLayout {
         setBackgroundColor(Color.WHITE)
     }
 
+    //<editor-fold desc="标题栏">
+
     //设置是否需要显示标题栏
     fun setShowTitleBar(show: Boolean) {
         if (show) { //创建导航栏
@@ -102,6 +105,37 @@ class BaseContainer: RelativeLayout {
     fun isTitleBarShowing(): Boolean {
         return titleBar != null && titleBar!!.visibility == View.VISIBLE
     }
+
+    //设置标题
+    fun setTitle(title: CharSequence?) {
+        titleBar?.setTitle(title)
+    }
+
+    fun getTitle(): CharSequence? {
+        return titleBar?.getTitle()
+    }
+
+    fun getTitleBar(): TitleBar? {
+        return titleBar
+    }
+
+    //显示返回按钮
+    fun setShowBackButton(show: Boolean) {
+        if (titleBar != null) {
+            val textView = titleBar!!.setShowBackButton(show)
+            textView?.setOnClickListener(object : OnSingleClickListener() {
+                override fun onSingleClick(v: View?) {
+                    if (onEventHandler != null) {
+                        onEventHandler!!.onBack()
+                    }
+                }
+            })
+        }
+    }
+
+    //</editor-fold>
+
+    //<editor-fold desc="内容">
 
     //获取内容视图
     fun getContentView(): View? {
@@ -191,33 +225,9 @@ class BaseContainer: RelativeLayout {
         }
     }
 
-    //显示返回按钮
-    fun setShowBackButton(show: Boolean) {
-        if (titleBar != null) {
-            val textView = titleBar!!.setShowBackButton(show)
-            textView?.setOnClickListener(object : OnSingleClickListener() {
-                override fun onSingleClick(v: View?) {
-                    if (onEventHandler != null) {
-                        onEventHandler!!.onBack()
-                    }
-                }
-            })
-        }
-    }
+    //</editor-fold>
 
-    //设置标题
-    fun setTitle(title: CharSequence?) {
-        titleBar?.setTitle(title)
-    }
-
-    fun getTitle(): CharSequence? {
-        return titleBar?.getTitle()
-    }
-
-
-    fun getTitleBar(): TitleBar? {
-        return titleBar
-    }
+    //<editor-fold desc="Loading">
 
     fun setPageStatus(@ContainerPageStatus status: Int){
         if(status != pageStatus){
@@ -244,7 +254,7 @@ class BaseContainer: RelativeLayout {
             when(pageStatus){
                 PageStatus.LOADING, PageStatus.FAIL -> {
                     loadPageLoadingViewIfNeeded()
-                    onEventHandler?.onPageLoadingShow(pageLoadingView!!)
+                    onEventHandler?.onShowPageLoadingView(pageLoadingView!!)
                 }
                 PageStatus.EMPTY -> {
                     loadEmptyViewIfNeeded()
@@ -272,7 +282,7 @@ class BaseContainer: RelativeLayout {
             pageLoadingView!!.setOnClickListener(object : OnSingleClickListener(){
                 override fun onSingleClick(v: View?) {
                     if(pageStatus == PageStatus.FAIL){
-                        onEventHandler?.onPageRefresh()
+                        onEventHandler?.onReloadPage()
                     }
                 }
             })
@@ -313,7 +323,8 @@ class BaseContainer: RelativeLayout {
                 }
                 loadingView!!.delay = delay
                 if (loadingView is DefaultLoadingView) {
-                    (loadingView as DefaultLoadingView).getTextView().text = text
+                    val loadingText = if(StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
+                    (loadingView as DefaultLoadingView).getTextView().text = loadingText
                 }
                 val params = loadingView!!.layoutParams as LayoutParams
                 params.alignWithParent = true
@@ -330,6 +341,10 @@ class BaseContainer: RelativeLayout {
     fun isLoading(): Boolean {
         return loading
     }
+
+    //</editor-fold>
+
+    //<editor-fold desc="顶部底部视图">
 
     //设置底部视图
     fun setBottomView(bottomView: View?) {
@@ -416,6 +431,8 @@ class BaseContainer: RelativeLayout {
         return topView
     }
 
+    //</editor-fold>
+
 
     //事件回调
     interface OnEventHandler {
@@ -423,7 +440,7 @@ class BaseContainer: RelativeLayout {
         /**
          * 页面刷新
          */
-        fun onPageRefresh()
+        fun onReloadPage()
 
         /**
          * 点击返回按钮
@@ -434,7 +451,7 @@ class BaseContainer: RelativeLayout {
          * 页面加载视图显示
          * @param pageLoadingView 页面加载视图
          */
-        fun onPageLoadingShow(pageLoadingView: View)
+        fun onShowPageLoadingView(pageLoadingView: View)
 
         /**
          * 空视图显示

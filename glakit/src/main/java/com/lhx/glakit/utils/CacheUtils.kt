@@ -3,6 +3,7 @@ package com.lhx.glakit.utils
 
 import android.content.Context
 import android.text.TextUtils
+import android.text.format.Formatter
 import android.util.Base64
 import androidx.preference.PreferenceManager
 import java.io.*
@@ -133,31 +134,26 @@ object CacheUtils {
 
     // 删除缓存目录
     fun deleteCacheFolder(context: Context, runnable: Runnable?) {
-        val folder: String = FileUtil.getImageCacheFolder(context)
+        val folder = FileUtils.getImageCacheFolder(context)
         object : Thread() {
             override fun run() {
-                FileUtil.deleteAllFiles(File(folder))
-                ThreadUtil.runOnMainThread(runnable)
+                FileUtils.deleteAllFiles(File(folder))
+                ThreadUtils.runOnMainThread(runnable)
             }
         }.start()
     }
 
     // 获取缓存大小
-    fun getCacheSize(context: Context?, onCacheHander: OnCacheHandler?) {
-        val folder: String = FileUtil.getImageCacheFolder(context)
+    fun getCacheSize(context: Context, callback: (size: String) -> Unit) {
+        val folder = FileUtils.getImageCacheFolder(context)
         object : Thread() {
             override fun run() {
-                val size: String =
-                    Formatter.formatFileSize(context, FileUtil.getFileSize(File(folder)))
-                if (onCacheHander != null) {
-                    ThreadUtil.runOnMainThread(Runnable { onCacheHander.onGetCacheSize(size) })
-                }
+                val size =
+                    Formatter.formatFileSize(context, FileUtils.getFileSize(File(folder)))
+                ThreadUtils.runOnMainThread(Runnable {
+                    callback(size)
+                })
             }
         }.start()
-    }
-
-    interface OnCacheHandler {
-        //获取缓存大小
-        fun onGetCacheSize(size: String?)
     }
 }

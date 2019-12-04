@@ -73,10 +73,10 @@ object AppUtils {
      * @param appIconRes app图标
      */
     fun createShortcut(context: Context, appName: String?, @DrawableRes appIconRes: Int) {
-        if (!CacheUtil.loadPrefsBoolean(context, SHORTCUT_INSTALLED, false)) {
-            CacheUtil.savePrefs(context, SHORTCUT_INSTALLED, true)
+        if (!CacheUtils.loadPrefsBoolean(context, SHORTCUT_INSTALLED, false)) {
+            CacheUtils.savePrefs(context, SHORTCUT_INSTALLED, true)
             val main = Intent()
-            main.component = ComponentName(context, context.getClass())
+            main.component = ComponentName(context, context.javaClass)
             main.action = Intent.ACTION_MAIN
             main.addCategory(Intent.CATEGORY_LAUNCHER)
             //要添加这句话
@@ -95,13 +95,13 @@ object AppUtils {
 
     ///拨打电话
     fun makePhoneCall(context: Context, phone: String) {
-        if (StringUtil.isEmpty(phone)) return
+        if (StringUtils.isEmpty(phone)) return
         makePhoneCall(context, arrayOf(phone))
     }
 
     //拨打电话
     fun makePhoneCall(context: Context, phones: Array<String>?) {
-        if (phones == null || phones.size == 0) return
+        if (phones == null || phones.isEmpty()) return
         if (phones.size > 1) {
             val controller: AlertController =
                 AlertController.buildActionSheet(context, null, phones)

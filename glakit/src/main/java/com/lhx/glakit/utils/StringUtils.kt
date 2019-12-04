@@ -151,21 +151,35 @@ object StringUtils {
      * 判断是否为纯字母
      */
     fun isAlpha(str: CharSequence?): Boolean {
-        return if (TextUtils.isEmpty(str)) false else Pattern.compile("^[A-Za-z]+$").matcher(str).matches()
+        return if (TextUtils.isEmpty(str)) false else Pattern.compile("^[A-Za-z]+$").matcher(str!!).matches()
     }
 
     /**
      * 判断是否为字母或数字组合
      */
     fun isAlphaNumber(str: CharSequence?): Boolean {
-        return if (TextUtils.isEmpty(str)) false else Pattern.compile("^[A-Za-z0-9]+$").matcher(str).matches()
+        return if (TextUtils.isEmpty(str)) false else Pattern.compile("^[A-Za-z0-9]+$").matcher(str!!).matches()
     }
 
     /**
      * 判断是否为纯数字
      */
-    fun isNumber(str: CharSequence?): Boolean {
-        return if (TextUtils.isEmpty(str)) false else Pattern.compile("^[0-9]+$").matcher(str).matches()
+    fun isNumeric(str: CharSequence?): Boolean {
+        return if (TextUtils.isEmpty(str)) false else Pattern.compile("^[0-9]+$").matcher(str!!).matches()
+    }
+
+    /**
+     * 功能：判断字符串是否为日期格式
+     *
+     * @param str xx
+     * @return
+     */
+    fun isDate(str: String?): Boolean {
+        if(TextUtils.isEmpty(str))
+            return false
+        val pattern = Pattern.compile("^((\\d{2}(([02468][048])|([13579][26]))[\\-\\/\\s]?((((0?[13578])|(1[02]))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])))))|(\\d{2}(([02468][1235679])|([13579][01345789]))[\\-\\/\\s]?((((0?[13578])|(1[02]))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\\-\\/\\s]?((0?[1-9])|(1[0-9])|(2[0-8]))))))(\\s(((0?[0-9])|([1-2][0-3]))\\:([0-5]?[0-9])((\\s)|(\\:([0-5]?[0-9])))))?$")
+        val m = pattern.matcher(str!!)
+        return m.matches()
     }
 
     /**
@@ -190,16 +204,14 @@ object StringUtils {
         return if (TextUtils.isEmpty(tel)) false else Pattern.compile(
             "((\\d{12})|^((\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})-" +
                     "(\\d{4}|\\d{3}|\\d{2}|\\d{1})|(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1}))$)|(\\d{11})"
-        ).matcher(tel).matches()
+        ).matcher(tel!!).matches()
     }
 
     /**
      * 是否是邮箱
      */
     fun isEmail(email: CharSequence?): Boolean {
-        return if (TextUtils.isEmpty(email)) false else Pattern.compile("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}").matcher(
-            email
-        ).matches()
+        return if (TextUtils.isEmpty(email)) false else Pattern.compile("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}").matcher(email!!).matches()
     }
 
     /*********************************** 身份证验证开始 ****************************************/
@@ -239,24 +251,24 @@ object StringUtils {
         if (str.length != 15 && str.length != 18) {
             return false
         }
-        var Ai = ""
+        var numberic = ""
 
-        //数字 除最后以为都为数字
+        //数字 除最后以外都为数字
         if (str.length == 18) {
-            Ai = str.substring(0, 17)
+            numberic = str.substring(0, 17)
         } else if (str.length == 15) {
-            Ai = str.substring(0, 6) + "19" + str.substring(6, 15)
+            numberic = "${str.substring(0, 6)}19${str.substring(6, 15)}"
         }
 
-        //身份证15位号码都应为数字 ; 18位号码除最后一位外，都应为数字
-        if (!isNumeric(Ai)) {
+        //身份证15位号码都应为数字 18位号码除最后一位外，都应为数字
+        if (!isNumeric(numberic)) {
             return false
         }
 
         //出生年月是否有效
-        val strYear = Ai.substring(6, 10) // 年份
-        val strMonth = Ai.substring(10, 12) // 月份
-        val strDay = Ai.substring(12, 14) // 月份
+        val strYear = numberic.substring(6, 10) // 年份
+        val strMonth = numberic.substring(10, 12) // 月份
+        val strDay = numberic.substring(12, 14) // 月份
 
         //身份证生日无效
         if (!isDate("$strYear-$strMonth-$strDay")) {
@@ -292,32 +304,32 @@ object StringUtils {
         }
 
         //地区码时候有效
-        val h = GetAreaCode()
-        if (h.get(Ai.substring(0, 2)) == null) { //身份证地区编码错误
+        val h = getAreaCode()
+        if (h[numberic.substring(0, 2)] == null) { //身份证地区编码错误
             return false
         }
 
         //判断最后一位的值
-        var TotalmulAiWi = 0
+        var last = 0
 
-        val Wi = arrayOf(
-            "7", "9", "10", "5", "8", "4", "2", "1", "6", "3", "7",
-            "9", "10", "5", "8", "4", "2"
+        val arr = arrayOf(
+            7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7,
+            9, 10, 5, 8, 4, 2
         )
 
         for (i in 0..16) {
-            TotalmulAiWi = TotalmulAiWi + Ai[i].toString().toInt() * Wi[i].toInt()
+            last += numberic[i].toInt() * arr[i]
         }
-        val modValue = TotalmulAiWi % 11
-        val ValCodeArr = arrayOf(
+        val modValue = last % 11
+        val codes = arrayOf(
             "1", "0", "X", "9", "8", "7", "6", "5", "4",
             "3", "2"
         )
 
-        val strVerifyCode = ValCodeArr[modValue]
-        Ai = Ai + strVerifyCode
+        val strVerifyCode = codes[modValue]
+        numberic += strVerifyCode
         if (str.length == 18) {
-            if (Ai != str) { //身份证无效，不是合法的身份证号码
+            if (numberic != str) { //身份证无效，不是合法的身份证号码
                 return false
             }
         } else {
@@ -331,68 +343,44 @@ object StringUtils {
      *
      * @return Hashtable 对象
      */
-    private fun GetAreaCode(): Hashtable {
-        val hashtable = Hashtable()
-        hashtable.put("11", "北京")
-        hashtable.put("12", "天津")
-        hashtable.put("13", "河北")
-        hashtable.put("14", "山西")
-        hashtable.put("15", "内蒙古")
-        hashtable.put("21", "辽宁")
-        hashtable.put("22", "吉林")
-        hashtable.put("23", "黑龙江")
-        hashtable.put("31", "上海")
-        hashtable.put("32", "江苏")
-        hashtable.put("33", "浙江")
-        hashtable.put("34", "安徽")
-        hashtable.put("35", "福建")
-        hashtable.put("36", "江西")
-        hashtable.put("37", "山东")
-        hashtable.put("41", "河南")
-        hashtable.put("42", "湖北")
-        hashtable.put("43", "湖南")
-        hashtable.put("44", "广东")
-        hashtable.put("45", "广西")
-        hashtable.put("46", "海南")
-        hashtable.put("50", "重庆")
-        hashtable.put("51", "四川")
-        hashtable.put("52", "贵州")
-        hashtable.put("53", "云南")
-        hashtable.put("54", "西藏")
-        hashtable.put("61", "陕西")
-        hashtable.put("62", "甘肃")
-        hashtable.put("63", "青海")
-        hashtable.put("64", "宁夏")
-        hashtable.put("65", "新疆")
-        hashtable.put("71", "台湾")
-        hashtable.put("81", "香港")
-        hashtable.put("82", "澳门")
-        hashtable.put("91", "国外")
+    private fun getAreaCode(): Hashtable<String, String> {
+        val hashtable = Hashtable<String, String>()
+        hashtable["11"] = "北京"
+        hashtable["12"] = "天津"
+        hashtable["13"] = "河北"
+        hashtable["14"] = "山西"
+        hashtable["15"] = "内蒙古"
+        hashtable["21"] = "辽宁"
+        hashtable["22"] = "吉林"
+        hashtable["23"] = "黑龙江"
+        hashtable["31"] = "上海"
+        hashtable["32"] = "江苏"
+        hashtable["33"] = "浙江"
+        hashtable["34"] = "安徽"
+        hashtable["35"] = "福建"
+        hashtable["36"] = "江西"
+        hashtable["37"] = "山东"
+        hashtable["41"] = "河南"
+        hashtable["42"] = "湖北"
+        hashtable["43"] = "湖南"
+        hashtable["44"] = "广东"
+        hashtable["45"] = "广西"
+        hashtable["46"] = "海南"
+        hashtable["50"] = "重庆"
+        hashtable["51"] = "四川"
+        hashtable["52"] = "贵州"
+        hashtable["53"] = "云南"
+        hashtable["54"] = "西藏"
+        hashtable["61"] = "陕西"
+        hashtable["62"] = "甘肃"
+        hashtable["63"] = "青海"
+        hashtable["64"] = "宁夏"
+        hashtable["65"] = "新疆"
+        hashtable["71"] = "台湾"
+        hashtable["81"] = "香港"
+        hashtable["82"] = "澳门"
+        hashtable["91"] = "国外"
         return hashtable
-    }
-
-    /**
-     * 功能：判断字符串是否为数字
-     * @param str xx
-     * @return
-     */
-    fun isNumeric(str: String?): Boolean {
-        val pattern: Pattern = Pattern.compile("[0-9]*")
-        val isNum: Matcher = pattern.matcher(str)
-        return isNum.matches()
-    }
-
-    /**
-     * 功能：判断字符串是否为日期格式
-     *
-     * @param str xx
-     * @return
-     */
-    fun isDate(str: String?): Boolean {
-        val pattern: Pattern = Pattern
-            .compile("^((\\d{2}(([02468][048])|([13579][26]))[\\-\\/\\s]?((((0?[13578])|(1[02]))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])))))|(\\d{2}(([02468][1235679])|([13579][01345789]))[\\-\\/\\s]?((((0?[13578])|(1[02]))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(3[01])))|(((0?[469])|(11))[\\-\\/\\s]?((0?[1-9])|([1-2][0-9])|(30)))|(0?2[\\-\\/\\s]?((0?[1-9])|(1[0-9])|(2[0-8]))))))(\\s(((0?[0-9])|([1-2][0-3]))\\:([0-5]?[0-9])((\\s)|(\\:([0-5]?[0-9])))))?$")
-        val m: Matcher = pattern.matcher(str)
-        return m.matches()
     }
 
     /*********************************** 身份证验证结束 ****************************************/

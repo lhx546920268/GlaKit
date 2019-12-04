@@ -2,21 +2,20 @@ package com.lhx.glakit.utils
 
 import android.content.ContentResolver
 import android.content.Context
+import android.database.Cursor
+import android.net.Uri
 import android.os.Environment
 import android.os.Environment.MEDIA_MOUNTED
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.webkit.MimeTypeMap
-import java.io.File
+import java.io.*
 
 
 /**
  * 文件工具类
  */
 object FileUtils {
-
-    //app目录
-    private var appFolder: String? = null
 
     //app缓存文件夹
     private var cacheFolder: String? = null
@@ -25,23 +24,28 @@ object FileUtils {
     private var imageCacheFolder: String? = null
 
     fun getAppFolder(context: Context): String {
-        if (appFolder == null) {
-            //当sd卡可用并且不可被移除时 使用sd卡
-            val cacheFolder = if (MEDIA_MOUNTED == Environment.getExternalStorageState() || !Environment.isExternalStorageRemovable()) {
-                    context.externalCacheDir?.path
-                } else {
-                    context.cacheDir?.path
-                }
-            appFolder = "${cacheFolder}${File.separator}${AppUtils.getAppPackageName(context)}${File.separator}"
-            val file = File(appFolder!!)
-            if (!file.exists()) {
-                file.mkdirs()
-            }
+
+        //当sd卡可用并且
+        var cacheFolder: String? = null
+
+        if (MEDIA_MOUNTED == Environment.getExternalStorageState()) {
+           cacheFolder = context.externalCacheDir?.path
         }
-        return appFolder!!
+
+        if(cacheFolder == null){
+            cacheFolder = context.cacheDir.path
+        }
+
+
+        val appFolder = "${cacheFolder}${File.separator}${AppUtils.getAppPackageName(context)}${File.separator}"
+        val file = File(appFolder)
+        if (!file.exists()) {
+            file.mkdirs()
+        }
+        return appFolder
     }
 
-    fun getCacheFolder(context: Context): String? {
+    fun getCacheFolder(context: Context): String {
         if (cacheFolder == null) {
             cacheFolder = "${getAppFolder(context)}.cache${File.separator}"
             val file = File(cacheFolder!!)
@@ -49,10 +53,10 @@ object FileUtils {
                 file.mkdirs()
             }
         }
-        return cacheFolder
+        return cacheFolder!!
     }
 
-    fun getImageCacheFolder(context: Context): String? {
+    fun getImageCacheFolder(context: Context): String {
         if (imageCacheFolder == null) {
             imageCacheFolder = "${getAppFolder(context)}imageCache${File.separator}"
             val file = File(imageCacheFolder!!)
@@ -71,7 +75,7 @@ object FileUtils {
     fun getMimeType(filePath: String): String? {
         val index = filePath.lastIndexOf(File.separator)
         var fileName = filePath
-        var extension: String? = ""
+        var extension = ""
 
         //通过文件名称获取 拓展名，防止文件路径里面有 .
         if (index != -1) {
@@ -81,29 +85,11 @@ object FileUtils {
         if (extensionIndex != -1 && extensionIndex + 1 < fileName.length) {
             extension = fileName.substring(extensionIndex + 1)
         }
-        if (!StringUtil.isEmpty(extension)) {
+        if (!StringUtils.isEmpty(extension)) {
             val map = MimeTypeMap.getSingleton()
             return map.getMimeTypeFromExtension(extension)
         }
         return ""
-    }
-
-    /**
-     * 获取储存Image的目录
-     *
-     * @return
-     */
-    fun getStorageDirectory(): String? {
-        return Environment.getExternalStorageDirectory().absolutePath + File.separator.toString() + "mwdmall" + "/ImageCache"
-    }
-
-    /**
-     * 获取储存apk的目录
-     *
-     * @return
-     */
-    fun getDownLoadDirectory(): String? {
-        return Environment.getExternalStorageDirectory().absolutePath + File.separator.toString() + "xinjiang" + File.separator
     }
 
 
@@ -133,13 +119,10 @@ object FileUtils {
      * @param replace 如果已存在拓展名，是否替换
      * @return 新的文件路径
      */
-    fun appendFileExtension(
-        filePath: String,
-        extension: String,
-        replace: Boolean
-    ): String? {
+    fun appendFileExtension(filePath: String, extension: String, replace: Boolean): String? {
         if (!TextUtils.isEmpty(extension)) {
-            val index = filePath.lastIndexOf("/")
+            val index = filePath.lastIndexOf(File.separator)
+
             //通过文件名称获取 拓展名，防止文件路径里面有 .
             if (index != -1) {
                 val fileName = filePath.substring(index)
@@ -184,7 +167,7 @@ object FileUtils {
      * @return 是否成功
      */
     fun moveFile(file: File, destFile: File): Boolean {
-        return if (!file.exists() || !file.isFile() || destFile.isDirectory()) false else try {
+        return if (!file.exists() || !file.isFile || destFile.isDirectory) false else try {
             createDirectoryIfNotExist(destFile)
             file.renameTo(destFile)
         } catch (e: SecurityException) {
@@ -226,8 +209,8 @@ object FileUtils {
                 val inputStream = BufferedInputStream(FileInputStream(file))
                 val outputStream = ByteArrayOutputStream()
                 val bytes = ByteArray(1024 * 256)
-                var len = 0
-                while (inputStream.read(bytes).also({ len = it }) != -1) {
+                var len: Int
+                while (inputStream.read(bytes).also{ len = it } != -1) {
                     outputStream.write(bytes, 0, len)
                 }
                 return outputStream.toByteArray()
@@ -243,7 +226,7 @@ object FileUtils {
      * @return 文件名称
      */
     fun getUniqueFileName(): String {
-        return System.currentTimeMillis() + StringUtil.getRandomNumber(10)
+        return "${System.currentTimeMillis()}${StringUtils.getRandomNumber(10)}"
     }
 
     /**
@@ -252,11 +235,11 @@ object FileUtils {
      * @return 临时文件夹
      */
     fun getTemporaryDirectory(context: Context): String {
-        var file: File = context.getExternalCacheDir()
+        var file = context.externalCacheDir
         if (file == null) {
-            file = context.getCacheDir()
+            file = context.cacheDir
         }
-        return file.getAbsolutePath().toString() + "/temp"
+        return "${file!!.absolutePath}/temp"
     }
 
 
@@ -267,7 +250,7 @@ object FileUtils {
      * @return 临时文件
      */
     fun getTemporaryFilePath(context: Context, extension: String): String {
-        var path = getTemporaryDirectory(context) + "/" + getUniqueFileName()
+        var path = "${getTemporaryDirectory(context)}${File.separator}${getUniqueFileName()}"
         if (!TextUtils.isEmpty(extension)) {
             path += extension
         }
@@ -299,15 +282,19 @@ object FileUtils {
      */
     @Throws(IOException::class)
     fun createNewFileIfNotExist(file: File): Boolean {
-        if (file.exists() && file.isFile()) return true
-        val parent: String = file.getParent()
-        //创建文件夹
-        val directory = File(parent)
-        if (!directory.exists() || !directory.isDirectory()) {
-            if (!directory.mkdirs()) {
-                return false
+        if (file.exists() && file.isFile) return true
+        val parent = file.parent
+
+        if(parent != null){
+            //创建文件夹
+            val directory = File(parent)
+            if (!directory.exists() || !directory.isDirectory) {
+                if (!directory.mkdirs()) {
+                    return false
+                }
             }
         }
+
         return file.createNewFile()
     }
 
@@ -321,12 +308,17 @@ object FileUtils {
      * @return 是否成功 如果文件夹存在，也返回成功
      */
     fun createDirectoryIfNotExist(file: File): Boolean {
-        val parent: String = file.getParent()
+        val parent = file.parent
+
         //创建文件夹
-        val directory = File(parent)
-        return if (!directory.exists() || !directory.isDirectory()) {
-            directory.mkdirs()
-        } else true
+        if(parent != null){
+            val directory = File(parent)
+            return if (!directory.exists() || !directory.isDirectory) {
+                directory.mkdirs()
+            } else true
+        }
+
+        return true
     }
 
     /**
@@ -335,19 +327,17 @@ object FileUtils {
      * @return 成功则返回文件路径，否则返回null
      */
     fun filePathFromUri(context: Context, uri: Uri): String? {
-        val cursor: Cursor = context.getContentResolver().query(
-            uri, arrayOf(MediaStore.Video.VideoColumns.DATA),
-            null, null, null
-        )
-        val scheme: String = uri.getScheme()
+        val scheme = uri.scheme
         if (scheme == null) {
-            return uri.getPath()
+            return uri.path
         } else if (ContentResolver.SCHEME_FILE == scheme) {
-            return uri.getPath()
+            return uri.path
         } else if (ContentResolver.SCHEME_CONTENT == scheme) {
+
+            val cursor = context.contentResolver.query(uri, arrayOf(MediaStore.Video.VideoColumns._ID), null, null, null)
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    val index: Int = cursor.getColumnIndex(MediaStore.Video.VideoColumns.DATA)
+                    val index: Int = cursor.getColumnIndex(MediaStore.Video.VideoColumns._ID)
                     if (index > -1) {
                         return cursor.getString(index)
                     }
@@ -367,8 +357,8 @@ object FileUtils {
     fun getFileSize(file: File): Long {
         var size: Long = 0
         if (file.exists()) {
-            if (file.isDirectory()) {
-                val files: Array<File> = file.listFiles()
+            if (file.isDirectory) {
+                val files = file.listFiles()
                 if (files != null) {
                     for (f in files) {
                         size += getFileSize(f)
@@ -386,8 +376,8 @@ object FileUtils {
      * @param file 要删除的文件或文件夹
      */
     fun deleteAllFiles(file: File) {
-        if (file.exists() && file.isDirectory()) {
-            val files: Array<File> = file.listFiles()
+        if (file.exists() && file.isDirectory) {
+            val files = file.listFiles()
             if (files != null) {
                 for (f in files) {
                     deleteAllFiles(f)
