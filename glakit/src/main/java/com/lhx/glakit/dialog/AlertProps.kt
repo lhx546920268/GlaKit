@@ -36,7 +36,7 @@ class AlertProps {
     var dialogPadding = 0
 
     //提示框内容（除了按钮）最低高度
-    var mContentMinHeight = 0
+    var contentMinHeight = 0
 
     //标题字体颜色
     @ColorInt
@@ -76,10 +76,10 @@ class AlertProps {
     var disableButtonTextColor = 0
 
     //警示下标
-    private var destructivePosition = -1
+    var destructivePosition = -1
 
     //分割线大小px
-    private var dividerHeight = 0
+    var dividerHeight = 0
 
     //构建
     companion object{
@@ -108,7 +108,7 @@ class AlertProps {
             props.contentVerticalSpace = context.resources.getDimensionPixelSize(R.dimen.alert_content_vertical_space)
             props.contentPadding = context.resources.getDimensionPixelSize(R.dimen.alert_content_padding)
             props.dialogPadding = context.resources.getDimensionPixelSize(R.dimen.alert_dialog_padding)
-            props.mContentMinHeight = context.resources.getDimensionPixelSize(R.dimen.alert_content_min_height)
+            props.contentMinHeight = context.resources.getDimensionPixelSize(R.dimen.alert_content_min_height)
 
             props.titleSize = SizeUtils.spFromPx(context.resources.getDimensionPixelSize(R.dimen.alert_title_text_size), context)
             props.subtitleSize = SizeUtils.spFromPx(context.resources.getDimensionPixelSize(R.dimen.alert_subtitle_text_size), context)

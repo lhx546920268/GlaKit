@@ -12,5 +12,5 @@ object AlertStyle {
     //弹窗样式
     @IntDef(ALERT, ACTION_SHEET)
     @Retention(AnnotationRetention.SOURCE)
-    annotation class AlertDialogStyle
+    annotation class Style
 }

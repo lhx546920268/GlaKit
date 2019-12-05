@@ -1,15 +1,13 @@
 package com.lhx.glakit.dialog
 
+import android.content.Context
 import android.content.DialogInterface
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.os.Handler
-import android.view.Gravity
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -21,23 +19,31 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.CornerBorderDrawable
+import com.lhx.glakit.utils.SizeUtils
+import com.lhx.glakit.utils.StringUtils
+import kotlinx.android.synthetic.main.action_sheet_dialog.*
+import kotlinx.android.synthetic.main.alert_dialog.*
 
 
 /**
  * 信息弹窗fragment
  */
-class AlertDialogFragment: BaseDialogFragment() {
+class AlertDialogFragment: BaseDialogFragment {
 
     //关闭dialog
     private val dismissDialogWhat = 1
     private val position = "position"
 
     //弹窗样式
-    @AlertStyle.AlertDialogStyle
-    private var _style = 0
+    @AlertStyle.Style
+    private var _style = AlertStyle.ALERT
 
     //弹窗属性
-    var props: AlertProps? = null
+    private var _props: AlertProps? = null
+    val props: AlertProps
+    get(){
+        return _props!!
+    }
 
     //内容视图
     private var _contentView: View? = null
@@ -64,395 +70,267 @@ class AlertDialogFragment: BaseDialogFragment() {
     var alertUIHandler: AlertUIHandler? = null
 
     //是否需要计算内容高度 当内容或者按钮数量过多时可设置，防止内容显示不完
-    private var _shouldMeasureContentHeight = false
+    var shouldMeasureContentHeight = false
 
     //用于延迟操作
     private var mHandler: Handler? = null
 
-    constructor(@AlertStyle.AlertDialogStyle style: Int, title: String?, subtitle: String?, icon: Drawable?, buttonTitles: Array<String>){
+    constructor(@AlertStyle.Style style: Int, title: String?, subtitle: String?, icon: Drawable?, buttonTitles: Array<String>){
 
         _style = style
         _title = title
         _subtitle = subtitle
         _icon = icon
         _buttonTitles = buttonTitles
-
-        _contentView = View.inflate(context, if (_style == AlertStyle.ALERT) R.layout.alert_dialog else R.layout.action_sheet_dialog, null)
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
 
-
-    fun setButtonTopBottomPadding(buttonTopBottomPadding: Int) {
-        mButtonTopBottomPadding = buttonTopBottomPadding
+        if(_props == null){
+            _props = AlertProps.build(context)
+        }
     }
 
-    fun setButtonLeftRightPadding(buttonLeftRightPadding: Int) {
-        mButtonLeftRightPadding = buttonLeftRightPadding
-    }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        if(_contentView != null){
+            _contentView = inflater.inflate(if (_style == AlertStyle.ALERT) R.layout.alert_dialog else R.layout.action_sheet_dialog, container, false)
+            initViews()
+        }
 
-    fun setContentVerticalSpace(contentVerticalSpace: Int) {
-        mContentVerticalSpace = contentVerticalSpace
-    }
-
-    fun setContentPadding(contentPadding: Int) {
-        mContentPadding = contentPadding
-    }
-
-    fun setDialogPadding(dialogPadding: Int) {
-        mDialogPadding = dialogPadding
-    }
-
-    fun setTitleColor(@ColorInt titleColor: Int) {
-        mTitleColor = titleColor
-    }
-
-    fun setTitleSize(titleSize: Float) {
-        mTitleSize = titleSize
-    }
-
-    fun setSubtitleColor(subtitleColor: Int) {
-        mSubtitleColor = subtitleColor
-    }
-
-    fun setSubtitleSize(subtitleSize: Float) {
-        mSubtitleSize = subtitleSize
-    }
-
-    fun setButtonTextSize(buttonTextSize: Float) {
-        mButtonTextSize = buttonTextSize
-    }
-
-    fun setButtonTextColor(buttonTextColor: Int) {
-        mButtonTextColor = buttonTextColor
-    }
-
-    fun setDestructiveButtonTextColor(destructiveButtonTextColor: Int) {
-        mDestructiveButtonTextColor = destructiveButtonTextColor
-    }
-
-    fun setDisableButtonTextColor(disableButtonTextColor: Int) {
-        mDisableButtonTextColor = disableButtonTextColor
-    }
-
-    fun setDividerHeight(dividerHeight: Int) {
-        mDividerHeight = dividerHeight
-    }
-
-    fun setContentMinHeight(contentMinHeight: Int) {
-        mContentMinHeight = contentMinHeight
-    }
-
-    fun setDestructiveButtonBackgroundColor(destructiveButtonBackgroundColor: Int) {
-        mDestructiveButtonBackgroundColor = destructiveButtonBackgroundColor
-    }
-
-    fun setDestructiveHighlightedButtonBackgroundColor(
-        destructiveHighlightedButtonBackgroundColor: Int
-    ) {
-        mDestructiveHighlightedButtonBackgroundColor = destructiveHighlightedButtonBackgroundColor
-    }
-
-    fun setDestructivePosition(destructivePosition: Int) {
-        mDestructivePosition = destructivePosition
-    }
-
-    fun setTitle(title: String?) {
-        mTitle = title
-    }
-
-    fun setSubtitle(subtitle: String?) {
-        mSubtitle = subtitle
-    }
-
-    fun setIcon(icon: Drawable?) {
-        mIcon = icon
-    }
-
-    fun setButtonTitles(buttonTitles: Array<String>) {
-        mButtonTitles = buttonTitles
-    }
-
-    fun setShouldDismissAfterClickItem(shouldDismissAfterClickItem: Boolean) {
-        mShouldDismissAfterClickItem = shouldDismissAfterClickItem
-    }
-
-    fun setShouldMeasureContentHeight(shouldMeasureContentHeight: Boolean) {
-        mShouldMeasureContentHeight = shouldMeasureContentHeight
-    }
-
-    fun setOnItemClickListener(onItemClickListener: OnItemClickListener?) {
-        mOnItemClickListener = onItemClickListener
-    }
-
-    fun setAlertUIHandler(alertUIHandler: AlertUIHandler?) {
-        mAlertUIHandler = alertUIHandler
-    }
-
-    fun getContentView(): View? {
-        return mContentView
-    }
-
-    fun getLogoImageView(): ImageView? {
-        return mLogoImageView
-    }
-
-    fun getTitleTextView(): TextView? {
-        return mTitleTextView
-    }
-
-    fun getSubtitleTextView(): TextView? {
-        return mSubtitleTextView
-    }
-
-    fun getCancelTextView(): TextView? {
-        return mCancelTextView
-    }
-
-    fun getTopContainer(): LinearLayout? {
-        return mTopContainer
-    }
-
-    fun getRecyclerView(): RecyclerView? {
-        return mRecyclerView
+        return _contentView
     }
 
     //初始化视图
-    private fun initView() {
-        if ((mButtonTitles == null || mButtonTitles!!.size == 0) && mStyle == STYLE_ALERT) {
-            mButtonTitles = arrayOf("确定")
+    private fun initViews() {
+
+        if ((_buttonTitles == null || _buttonTitles!!.isEmpty()) && _style == AlertStyle.ALERT) {
+            _buttonTitles = arrayOf("确定")
         }
-        if (mIcon != null) {
-            mLogoImageView.setImageDrawable(mIcon)
-            mLogoImageView.setPadding(0, mContentVerticalSpace, 0, 0)
+
+        if (_icon != null) {
+            logoImageView.setImageDrawable(_icon)
+            logoImageView.setPadding(0, props.contentVerticalSpace, 0, 0)
         } else {
-            mLogoImageView.setVisibility(View.GONE)
+            logoImageView.visibility = View.GONE
         }
-        if (mTitle == null) {
-            mTitleTextView!!.visibility = View.GONE
+
+        if (_title == null) {
+            titleTextView.visibility = View.GONE
         } else {
-            mTitleTextView!!.setTextColor(mTitleColor)
-            mTitleTextView!!.textSize = mTitleSize
-            mTitleTextView!!.text = mTitle
-            mTitleTextView!!.setPadding(0, mContentVerticalSpace, 0, 0)
+            titleTextView.setTextColor(props.titleColor)
+            titleTextView.textSize = props.titleSize
+            titleTextView.text = _title
+            titleTextView.setPadding(0, props.contentVerticalSpace, 0, 0)
         }
-        if (mSubtitle == null) {
-            mSubtitleTextView!!.visibility = View.GONE
+
+        if (_subtitle == null) {
+            subtitleTextView.visibility = View.GONE
         } else {
-            mSubtitleTextView!!.setTextColor(mSubtitleColor)
-            mSubtitleTextView!!.textSize = mSubtitleSize
-            mSubtitleTextView!!.text = mSubtitle
-            mSubtitleTextView!!.setPadding(0, mContentVerticalSpace, 0, 0)
+            subtitleTextView.setTextColor(props.subtitleColor)
+            subtitleTextView.textSize = props.subtitleSize
+            subtitleTextView.text = _subtitle
+            subtitleTextView.setPadding(0, props.contentVerticalSpace, 0, 0)
         }
+
         //actionSheet 样式不一样
-        if (mStyle == STYLE_ACTION_SHEET) {
-            mCancelTextView!!.setOnClickListener(this)
-            mCancelTextView!!.textSize = mButtonTextSize
-            mCancelTextView!!.setTextColor(mButtonTextColor)
-            mCancelTextView!!.setPadding(
-                mButtonLeftRightPadding, mButtonTopBottomPadding,
-                mButtonLeftRightPadding, mButtonTopBottomPadding
+        if (_style == AlertStyle.ACTION_SHEET) {
+            cancelTextView.setOnClickListener(this)
+            cancelTextView.textSize = props.buttonTextSize
+            cancelTextView.setTextColor(props.buttonTextColor)
+            cancelTextView.setPadding(
+                props.buttonLeftRightPadding, props.buttonTopBottomPadding,
+                props.buttonLeftRightPadding, props.buttonTopBottomPadding
             )
-            setBackground(mTopContainer)
-            setBackgroundSelector(mCancelTextView)
-            mTopTransparentView = mContentView.findViewById(R.id.top_tranparent_view)
-            mTopTransparentView.setOnClickListener(this)
+            setBackground(topContainer)
+            setBackgroundSelector(cancelTextView)
+            topTransparentView.setOnClickListener(this)
             val has = hasTopContent()
+
             //隐藏顶部分割线 没有按钮也隐藏
-            if (!has || mButtonTitles!!.size == 0) {
-                mContentDivider.setVisibility(View.GONE)
+            if (!has || _buttonTitles == null || _buttonTitles!!.isEmpty()) {
+                divider.visibility = View.GONE
             }
-            val top = if (has) mContentPadding - mContentVerticalSpace else 0
-            val bottom = if (has) mContentPadding else 0
-            mScrollContainer!!.setPadding(0, top, 0, bottom)
+            val top = if (has) props.contentPadding - props.contentVerticalSpace else 0
+            val bottom = if (has) props.contentPadding else 0
+            scrollContainer.setPadding(0, top, 0, bottom)
         } else {
-            mScrollContainer!!.setPadding(
-                0,
-                mContentPadding - mContentVerticalSpace,
-                0,
-                mContentPadding
-            )
-            mContentView.setBackgroundColor(mDialogBackgroundColor)
-            setBackground(mContentView)
+            scrollContainer.setPadding(0, props.contentPadding - props.contentVerticalSpace, 0, props.contentPadding)
+            _contentView!!.setBackgroundColor(props.backgroundColor)
+            setBackground(_contentView!!)
         }
-        if (mShouldMeasureContentHeight || mContentMinHeight > 0) {
+
+        if (shouldMeasureContentHeight || props.contentMinHeight > 0) {
             measureContentHeight()
         }
-        val spanCount = if (mButtonTitles!!.size != 2 || mStyle == STYLE_ACTION_SHEET) 1 else 2
-        val layoutManager = GridLayoutManager(mContext, spanCount)
+        val spanCount = if (_buttonTitles?.size != 2 || _style == AlertStyle.ACTION_SHEET) 1 else 2
+        val layoutManager = GridLayoutManager(context, spanCount)
         layoutManager.orientation = GridLayoutManager.VERTICAL
-        mRecyclerView!!.layoutManager = layoutManager
-        if (mButtonTitles!!.size > 1) { //添加分割线
-            mRecyclerView!!.addItemDecoration(ItemDecoration())
+        recyclerView.layoutManager = layoutManager
+
+        if (_buttonTitles != null && _buttonTitles!!.size > 1) { //添加分割线
+            recyclerView!!.addItemDecoration(ItemDecoration())
         }
-        mRecyclerView!!.adapter = Adapter()
-        mDialog = Dialog(mContext, R.style.Theme_dialog_noTitle_noBackground)
-        mDialog.setOnDismissListener(this)
-        mDialog.setContentView(mContentView)
+
+        recyclerView.adapter = Adapter()
+
+        setStyle(STYLE_NORMAL, R.style.Theme_dialog_noTitle_noBackground)
+
         //设置弹窗大小
-        val window: Window = mDialog.getWindow()
-        val layoutParams: WindowManager.LayoutParams = window.getAttributes()
-        layoutParams.gravity = if (mStyle == STYLE_ALERT) Gravity.CENTER else Gravity.BOTTOM
-        layoutParams.width = getContentViewWidth()
-        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT
-        when (mStyle) {
-            STYLE_ACTION_SHEET -> {
-                window.getDecorView()
-                    .setPadding(mDialogPadding, mDialogPadding, mDialogPadding, mDialogPadding)
-                window.setWindowAnimations(R.style.action_sheet_animate)
-                mDialog.setCancelable(true)
-                mDialog.setCanceledOnTouchOutside(true)
+        val window = dialog?.window
+        if(window != null){
+            val layoutParams = window.attributes
+            layoutParams.gravity = if (_style == AlertStyle.ALERT) Gravity.CENTER else Gravity.BOTTOM
+            layoutParams.width = getContentViewWidth()
+            layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT
+            when (_style) {
+                AlertStyle.ACTION_SHEET -> {
+                    window.decorView.setPadding(props.dialogPadding, props.dialogPadding, props.dialogPadding, props.dialogPadding)
+                    window.setWindowAnimations(R.style.action_sheet_animate)
+                    isCancelable = true
+                    dialog?.setCanceledOnTouchOutside(true)
+                }
+                AlertStyle.ALERT -> {
+                    window.decorView.setPadding(0, props.dialogPadding, 0, props.dialogPadding)
+                    isCancelable = false
+                    dialog?.setCanceledOnTouchOutside(false)
+                }
             }
-            STYLE_ALERT -> {
-                window.getDecorView().setPadding(0, mDialogPadding, 0, mDialogPadding)
-                mDialog.setCancelable(false)
-                mDialog.setCanceledOnTouchOutside(false)
-            }
+            window.attributes = layoutParams
         }
-        window.setAttributes(layoutParams)
     }
 
     //计算内容高度
     private fun measureContentHeight() { //按钮内容高度
+
         var buttonContentHeight = 0
+
         //顶部内容高度
         var topContentHeight = 0
+
         //取消按钮高度 STYLE_ALERT 为 0
         var cancelButtonHeight = 0
+
         //图标高度
-        if (mIcon != null) {
-            topContentHeight += mIcon!!.intrinsicHeight
-            topContentHeight += mContentVerticalSpace
+        if (_icon != null) {
+            topContentHeight += _icon!!.intrinsicHeight
+            topContentHeight += props.contentVerticalSpace
         }
+
         val contentWidth = getContentViewWidth()
-        if (mTitle != null || mSubtitle != null) { //标题高度
-            if (mTitle != null) {
-                topContentHeight += mContentVerticalSpace
-                val params =
-                    mTitleTextView!!.layoutParams as LinearLayout.LayoutParams
+        if (_title != null || _subtitle != null) { //标题高度
+            if (_title != null) {
+                topContentHeight += props.contentVerticalSpace
+                val params = subtitleTextView.layoutParams as LinearLayout.LayoutParams
                 val maxWidth = contentWidth - params.leftMargin - params.rightMargin
-                topContentHeight += StringUtil.measureTextHeight(
-                    mTitle,
-                    mTitleTextView!!.paint,
-                    maxWidth
-                )
+                topContentHeight += StringUtils.measureTextHeight(_title, titleTextView.paint, maxWidth)
             }
+
             //副标题高度
-            if (mSubtitle != null) {
-                topContentHeight += mContentVerticalSpace
-                val params =
-                    mSubtitleTextView!!.layoutParams as LinearLayout.LayoutParams
+            if (_subtitle != null) {
+                topContentHeight += props.contentVerticalSpace
+                val params = subtitleTextView.layoutParams as LinearLayout.LayoutParams
                 val maxWidth = contentWidth - params.leftMargin - params.rightMargin
-                topContentHeight += StringUtil.measureTextHeight(
-                    mSubtitle,
-                    mSubtitleTextView!!.paint,
-                    maxWidth
-                )
+                topContentHeight += StringUtils.measureTextHeight(_subtitle, subtitleTextView.paint, maxWidth)
             }
         }
+
         //内容高度不够
-        if (mIcon != null || mTitle != null || mSubtitle != null) {
-            if (topContentHeight < mContentMinHeight) {
-                val res = mContentMinHeight - topContentHeight
-                val top = mContentPadding - mContentVerticalSpace + res / 2
-                val bottom = mContentPadding + res / 2
-                mScrollContainer!!.setPadding(0, top, 0, bottom)
+        if (_icon != null || _title != null || _subtitle != null) {
+            if (topContentHeight < props.contentMinHeight) {
+                val res = props.contentMinHeight - topContentHeight
+                val top = props.contentPadding - props.contentVerticalSpace + res / 2
+                val bottom = props.contentPadding + res / 2
+                scrollContainer.setPadding(0, top, 0, bottom)
             }
         }
-        val maxWidth = contentWidth - mButtonLeftRightPadding * 2
-        when (mStyle) {
-            STYLE_ACTION_SHEET -> {
+
+        val maxWidth = contentWidth - props.buttonLeftRightPadding * 2
+        when (_style) {
+            AlertStyle.ACTION_SHEET -> {
                 if (hasTopContent()) {
-                    topContentHeight += mContentPadding * 2 - mContentVerticalSpace
+                    topContentHeight += props.contentPadding * 2 - props.contentVerticalSpace
                 }
-                if (mButtonTitles!!.size > 0) {
-                    val textView =
-                        View.inflate(mContext, R.layout.alert_button_item, null) as TextView
-                    textView.textSize = mButtonTextSize
+                if (_buttonTitles != null && _buttonTitles!!.isNotEmpty()) {
+
+                    val textView = View.inflate(context, R.layout.alert_button_item, null) as TextView
+                    textView.textSize = props.buttonTextSize
                     var i = 0
-                    while (i < mButtonTitles!!.size) {
-                        val title = mButtonTitles!![i]
-                        buttonContentHeight += StringUtil.measureTextHeight(
-                            title, textView.paint,
-                            maxWidth
-                        ) + mButtonTopBottomPadding * 2 + mDividerHeight
+                    while (i < _buttonTitles!!.size) {
+                        val title = _buttonTitles!![i]
+                        buttonContentHeight += StringUtils.measureTextHeight(title, textView.paint, maxWidth)
+                        + props.buttonTopBottomPadding * 2 + props.dividerHeight
                         i++
                     }
-                    buttonContentHeight -= mDividerHeight
+                    buttonContentHeight -= props.dividerHeight
                 }
+
                 //取消按钮高度
-                cancelButtonHeight += StringUtil.measureTextHeight(
-                    mCancelTextView!!.text, mCancelTextView
-                        .getPaint(), maxWidth
-                ) + mButtonTopBottomPadding * 2 + mDialogPadding
+                cancelButtonHeight += StringUtils.measureTextHeight(cancelTextView.text, cancelTextView.paint, maxWidth)
+                + props.buttonTopBottomPadding * 2 + props.dialogPadding
             }
-            STYLE_ALERT -> {
-                topContentHeight += mContentPadding * 2 - mContentVerticalSpace
-                val textView =
-                    View.inflate(mContext, R.layout.alert_button_item, null) as TextView
-                textView.textSize = mButtonTextSize
-                var i = 0
-                while (i < mButtonTitles!!.size) {
-                    val title = mButtonTitles!![i]
-                    buttonContentHeight += StringUtil.measureTextHeight(
-                        title, textView.paint,
-                        maxWidth
-                    ) + mButtonTopBottomPadding * 2 + mDividerHeight
-                    if (mButtonTitles!!.size <= 2) break
-                    i++
+            AlertStyle.ALERT -> {
+                topContentHeight += props.contentPadding * 2 - props.contentVerticalSpace
+                val textView = View.inflate(context, R.layout.alert_button_item, null) as TextView
+                textView.textSize = props.buttonTextSize
+
+                if(_buttonTitles != null){
+                    var i = 0
+                    while (i < _buttonTitles!!.size) {
+                        val title = _buttonTitles!![i]
+                        buttonContentHeight += StringUtils.measureTextHeight(
+                            title, textView.paint,
+                            maxWidth
+                        ) + props.buttonTopBottomPadding * 2 + props.dividerHeight
+                        if (_buttonTitles!!.size <= 2) break
+                        i++
+                    }
                 }
                 if (buttonContentHeight > 0) {
-                    buttonContentHeight -= mDividerHeight
+                    buttonContentHeight -= props.dividerHeight
                 }
             }
         }
-        var maxHeight: Int =
-            mContext.getResources().getDisplayMetrics().heightPixels - mDialogPadding * 2 -
-                    cancelButtonHeight - mScrollContainer!!.paddingBottom - mScrollContainer!!.paddingTop
-        if (mContentDivider.getVisibility() === View.VISIBLE) {
-            maxHeight -= mDividerHeight
+        var maxHeight = SizeUtils.getWindowHeight(context!!) - props.dialogPadding * 2 -
+                    cancelButtonHeight - scrollContainer.paddingBottom - scrollContainer.paddingTop
+        if (divider.visibility == View.VISIBLE) {
+            maxHeight -= props.dividerHeight
         }
         if (topContentHeight + buttonContentHeight > maxHeight) { //内容太多了
             val half = maxHeight / 2
-            if (topContentHeight > half && buttonContentHeight < half) {
-                setScrollViewHeight(maxHeight - buttonContentHeight)
-            } else if (topContentHeight < half && buttonContentHeight > half) {
-                setRecyclerViewHeight(maxHeight - topContentHeight)
-            } else {
-                setRecyclerViewHeight(half)
-                setScrollViewHeight(half)
+            when(half){
+                in (buttonContentHeight + 1) until topContentHeight -> {
+
+                    setScrollViewHeight(maxHeight - buttonContentHeight)
+                }
+                in (topContentHeight + 1) until buttonContentHeight -> {
+
+                    setRecyclerViewHeight(maxHeight - topContentHeight)
+                }
+                else -> {
+                    setRecyclerViewHeight(half)
+                    setScrollViewHeight(half)
+                }
             }
         }
     }
 
     //设置scrollview
     private fun setScrollViewHeight(height: Int) {
-        val params = mScrollView!!.layoutParams
+        val params = scrollView.layoutParams
         params.height = height
-        mScrollView!!.layoutParams = params
+        scrollView.layoutParams = params
     }
 
     //设置recyclerView
     private fun setRecyclerViewHeight(height: Int) {
-        val params = mRecyclerView!!.layoutParams
+        val params = recyclerView.layoutParams
         params.height = height
-        mRecyclerView!!.layoutParams = params
-    }
-
-    //显示弹窗
-    fun show() {
-        if (mDialog == null) {
-            initView()
-        }
-        if (!mDialog.isShowing()) {
-            mDialog.show()
-        }
-    }
-
-    //隐藏弹窗
-    override fun dismiss() {
-        if (mDialog.isShowing()) {
-            mDialog.dismiss()
-        }
+        recyclerView.layoutParams = params
     }
 
     fun onDismiss(dialog: DialogInterface?) {
@@ -698,15 +576,18 @@ class AlertDialogFragment: BaseDialogFragment() {
         fun onItemClick(controller: AlertController?, index: Int)
     }
 
-    //弹窗UI回调
-    interface AlertUIHandler {
+    //弹窗适配器
+    interface AlertDialogAdapter {
+
         //弹窗消失
-        fun onDismiss(controller: AlertController?)
+        fun onDismiss(fragment: AlertDialogFragment){}
 
         //该按钮是否具有警示意义 从左到右，从上到下
-        fun shouldDestructive(controller: AlertController?, index: Int): Boolean
+        fun shouldDestructive(fragment: AlertDialogFragment, position: Int): Boolean{
+            return false
+        }
 
         //该按钮是否可以点击 从左到右，从上到下
-        fun shouldEnable(controller: AlertController?, index: Int): Boolean
+        fun shouldEnable(fragment: AlertDialogFragment, position: Int): Boolean
     }
 }
