@@ -1,18 +1,15 @@
 package com.lhx.glakit.dialog
 
 import android.content.Context
-import android.content.DialogInterface
+import android.graphics.Canvas
+import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
-import android.os.Handler
 import android.view.*
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -21,6 +18,7 @@ import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
+import com.lhx.glakit.utils.ViewUtils
 import kotlinx.android.synthetic.main.action_sheet_dialog.*
 import kotlinx.android.synthetic.main.alert_dialog.*
 
@@ -28,7 +26,11 @@ import kotlinx.android.synthetic.main.alert_dialog.*
 /**
  * 信息弹窗fragment
  */
-class AlertDialogFragment: BaseDialogFragment {
+class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
+                          title: String?,
+                          subtitle: String?,
+                          icon: Drawable?,
+                          buttonTitles: Array<String>): BaseDialogFragment(), View.OnClickListener{
 
     //关闭dialog
     private val dismissDialogWhat = 1
@@ -66,16 +68,13 @@ class AlertDialogFragment: BaseDialogFragment {
     //点击事件回调
     var onItemClickListener: OnItemClickListener? = null
 
-    //UI回调
-    var alertUIHandler: AlertUIHandler? = null
+    //适配器
+    var adapter: AlertDialogAdapter? = null
 
     //是否需要计算内容高度 当内容或者按钮数量过多时可设置，防止内容显示不完
     var shouldMeasureContentHeight = false
 
-    //用于延迟操作
-    private var mHandler: Handler? = null
-
-    constructor(@AlertStyle.Style style: Int, title: String?, subtitle: String?, icon: Drawable?, buttonTitles: Array<String>){
+    init {
 
         _style = style
         _title = title
@@ -92,17 +91,17 @@ class AlertDialogFragment: BaseDialogFragment {
         }
     }
 
-    override fun onCreateView(
+    override fun getContentView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         if(_contentView != null){
             _contentView = inflater.inflate(if (_style == AlertStyle.ALERT) R.layout.alert_dialog else R.layout.action_sheet_dialog, container, false)
             initViews()
         }
 
-        return _contentView
+        return _contentView!!
     }
 
     //初始化视图
@@ -301,8 +300,7 @@ class AlertDialogFragment: BaseDialogFragment {
             maxHeight -= props.dividerHeight
         }
         if (topContentHeight + buttonContentHeight > maxHeight) { //内容太多了
-            val half = maxHeight / 2
-            when(half){
+            when(maxHeight / 2){
                 in (buttonContentHeight + 1) until topContentHeight -> {
 
                     setScrollViewHeight(maxHeight - buttonContentHeight)
@@ -312,8 +310,8 @@ class AlertDialogFragment: BaseDialogFragment {
                     setRecyclerViewHeight(maxHeight - topContentHeight)
                 }
                 else -> {
-                    setRecyclerViewHeight(half)
-                    setScrollViewHeight(half)
+                    setRecyclerViewHeight(maxHeight / 2)
+                    setScrollViewHeight(maxHeight / 2)
                 }
             }
         }
@@ -333,149 +331,140 @@ class AlertDialogFragment: BaseDialogFragment {
         recyclerView.layoutParams = params
     }
 
-    fun onDismiss(dialog: DialogInterface?) {
-        if (mAlertUIHandler != null) {
-            mAlertUIHandler!!.onDismiss(this)
-        }
-    }
-
-    fun onClick(v: View) {
-        if (v === mCancelTextView || v === mTopTransparentView) {
+    override fun onClick(v: View?) {
+        if (v == cancelTextView || v == topTransparentView) {
             dismiss()
         }
     }
 
     //获取内容视图宽度
     private fun getContentViewWidth(): Int {
-        when (mStyle) {
-            STYLE_ALERT -> return SizeUtil.pxFormDip(280, mContext)
-            STYLE_ACTION_SHEET -> return mContext.getResources().getDisplayMetrics().widthPixels
+        when (_style) {
+            AlertStyle.ALERT -> return SizeUtils.pxFormDip(280f, context!!)
+            AlertStyle.ACTION_SHEET -> return SizeUtils.getWindowWidth(context!!)
         }
         return 0
     }
 
     //是否有头部内容
     private fun hasTopContent(): Boolean {
-        return mTitle != null || mSubtitle != null || mIcon != null
+        return _title != null || _subtitle != null || _icon != null
     }
 
     //设置背景
     private fun setBackground(view: View?) {
         val drawable = CornerBorderDrawable()
-        drawable.setCornerRadius(mCornerRadius)
-        drawable.backgroundColor = mDialogBackgroundColor
-        drawable.attachView(view, false)
+        drawable.setCornerRadius(props.cornerRadius)
+        drawable.backgroundColor = props.backgroundColor
+        drawable.attachView(view)
     }
 
     //设置点击效果
-    private fun setBackgroundSelector(view: View?): Array<CornerBorderDrawable>? {
-        val stateListDrawable =
-            StateListDrawable()
+    private fun setBackgroundSelector(view: View): Array<CornerBorderDrawable> {
+        val stateListDrawable = StateListDrawable()
+
         val drawablePressed = CornerBorderDrawable()
-        drawablePressed.setCornerRadius(mCornerRadius)
-        drawablePressed.backgroundColor = mHighlightBackgroundColor
-        stateListDrawable.addState(intArrayOf(R.attr.state_pressed), drawablePressed)
+        drawablePressed.setCornerRadius(props.cornerRadius)
+        drawablePressed.backgroundColor = props.selectedBackgroundColor
+        stateListDrawable.addState(intArrayOf(android.R.attr.state_pressed), drawablePressed)
+
         val drawable = CornerBorderDrawable()
-        drawable.setCornerRadius(mCornerRadius)
-        drawable.backgroundColor = mDialogBackgroundColor
+        drawable.setCornerRadius(props.cornerRadius)
+        drawable.backgroundColor = props.backgroundColor
         stateListDrawable.addState(intArrayOf(), drawable)
-        view.setClickable(true)
-        ViewUtil.setBackground(stateListDrawable, view)
+
+        view.isClickable = true
+        ViewUtils.setBackground(stateListDrawable, view)
         return arrayOf(drawablePressed, drawable)
     }
 
-    fun getHandler(): Handler? {
-        if (mHandler == null) {
-            mHandler = Handler(object : Callback() {
-                fun handleMessage(msg: Message): Boolean {
-                    when (msg.what) {
-                        DISMISS_DIALOG -> {
-                            val bundle: Bundle = msg.getData()
-                            if (mOnItemClickListener != null) {
-                                mOnItemClickListener!!.onItemClick(
-                                    this@AlertController,
-                                    bundle.getInt(POSITION)
-                                )
-                            }
-                        }
-                    }
-                    return true
-                }
-            })
-        }
-        return mHandler
-    }
-
     //按钮列表适配器
-    private class Adapter : RecyclerView.Adapter<ViewHolder>() {
+    private inner class Adapter : RecyclerView.Adapter<ViewHolder>() {
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val holder =
-                ViewHolder(View.inflate(mContext, R.layout.alert_button_item, null))
+
+            val itemView = View.inflate(context, R.layout.alert_button_item, null)
+            val holder = ViewHolder(itemView, setBackgroundSelector(itemView))
             holder.itemView.setOnClickListener(object : OnSingleClickListener() {
-                fun onSingleClick(v: View?) {
-                    if (mShouldDismissAfterClickItem) {
+
+                override fun onSingleClick(v: View?) {
+
+                    if (shouldDismissAfterClickItem) {
+                        if(onItemClickListener != null){
+                            addOnDismissHandler(object : OnDismissHandler{
+                                override fun onDismiss(dialogFragment: BaseDialogFragment) {
+
+                                    onItemClickListener!!.onItemClick(
+                                        this@AlertDialogFragment,
+                                        holder.adapterPosition
+                                    )
+                                }
+                            })
+                        }
                         dismiss()
-                        val bundle = Bundle()
-                        bundle.putInt(POSITION, holder.adapterPosition)
-                        val message: Message = getHandler().obtainMessage()
-                        message.what = DISMISS_DIALOG
-                        message.setData(bundle)
-                        getHandler().sendMessageDelayed(message, 200)
                     } else {
-                        if (mOnItemClickListener != null) {
-                            mOnItemClickListener.onItemClick(
-                                this@AlertController,
+                        if (onItemClickListener != null) {
+                            onItemClickListener!!.onItemClick(
+                                this@AlertDialogFragment,
                                 holder.adapterPosition
                             )
                         }
                     }
                 }
             })
-            holder.textView.textSize = mButtonTextSize
+            holder.textView.textSize = props.buttonTextSize
             holder.textView.setPadding(
-                mButtonLeftRightPadding, mButtonTopBottomPadding,
-                mButtonLeftRightPadding, mButtonTopBottomPadding
+                props.buttonLeftRightPadding, props.buttonTopBottomPadding,
+                props.buttonLeftRightPadding, props.buttonTopBottomPadding
             )
             return holder
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.textView.setText(mButtonTitles.get(position))
-            var color: Int = mButtonTextColor
-            var backgroundColor: Int = mDialogBackgroundColor
-            var pressedBackgroundColor: Int = mHighlightBackgroundColor
+
+            holder.textView.text = _buttonTitles!![position]
+
+            var color = props.buttonTextColor
+            var backgroundColor = props.backgroundColor
+            var pressedBackgroundColor = props.selectedBackgroundColor
             var enable = true
+
             //刷新UI
-            if (mAlertUIHandler != null) {
-                if (!mAlertUIHandler.shouldEnable(this@AlertController, position)) {
-                    color = mDisableButtonTextColor
+            if (adapter != null) {
+                if (!adapter!!.shouldEnable(this@AlertDialogFragment, position)) {
+
+                    color = props.buttonDisableTextColor
                     enable = false
-                } else if (mAlertUIHandler.shouldDestructive(this@AlertController, position)) {
-                    color = mDestructiveButtonTextColor
-                    backgroundColor = mDestructiveButtonBackgroundColor
-                    pressedBackgroundColor = mDestructiveHighlightedButtonBackgroundColor
+                } else if (adapter!!.shouldDestructive(this@AlertDialogFragment, position)) {
+
+                    color = props.destructiveButtonTextColor
+                    backgroundColor = props.destructiveButtonBackgroundColor
+                    pressedBackgroundColor = props.destructiveButtonSelectedBackgroundColor
                 }
-            } else if (position == mDestructivePosition) {
-                color = mDestructiveButtonTextColor
-                backgroundColor = mDestructiveButtonBackgroundColor
-                pressedBackgroundColor = mDestructiveHighlightedButtonBackgroundColor
             }
+
             holder.itemView.isEnabled = enable
             holder.textView.setTextColor(color)
             holder.drawable.backgroundColor = backgroundColor
             holder.drawablePressed.backgroundColor = pressedBackgroundColor
+
             //设置点击效果
-            if (mStyle == STYLE_ACTION_SHEET || mButtonTitles.size != 2) { //垂直
-                if (mButtonTitles.size == 1 && mStyle == STYLE_ACTION_SHEET && !hasTopContent()) {
-                    holder.drawablePressed.setCornerRadius(mCornerRadius)
-                    holder.drawable.setCornerRadius(mCornerRadius)
+            if (_style == AlertStyle.ACTION_SHEET || _buttonTitles!!.size != 2) { //垂直
+
+                if (_buttonTitles!!.size == 1 && _style == AlertStyle.ALERT && !hasTopContent()) {
+
+                    holder.drawablePressed.setCornerRadius(props.cornerRadius)
+                    holder.drawable.setCornerRadius(props.cornerRadius)
+
                 } else {
-                    if (position == 0 && !hasTopContent() && mStyle == STYLE_ACTION_SHEET) {
-                        holder.drawablePressed.setCornerRadius(mCornerRadius, 0, mCornerRadius, 0)
-                        holder.drawable.setCornerRadius(mCornerRadius, 0, mCornerRadius, 0)
-                    } else if (position == mButtonTitles.size - 1) {
-                        holder.drawablePressed.setCornerRadius(0, mCornerRadius, 0, mCornerRadius)
-                        holder.drawable.setCornerRadius(0, mCornerRadius, 0, mCornerRadius)
+                    if (position == 0 && !hasTopContent() && _style == AlertStyle.ACTION_SHEET) {
+
+                        holder.drawablePressed.setCornerRadius(props.cornerRadius, 0, props.cornerRadius, 0)
+                        holder.drawable.setCornerRadius(props.cornerRadius, 0, props.cornerRadius, 0)
+                    } else if (position == _buttonTitles!!.size - 1) {
+
+                        holder.drawablePressed.setCornerRadius(0, props.cornerRadius, 0, props.cornerRadius)
+                        holder.drawable.setCornerRadius(0, props.cornerRadius, 0, props.cornerRadius)
                     } else {
                         holder.drawablePressed.setCornerRadius(0)
                         holder.drawable.setCornerRadius(0)
@@ -483,104 +472,94 @@ class AlertDialogFragment: BaseDialogFragment {
                 }
             } else { //水平
                 if (position == 0) {
-                    holder.drawablePressed.setCornerRadius(0, mCornerRadius, 0, 0)
-                    holder.drawable.setCornerRadius(0, mCornerRadius, 0, 0)
+
+                    holder.drawablePressed.setCornerRadius(0, props.cornerRadius, 0, 0)
+                    holder.drawable.setCornerRadius(0, props.cornerRadius, 0, 0)
                 } else {
-                    holder.drawablePressed.setCornerRadius(0, 0, 0, mCornerRadius)
-                    holder.drawable.setCornerRadius(0, 0, 0, mCornerRadius)
+
+                    holder.drawablePressed.setCornerRadius(0, 0, 0, props.cornerRadius)
+                    holder.drawable.setCornerRadius(0, 0, 0, props.cornerRadius)
                 }
             }
         }
 
         override fun getItemCount(): Int {
-            return if (mButtonTitles != null) mButtonTitles.size else 0
+            return if (_buttonTitles != null) _buttonTitles!!.size else 0
         }
     }
 
     //弹窗按钮
-    private class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var textView: TextView
-        var drawable: CornerBorderDrawable
-        var drawablePressed: CornerBorderDrawable
+    private class ViewHolder(itemView: View, drawables: Array<CornerBorderDrawable>) : RecyclerView.ViewHolder(itemView) {
+        val textView: TextView
+        get(){
+            return itemView as TextView
+        }
+        var drawable: CornerBorderDrawable = drawables[1]
+        var drawablePressed: CornerBorderDrawable = drawables[0]
 
         init {
-            textView = itemView
-            val drawables: Array<CornerBorderDrawable> = setBackgroundSelector(itemView)
-            drawablePressed = drawables[0]
             drawablePressed.setCornerRadius(0)
-            drawable = drawables[1]
             drawable.setCornerRadius(0)
         }
     }
 
     //按钮分割线
-    private class ItemDecoration internal constructor() : RecyclerView.ItemDecoration() {
+    private inner class ItemDecoration internal constructor() : RecyclerView.ItemDecoration() {
         ///分割线
-        var mDivider: Drawable
+        var divider = ColorDrawable(ContextCompat.getColor(context!!, R.color.divider_color))
 
-        fun onDraw(c: Canvas?, parent: RecyclerView, state: RecyclerView.State?) {
-            super.onDraw(c, parent, state!!)
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            super.onDraw(c, parent, state)
+
             //绘制按钮分割线
             val count = parent.childCount
             for (i in 0 until count) {
                 val child: View = parent.getChildAt(i)
                 val position = parent.getChildAdapterPosition(child)
-                if (position < mButtonTitles.size - 1) { //垂直排列
-                    if (mStyle == STYLE_ACTION_SHEET || mButtonTitles.size != 2) {
-                        mDivider.setBounds(
+                if (position < _buttonTitles!!.size - 1) { //垂直排列
+                    if (_style == AlertStyle.ACTION_SHEET || _buttonTitles!!.size != 2) {
+                        divider.setBounds(
                             0,
-                            child.getBottom(),
-                            child.getRight(),
-                            child.getBottom() + mDividerHeight
+                            child.bottom,
+                            child.right,
+                            child.bottom + props.dividerHeight
                         )
                     } else { //水平排列
-                        mDivider.setBounds(
-                            child.getRight(),
+                        divider.setBounds(
+                            child.right,
                             0,
-                            child.getRight() + mDividerHeight,
-                            child.getBottom()
+                            child.right + props.dividerHeight,
+                            child.bottom
                         )
                     }
-                    mDivider.draw(c)
+                    divider.draw(c)
                 }
             }
         }
 
-        fun getItemOffsets(
-            outRect: Rect,
-            view: View?,
-            parent: RecyclerView,
-            state: RecyclerView.State?
-        ) { //设置item的偏移量 大小为item+分割线
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+
+            //设置item的偏移量 大小为item+分割线
             val position = parent.getChildAdapterPosition(view)
-            if (position < mButtonTitles.size - 1) {
-                if (mStyle == STYLE_ACTION_SHEET || mButtonTitles.size != 2) { //垂直排列
-                    outRect.bottom = mDividerHeight
+            if (position < _buttonTitles!!.size - 1) {
+                if (_style == AlertStyle.ACTION_SHEET || _buttonTitles!!.size != 2) { //垂直排列
+                    outRect.bottom = props.dividerHeight
                 } else { //水平
-                    outRect.right = mDividerHeight
+                    outRect.right = props.dividerHeight
                 }
             }
-        }
-
-        ///构造方法
-        init {
-            val drawable = ColorDrawable()
-            drawable.color = ContextCompat.getColor(mContext, R.color.divider_color)
-            mDivider = drawable
         }
     }
 
     //弹窗按钮点击回调
     interface OnItemClickListener {
+
         //点击某个按钮 从左到右，从上到下
-        fun onItemClick(controller: AlertController?, index: Int)
+        fun onItemClick(fragment: AlertDialogFragment, position: Int)
     }
 
     //弹窗适配器
     interface AlertDialogAdapter {
-
-        //弹窗消失
-        fun onDismiss(fragment: AlertDialogFragment){}
 
         //该按钮是否具有警示意义 从左到右，从上到下
         fun shouldDestructive(fragment: AlertDialogFragment, position: Int): Boolean{

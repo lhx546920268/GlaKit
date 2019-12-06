@@ -59,6 +59,10 @@ class AlertProps {
     @ColorInt
     var buttonTextColor = 0
 
+    //无法点击的按钮字体颜色
+    @ColorInt
+    var buttonDisableTextColor = 0
+
     //警示按钮字体颜色 如删除
     @ColorInt
     var destructiveButtonTextColor = 0
@@ -69,11 +73,7 @@ class AlertProps {
 
     //警示按钮高亮背景颜色
     @ColorInt
-    var destructiveHighlightedButtonBackgroundColor = 0
-
-    //无法点击的按钮字体颜色
-    @ColorInt
-    var disableButtonTextColor = 0
+    var destructiveButtonSelectedBackgroundColor = 0
 
     //警示下标
     var destructivePosition = -1
@@ -96,9 +96,9 @@ class AlertProps {
             props.buttonTextColor = ContextCompat.getColor(context, R.color.alert_button_text_color)
             props.destructiveButtonTextColor = ContextCompat.getColor(context, R.color.alert_destructive_button_text_color)
             props.destructiveButtonBackgroundColor = ContextCompat.getColor(context, R.color.alert_destructive_button_background_color)
-            props.destructiveHighlightedButtonBackgroundColor = ContextCompat.getColor(context, R.color.alert_destructive_button_high_lighted_background_color)
+            props.destructiveButtonSelectedBackgroundColor = ContextCompat.getColor(context, R.color.alert_destructive_button_high_lighted_background_color)
 
-            props.disableButtonTextColor = ContextCompat.getColor(context, R.color.alert_disable_button_text_color)
+            props.buttonDisableTextColor = ContextCompat.getColor(context, R.color.alert_disable_button_text_color)
 
             props.dividerHeight = context.resources.getDimensionPixelSize(R.dimen.divider_height)
             props.cornerRadius = context.resources.getDimensionPixelSize(R.dimen.alert_corner_radius)
