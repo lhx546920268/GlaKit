@@ -20,6 +20,7 @@ import com.lhx.glakit.base.widget.BaseContainer
 /**
  * 基础fragment
  */
+@Suppress("unused_parameter")
 abstract class BaseFragment : Fragment(), BasePage {
 
     //容器
@@ -231,5 +232,6 @@ abstract class BaseFragment : Fragment(), BasePage {
     }
 
     //屏幕焦点改变
-    fun onWindowFocusChanged(hasFocus: Boolean) {}
+    fun onWindowFocusChanged(hasFocus: Boolean) {
+    }
 }

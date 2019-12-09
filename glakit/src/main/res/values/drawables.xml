@@ -10,4 +10,6 @@
     <!--  空视图图标  -->
     <drawable name="empty_icon"/>
 
+    <!--  回到顶部  -->
+    <drawable name="back_to_top_icon"/>
 </resources>

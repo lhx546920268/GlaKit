@@ -112,7 +112,7 @@ object CacheUtils {
         }
     }
 
-    fun <T> getObject(context: Context, key: String): T? {
+    inline fun <reified T> getObject(context: Context, key: String): T? {
         if (TextUtils.isEmpty(key))
             return null
 
@@ -124,7 +124,10 @@ object CacheUtils {
         var obj: T? = null
         try {
             val ois = ObjectInputStream(inputStream)
-            obj = ois.readObject() as T
+            val result = ois.readObject()
+            if(result is T){
+                obj = result
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }

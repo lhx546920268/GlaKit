@@ -1,10 +1,12 @@
 package com.lhx.glakit.pager
 
-import android.os.CountDownTimer
+import android.content.Context
+import android.view.View
 import android.view.View.OnAttachStateChangeListener
 import android.widget.Scroller
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import com.lhx.glakit.timer.CountDownTimer
 
 
 /**
@@ -12,11 +14,8 @@ import androidx.viewpager.widget.ViewPager.OnPageChangeListener
  */
 abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(viewPager), OnPageChangeListener {
 
-    //真实的数量
-    private var realCount = 0
-
     //需要移动到的位置
-    private var targetPosition = -1
+    private var _targetPosition = -1
 
     //是否要自动轮播
     var shouldAutoPlay = false
@@ -35,7 +34,7 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
     var autoPlayInterval = 5000
 
     //自动轮播计时器
-    private var mCountDownTimer: CountDownTimer? = null
+    private var _countDownTimer: CountDownTimer? = null
 
     //是否需要循环
     var shouldCycle = true
@@ -45,41 +44,8 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
             notifyDataSetChanged()
         }
     }
-    private var detachedFromWindow = false
-
-    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-
-    }
-
-    override fun onPageSelected(position: Int) {
-        if (shouldCycle) {
-            if (realCount > 1) {
-                if (position == 0) {
-                    targetPosition = realCount
-                } else if (position == realCount + 1) {
-                    targetPosition = 1
-                }
-            }
-        } else {
-            targetPosition = position
-        }
-    }
-
-    override fun onPageScrollStateChanged(state: Int) {
-
-        //当不是动画中改变当前显示view的位置
-        if (state != ViewPager.SCROLL_STATE_SETTLING && targetPosition != -1) {
-            viewPager.setCurrentItem(targetPosition, false)
-            targetPosition = -1
-        }
-
-        //用户滑动时关闭自动轮播
-        if (state == ViewPager.SCROLL_STATE_DRAGGING) {
-            stopAutoPlayTimer()
-        } else {
-            startAutoPlayTimer()
-        }
-    }
+    
+    private var _detachedFromWindow = false
 
     override fun getCount(): Int {
 
@@ -92,7 +58,7 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
     override fun scrollToFirstPosition() {
         if (realCount > 1) {
             viewPager.setCurrentItem(if (shouldCycle) 1 else 0, false)
-            targetPosition = -1
+            _targetPosition = -1
             startAutoPlayTimer()
         }
     }
@@ -158,11 +124,10 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
     //开始自动轮播计时器
     private fun startAutoPlayTimer() {
         if (!shouldAutoPlay || realCount <= 1) return
-        if (mCountDownTimer == null) {
-            mCountDownTimer =
-                object : CountDownTimer(
-                    CountDownTimer.COUNT_DOWN_UNLIMITED,
-                    mAutoPlayInterval.toLong()
+        if (_countDownTimer == null) {
+            _countDownTimer = object : CountDownTimer(
+                    COUNT_DOWN_INFINITE,
+                    autoPlayInterval.toLong()
                 ) {
                     override fun onFinish() {}
                     override fun onTick(millisLeft: Long) {
@@ -170,21 +135,21 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
                     }
                 }
         }
-        if (mCountDownTimer.isExecuting()) return
-        mCountDownTimer!!.start()
+        if (_countDownTimer!!.isExecuting) return
+        _countDownTimer!!.start()
     }
 
     //停止自动轮播计时器
     private fun stopAutoPlayTimer() {
-        if (mCountDownTimer != null) {
-            mCountDownTimer.stop()
-            mCountDownTimer = null
+        if (_countDownTimer != null) {
+            _countDownTimer!!.stop()
+            _countDownTimer = null
         }
     }
 
-    fun notifyDataSetChanged() {
+    override fun notifyDataSetChanged() {
         super.notifyDataSetChanged()
-        if (mShouldAutoPlay && mRealCount <= 1) {
+        if (shouldAutoPlay && realCount <= 1) {
             stopAutoPlayTimer()
         }
     }
@@ -198,12 +163,11 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
     //设置scroller
     private fun setScroller() {
         try {
-            var field: Field? = null
-            field = ViewPager::class.java.getDeclaredField("mScroller")
-            field.setAccessible(true)
+            val field = ViewPager::class.java.getDeclaredField("mScroller")
+            field.isAccessible = true
             val scroller =
-                PagerScroller(mViewPager.getContext())
-            field.set(mViewPager, scroller)
+                PagerScroller(viewPager.context)
+            field.set(viewPager, scroller)
         } catch (e: NoSuchFieldException) {
             e.printStackTrace()
         } catch (e: IllegalAccessException) {
@@ -232,23 +196,55 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
         }
     }
 
-    companion object {
-        const val TAG = "CyclePagerAdapter"
-    }
-
     init {
-        viewPager.addOnPageChangeListener(this)
-        viewPager.addOnAttachStateChangeListener(object : OnAttachStateChangeListener() {
+        viewPager.addOnPageChangeListener(object : OnPageChangeListener {
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+            }
+
+            override fun onPageSelected(position: Int) {
+                if (shouldCycle) {
+                    if (realCount > 1) {
+                        if (position == 0) {
+                            _targetPosition = realCount
+                        } else if (position == realCount + 1) {
+                            _targetPosition = 1
+                        }
+                    }
+                } else {
+                    _targetPosition = position
+                }
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+
+                //当不是动画中改变当前显示view的位置
+                if (state != ViewPager.SCROLL_STATE_SETTLING && _targetPosition != -1) {
+                    viewPager.setCurrentItem(_targetPosition, false)
+                    _targetPosition = -1
+                }
+
+                //用户滑动时关闭自动轮播
+                if (state == ViewPager.SCROLL_STATE_DRAGGING) {
+                    stopAutoPlayTimer()
+                } else {
+                    startAutoPlayTimer()
+                }
+            }
+        })
+
+        viewPager.addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View?) {
                 startAutoPlayTimer()
-                if (mDetachedFromWindow) { //ViewPager 会在 AttachedToWindow 需要重新布局，会导致第一次smoothScroll没有动画
-                    mViewPager.requestLayout()
-                    mDetachedFromWindow = false
+                if (_detachedFromWindow) { //ViewPager 会在 AttachedToWindow 需要重新布局，会导致第一次smoothScroll没有动画
+                    viewPager.requestLayout()
+                    _detachedFromWindow = false
                 }
             }
 
             override fun onViewDetachedFromWindow(v: View?) {
-                mDetachedFromWindow = true
+                _detachedFromWindow = true
                 stopAutoPlayTimer()
             }
         })

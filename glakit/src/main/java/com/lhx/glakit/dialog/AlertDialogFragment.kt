@@ -27,10 +27,28 @@ import kotlinx.android.synthetic.main.alert_dialog.*
  * 信息弹窗fragment
  */
 class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
-                          title: String?,
-                          subtitle: String?,
-                          icon: Drawable?,
-                          buttonTitles: Array<String>): BaseDialogFragment(), View.OnClickListener{
+                          title: String? = null,
+                          subtitle: String? = null,
+                          icon: Drawable? = null,
+                          buttonTitles: Array<String>?): BaseDialogFragment(), View.OnClickListener{
+
+    companion object{
+
+        fun alert(title: String? = null,
+                  subtitle: String? = null,
+                  icon: Drawable? = null,
+                  buttonTitles: Array<String>?): AlertDialogFragment{
+
+            return AlertDialogFragment(AlertStyle.ALERT, title, subtitle, icon, buttonTitles)
+        }
+
+        fun actionSheet(title: String? = null,
+                  subtitle: String? = null,
+                  icon: Drawable? = null, buttonTitles: Array<String>?): AlertDialogFragment{
+
+            return AlertDialogFragment(AlertStyle.ACTION_SHEET, title, subtitle, icon, buttonTitles)
+        }
+    }
 
     //关闭dialog
     private val dismissDialogWhat = 1

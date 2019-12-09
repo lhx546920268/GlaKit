@@ -35,7 +35,7 @@ object ActivityStack {
     fun getActivity(name: String?): BaseActivity? {
         if (name != null) {
             for (activity in activities) {
-                if (name == activity.getName()) {
+                if (name == activity.name) {
                     return activity
                 }
             }
@@ -83,7 +83,7 @@ object ActivityStack {
         var index = -1
         for (i in activities.size - 1 downTo 0) {
             val activity = activities[i]
-            if (toName == activity.getName()) {
+            if (toName == activity.name) {
                 index = i
                 break
             }

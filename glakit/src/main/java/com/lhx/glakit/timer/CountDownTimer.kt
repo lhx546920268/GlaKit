@@ -1,7 +1,6 @@
 package com.lhx.glakit.timer
 
 import android.os.Handler
-import android.os.Message
 import android.os.SystemClock
 
 
@@ -10,15 +9,15 @@ import android.os.SystemClock
 /**
  * 计时器 当使用 COUNT_DOWN_INFINITE 必须手动停止该计时器
  */
-abstract class CountDownTimer() : Handler.Callback {
+abstract class CountDownTimer(){
 
-    companion object{
+     companion object{
         
         //没有倒计时长度限制
         const val COUNT_DOWN_INFINITE = Long.MAX_VALUE
 
         //倒计时消息
-        const val COUNT_DOWN_MSG_WHAT = 1
+        private const val COUNT_DOWN_MSG_WHAT = 1
     }
 
     
@@ -55,17 +54,18 @@ abstract class CountDownTimer() : Handler.Callback {
 
                 //倒计时剩余时间
                 val millisLeft = _millisToStop - SystemClock.elapsedRealtime()
-                when(millisLeft){}
-                if (millisLeft <= 0) {
-
-                    //没时间了，倒计时停止
-                    finish()
-                } else if (millisLeft < _millisInterval) {
-                    //剩余的时间已经不够触发一次倒计时间隔了
-
-                    continueTimer(millisLeft)
-                } else {
-                    triggerTick(millisLeft)
+                when(true){
+                    _millisInterval <= 0 -> {
+                        //没时间了，倒计时停止
+                        finish()
+                    }
+                    millisLeft < _millisInterval -> {
+                        //剩余的时间已经不够触发一次倒计时间隔了
+                        continueTimer(millisLeft)
+                    }
+                    else -> {
+                        triggerTick(millisLeft)
+                    }
                 }
             }
         }
@@ -132,13 +132,13 @@ abstract class CountDownTimer() : Handler.Callback {
     }
 
     //触发tick
-    private open fun triggerTick(millisLeft: Long) {
+    private fun triggerTick(millisLeft: Long) {
         val lastTickStart = SystemClock.elapsedRealtime()
         onTick(millisLeft)
         var delay =
-            lastTickStart + millisInterval - SystemClock.elapsedRealtime()
+            lastTickStart + _millisInterval - SystemClock.elapsedRealtime()
         while (delay < 0) { //当触发倒计时 onTick 方法耗时太多，将进行下一个倒计时间隔
-            delay += millisInterval
+            delay += _millisInterval
         }
         continueTimer(delay)
     }
