@@ -36,7 +36,7 @@ class BackToTopButton: AppCompatImageView, AbsListView.OnScrollListener {
     private var backToTopListener: BackToTopListener? = null
 
     //关联的listView gridView
-    private var listView: AbsListView? = null
+    var listView: AbsListView? = null
     set(value) {
         if(value != field){
             field = value

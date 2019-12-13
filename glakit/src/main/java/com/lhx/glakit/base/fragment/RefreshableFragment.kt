@@ -12,14 +12,14 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import com.lhx.glakit.GlaKitInitializer
 import com.lhx.glakit.R
+import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.refresh.DefaultRefreshHeader
 import com.lhx.glakit.refresh.RefreshHeader
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.widget.BackToTopButton
-import com.scwang.smartrefresh.layout.SmartRefreshLayout
+import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener
-import kotlinx.android.synthetic.main.recycler_view_refresh_fragment.*
-import kotlinx.android.synthetic.main.recycler_view_refresh_fragment.view.*
+import kotlinx.android.synthetic.main.list_refresh_fragment.*
 
 
 /**
@@ -61,7 +61,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     //<editor-fold desc="刷新">
 
     //开始下拉刷新，子类重写
-    fun onRefresh(refreshLayout: SmartRefreshLayout) {
+    final override fun onRefresh(refreshLayout: RefreshLayout) {
         _refreshHeader?.shouldCloseImmediately = false
         _refreshing = true
         onRefresh()
@@ -71,12 +71,13 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     fun onRefresh() {}
 
     @CallSuper
-    fun initialize(inflater: LayoutInflater?, container: ViewGroup?, saveInstanceState: Bundle?) {
+    override fun initialize(inflater: LayoutInflater?, container: BaseContainer, saveInstanceState: Bundle?) {
         curPage = GlaKitInitializer.HttpFirstPage
         if (shouldDisplayBackToTop()) {
             scrollToTopIconRes = R.drawable.back_to_top_icon
         }
     }
+
 
     override fun setContainerContentView(contentView: View?) {
         super.setContainerContentView(contentView)

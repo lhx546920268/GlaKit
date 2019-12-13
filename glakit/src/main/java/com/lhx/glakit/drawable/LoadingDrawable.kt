@@ -9,12 +9,16 @@ import android.graphics.*
 import android.graphics.drawable.Animatable
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import com.lhx.glakit.properties.ReadWritePropertyDelegate
 import com.lhx.glakit.utils.ColorUtils
 import com.lhx.glakit.utils.MathUtils
 import kotlin.math.min
 
 
-///加载菊花
+/**
+ * 加载菊花
+ */
+@Suppress("unused_parameter")
 class LoadingDrawable : BaseDrawable(), Animatable {
 
     //是否在执行
@@ -23,43 +27,17 @@ class LoadingDrawable : BaseDrawable(), Animatable {
     //动画对象
     private val valueAnimator: ValueAnimator
 
-    //花瓣数量
-    @IntRange(from = 1)
-    var petalsCount = 13
-    set(value) {
-        if(value != field){
-            field = value
-            invalidateSelf()
-        }
-    }
+    //花瓣数量 从1开始
+    var petalsCount by ReadWritePropertyDelegate(13, this::observer)
 
     //花瓣大小 px
-    var petalsStrokeWidth = 0
-    set(value) {
-        if(value != field){
-            field = value
-            invalidateSelf()
-        }
-    }
+    var petalsStrokeWidth by ReadWritePropertyDelegate(0, this::observer)
 
     //颜色
-    @ColorInt
-    var color = Color.WHITE
-    set(value) {
-        if(value != field){
-            field = value
-            invalidateSelf()
-        }
-    }
+    var color by ReadWritePropertyDelegate(Color.WHITE, this::observer)
 
     //渐变数量
-    var fadeCount = 5
-        set(value) {
-            if(value != field){
-                field = value
-                invalidateSelf()
-            }
-        }
+    var fadeCount by ReadWritePropertyDelegate(5, this::observer)
 
     //当前开始位置
     private var start: Int = 0
@@ -67,15 +45,8 @@ class LoadingDrawable : BaseDrawable(), Animatable {
     //花瓣路径
     private val petalsPath: Path
 
-    //内圆比例
-    @FloatRange(from = 0.0, to = 1.0)
-    var innerCircleRatio = 3.0 / 5.0
-    set(value) {
-        if (value != field) {
-            field = value
-            invalidateSelf()
-        }
-    }
+    //内圆比例 0 ~ 1.0
+    var innerCircleRatio by ReadWritePropertyDelegate( 3.0 / 5.0, this::observer)
 
     //监听动画改变
     private var mAnimatorUpdateListener: ValueAnimator.AnimatorUpdateListener =
@@ -107,6 +78,13 @@ class LoadingDrawable : BaseDrawable(), Animatable {
         })
 
         petalsPath = Path()
+    }
+
+    /**
+     * 监听值变化
+     */
+    private fun <T> observer(oldValue: T, newValue: T){
+        invalidateSelf()
     }
 
     override fun start() {

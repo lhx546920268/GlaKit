@@ -1,103 +1,101 @@
 package com.lhx.glakit
 
 import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.reflect.KProperty
 
 class Main {
 
-    companion object {
+    data class Product(val price: Int)
+    data class Order(val products: List<Product>, val isDelivered: Boolean)
+    data class Customer(val orders: List<Order>)
 
-        fun checkInRange(date: MyDate, first: MyDate, last: MyDate): Boolean {
-            return date in DateRange(first, last)
+    data class Result<T, R: MutableCollection<T>>(val result1: R, val result2: R)
+
+
+    fun <T, R: MutableCollection<T>> Collection<T>.partitionTo(list1: R, list2: R,
+                                                  p: (T) -> Boolean): Result<T, R> {
+
+        val (l1, l2) = this.partition(p)
+
+        list1.addAll(l1)
+        list2.addAll(l2)
+
+        return Result(list1, list2)
+    }
+
+    class IntTransformer: (Int) -> Int {
+        override operator fun invoke(x: Int): Int = TODO()
+    }
+
+    class Delegate(var value: Int) {
+
+        fun tr(tr:(str: String) -> Unit){
+            val a = IntTransformer()
+
         }
 
+        fun td(td:(str: String) -> Unit){
+
+        }
+
+        fun text(str: String){
+
+        }
+
+        fun <T> par(co: Collection<T>){
+
+        }
+
+        operator fun getValue(thisRef: Any?, property: KProperty<*>): Int {
+
+            arrayOf(1).fold(1){pre, cur ->
+
+                return pre + cur
+            }
+
+            tr {
+                td {
+                    text("Product")
+                }
+                td {
+                    text("Popularity")
+                }
+            }
+
+            return value
+        }
+
+        operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
+            this.value = value
+        }
+    }
+
+
+
+    companion object {
+
+
+        fun buildString(build: StringBuilder.() -> Unit): String {
+            val stringBuilder = StringBuilder()
+            stringBuilder.build()
+            return stringBuilder.toString()
+        }
+
+
+        fun <T> T.myApply(f: T.() -> Unit): T {
+            f()
+            return this
+        }
 
         @JvmStatic
         fun main(args: Array<String>) {
             println("Hello!")
 
-            checkInRange(MyDate(1990, 12, 12), MyDate(1990, 12, 12), MyDate(1990, 12, 12))
         }
+
+
+
     }
 
-    data class MyDate(val year: Int, val month: Int, val dayOfMonth: Int) : Comparable<MyDate> {
-
-
-        override fun compareTo(other: MyDate): Int{
-            if(this.year > other.year){
-                return 1
-            }else{
-                if(this.year == other.year){
-                    if(this.month > other.month){
-                        return 1
-                    }else if(this.month == other.month && this.dayOfMonth > other.dayOfMonth){
-                        return 1
-                    }
-                }
-            }
-            return -1
-        }
-    }
-
-    class DateRange(val start: MyDate, val endInclusive: MyDate): Iterable<MyDate>{
-       operator fun contains(d: MyDate): Boolean{
-            if(d.year < start.year || d.year > endInclusive.year) return false
-            if(d.year == start.year){
-                if(d.month < start.month) return false
-
-                if(d.month == start.month && d.dayOfMonth < start.dayOfMonth) return false
-            }
-
-            if(d.year == endInclusive.year){
-                if(d.month > endInclusive.month) return false
-
-                if(d.month == endInclusive.month && d.dayOfMonth > endInclusive.dayOfMonth) return false
-            }
-
-            return true
-        }
-
-        var currentDate: MyDate = start
-
-        /**
-         * Returns an iterator over the elements of this object.
-         */
-        override fun iterator(): Iterator<MyDate> {
-            return object : Iterator<MyDate>{
-                /**
-                 * Returns `true` if the iteration has more elements.
-                 */
-                override fun hasNext(): Boolean {
-                    return when{
-                        currentDate.year != endInclusive.year -> endInclusive.year - currentDate.year > 0
-                        currentDate.month != endInclusive.month -> endInclusive.month - currentDate.month > 0
-                        else -> endInclusive.dayOfMonth - currentDate.dayOfMonth > 0
-                    }
-                }
-
-                /**
-                 * Returns the next element in the iteration.
-                 */
-                override fun next(): MyDate {
-                    var year = currentDate.year
-                    var month = currentDate.month
-                    var dayOfMonth = currentDate.dayOfMonth
-
-                    if(dayOfMonth < 30){
-                        dayOfMonth ++
-                    }else{
-                        dayOfMonth = 1
-                        if(month < 12){
-                            month ++
-                        }else{
-                            month = 1
-                            year ++
-                        }
-                    }
-
-                    currentDate = MyDate(year, month, dayOfMonth)
-                    return currentDate
-                }
-            }
-        }
-    }
 }

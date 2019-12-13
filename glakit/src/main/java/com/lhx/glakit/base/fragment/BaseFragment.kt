@@ -215,7 +215,7 @@ abstract class BaseFragment : Fragment(), BasePage {
     }
 
     //点击物理键
-    fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+    open fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val activity: Activity? = activity
         if (activity != null) {
             if (keyCode == KeyEvent.KEYCODE_BACK && !activity.isTaskRoot) {

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <!--浏览器-->
+    <com.lhx.glakit.widget.GKWebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/webView"/>
+    
+    <com.lhx.glakit.widget.ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/web_progress_height"
+        android:id="@+id/progressBar"/>
+</FrameLayout>

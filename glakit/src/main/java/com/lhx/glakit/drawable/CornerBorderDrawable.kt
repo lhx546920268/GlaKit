@@ -8,64 +8,41 @@ import android.graphics.Shader
 import android.graphics.BitmapShader
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
+import com.lhx.glakit.properties.ReadWritePropertyDelegate
 import kotlin.math.min
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 
 /**
  * 圆角边框drawable
  */
+@Suppress("unused_parameter")
 class CornerBorderDrawable : BaseDrawable{
 
     //左上角圆角 px
-    private var leftTopCornerRadius = 0
+    var leftTopCornerRadius by ReadWritePropertyDelegate(0, this::observer)
 
     //右上角圆角 px
-    private var rightTopCornerRadius = 0
+    var rightTopCornerRadius by ReadWritePropertyDelegate(0, this::observer)
 
     //左下角圆角 px
-    private var leftBottomCornerRadius = 0
+    var leftBottomCornerRadius by ReadWritePropertyDelegate(0, this::observer)
 
     //右下角圆角 px
-    private var rightBottomCornerRadius = 0
+    var rightBottomCornerRadius by ReadWritePropertyDelegate(0, this::observer)
 
     //是否全圆
-    var shouldAbsoluteCircle = false
-    set(value) {
-        //是否完全是一个圆，设置这个为true时会忽略 cornerRadius
-        if(value != field){
-            field = value
-            invalidateSelf()
-        }
-    }
+    var shouldAbsoluteCircle by ReadWritePropertyDelegate(false, this::observer)
 
     //边框线条厚度 px
-    var borderWidth = 0
-    set(value){
-        if(value != field){
-            field = value
-            invalidateSelf()
-        }
-    }
+    var borderWidth by ReadWritePropertyDelegate(0, this::observer)
 
     //边框线条颜色
-    @ColorInt
-    var borderColor = Color.TRANSPARENT
-        set(value){
-            if(value != field){
-                field = value
-                invalidateSelf()
-            }
-        }
+    var borderColor by ReadWritePropertyDelegate(Color.TRANSPARENT, this::observer)
 
     //背景填充颜色
-    @ColorInt
-    var backgroundColor = Color.TRANSPARENT
-        set(value){
-            if(value != field){
-                field = value
-                invalidateSelf()
-            }
-        }
+    var backgroundColor by ReadWritePropertyDelegate(Color.TRANSPARENT, this::observer)
 
     //位图
     private var bitmap: Bitmap? = null
@@ -79,6 +56,13 @@ class CornerBorderDrawable : BaseDrawable{
 
     constructor() : super()
 
+
+    /**
+     * 监听值变化
+     */
+    private fun <T> observer(oldValue: T, newValue: T){
+        invalidateSelf()
+    }
 
     /**
      * 通过位图构建
@@ -178,20 +162,6 @@ class CornerBorderDrawable : BaseDrawable{
         leftBottomCornerRadius = cornerRadius
         rightTopCornerRadius = cornerRadius
         rightBottomCornerRadius = cornerRadius
-        invalidateSelf()
-    }
-
-    //设置圆角半径
-    fun setCornerRadius(
-        leftTopCornerRadius: Int,
-        leftBottomCornerRadius: Int,
-        rightTopCornerRadius: Int,
-        rightBottomCornerRadius: Int
-    ) {
-        this.leftTopCornerRadius = leftTopCornerRadius
-        this.leftBottomCornerRadius = leftBottomCornerRadius
-        this.rightTopCornerRadius = rightTopCornerRadius
-        this.rightBottomCornerRadius = rightBottomCornerRadius
         invalidateSelf()
     }
 
