@@ -351,5 +351,5 @@ interface BasePage : BaseContainer.OnEventHandler {
     //</editor-fold>
 
     //子类可重写这个方法设置 contentView
-    fun initialize(inflater: LayoutInflater?, container: BaseContainer, saveInstanceState: Bundle?)
+    fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?)
 }

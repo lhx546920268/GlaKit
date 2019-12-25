@@ -124,7 +124,7 @@ class BaseContainer: RelativeLayout {
         if (titleBar != null) {
             val textView = titleBar!!.setShowBackButton(show)
             textView?.setOnClickListener(object : OnSingleClickListener() {
-                override fun onSingleClick(v: View?) {
+                override fun onSingleClick(v: View) {
                     if (onEventHandler != null) {
                         onEventHandler!!.onBack()
                     }
@@ -280,7 +280,7 @@ class BaseContainer: RelativeLayout {
                 pageLoadingView = LayoutInflater.from(context).inflate(R.layout.page_loading_view, this, false)
             }
             pageLoadingView!!.setOnClickListener(object : OnSingleClickListener(){
-                override fun onSingleClick(v: View?) {
+                override fun onSingleClick(v: View) {
                     if(pageStatus == PageStatus.FAIL){
                         onEventHandler?.onReloadPage()
                     }

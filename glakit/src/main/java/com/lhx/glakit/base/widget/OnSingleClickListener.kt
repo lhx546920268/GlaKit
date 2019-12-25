@@ -10,7 +10,7 @@ abstract class OnSingleClickListener : View.OnClickListener{
     //最后的点击时间
     private var mLastTouchTime: Long = 0
 
-    override fun onClick(v: View?) {
+    override fun onClick(v: View) {
         val time = System.currentTimeMillis()
         if (time - mLastTouchTime > 1000) {
             mLastTouchTime = time
@@ -18,5 +18,5 @@ abstract class OnSingleClickListener : View.OnClickListener{
         }
     }
 
-    abstract fun onSingleClick(v: View?)
+    abstract fun onSingleClick(v: View)
 }

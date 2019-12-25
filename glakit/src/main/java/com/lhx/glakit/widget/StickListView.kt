@@ -9,6 +9,7 @@ import android.view.accessibility.AccessibilityEvent
 import android.widget.AbsListView
 import android.widget.ListView
 import com.lhx.glakit.adapter.StickAdapter
+import com.lhx.glakit.base.constant.Position
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -17,11 +18,6 @@ import kotlin.math.min
  * 可悬浮item的listView
  */
 class StickListView : ListView {
-    
-    companion object{
-        //
-        private const val NO_POSITION = -1
-    }
 
     //悬浮适配器
     var stickAdapter: StickAdapter? = null
@@ -55,7 +51,7 @@ class StickListView : ListView {
                             layoutStickItem(firstItem, firstItem)
                         } else {
                             _stickItem = null
-                            _stickPosition = NO_POSITION
+                            _stickPosition = Position.NO_POSITION
                         }
                     } else { 
                         
@@ -66,7 +62,7 @@ class StickListView : ListView {
                             layoutStickItem(position, firstItem)
                         } else if (firstItem < position) {
                             _stickItem = null
-                            _stickPosition = NO_POSITION
+                            _stickPosition = Position.NO_POSITION
                         }
                     }
                 }
@@ -77,7 +73,7 @@ class StickListView : ListView {
     private var _stickItem: View? = null
 
     //当前悬浮的position
-    private var _stickPosition = NO_POSITION
+    private var _stickPosition = Position.NO_POSITION
 
     //绘制时需要便宜的y，当两个悬浮item接触时，下一个会把上一个顶上去
     private var _translateY = 0f

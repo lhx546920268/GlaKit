@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.grid_fragment.*
  */
 open class GridFragment : RefreshableFragment() {
 
-    override fun initialize(inflater: LayoutInflater?, container: BaseContainer, saveInstanceState: Bundle?) {
+    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
         super.initialize(inflater, container, saveInstanceState)
         var res = getContentRes()

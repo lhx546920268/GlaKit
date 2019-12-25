@@ -240,7 +240,7 @@ class SegmentedControl : LinearLayoutCompat {
             addView(item)
             _items!!.add(item)
             item.setOnClickListener(object : OnSingleClickListener() {
-                override fun onSingleClick(v: View?) {
+                override fun onSingleClick(v: View) {
                     val segmentedItem = v as SegmentedItem
                     setSelectedPosition(segmentedItem.position, true)
                 }

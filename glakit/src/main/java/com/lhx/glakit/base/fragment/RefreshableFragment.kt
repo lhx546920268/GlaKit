@@ -71,7 +71,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     fun onRefresh() {}
 
     @CallSuper
-    override fun initialize(inflater: LayoutInflater?, container: BaseContainer, saveInstanceState: Bundle?) {
+    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         curPage = GlaKitInitializer.HttpFirstPage
         if (shouldDisplayBackToTop()) {
             scrollToTopIconRes = R.drawable.back_to_top_icon

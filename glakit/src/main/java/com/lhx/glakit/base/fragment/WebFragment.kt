@@ -66,7 +66,7 @@ open class WebFragment : BaseFragment() {
     }
 
     @CallSuper
-    override fun initialize(inflater: LayoutInflater?, container: BaseContainer, saveInstanceState: Bundle?) {
+    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
         var res = getContentRes()
         if (res <= 0) {

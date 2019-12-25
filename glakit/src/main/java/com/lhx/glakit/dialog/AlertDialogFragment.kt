@@ -11,6 +11,7 @@ import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
@@ -99,6 +100,10 @@ class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
         _subtitle = subtitle
         _icon = icon
         _buttonTitles = buttonTitles
+    }
+
+    fun show(manager: FragmentManager) {
+        show(manager, null)
     }
 
     override fun onAttach(context: Context) {
@@ -405,7 +410,7 @@ class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
             val holder = ViewHolder(itemView, setBackgroundSelector(itemView))
             holder.itemView.setOnClickListener(object : OnSingleClickListener() {
 
-                override fun onSingleClick(v: View?) {
+                override fun onSingleClick(v: View) {
 
                     if (shouldDismissAfterClickItem) {
                         if(onItemClickListener != null){

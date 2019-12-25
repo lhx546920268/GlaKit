@@ -8,6 +8,7 @@
     <!--  加载失败  -->
     <string name="page_fail_title">加载失败</string>
     <string name="page_fail_subtitle">轻触屏幕重新加载</string>
+    <string name="load_more_fail">加载失败，点击重新加载</string>
 
     <!--  空视图文字  -->
     <string name="page_empty_title">没有数据</string>

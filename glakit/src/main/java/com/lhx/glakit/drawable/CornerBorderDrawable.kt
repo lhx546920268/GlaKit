@@ -1,7 +1,6 @@
 package com.lhx.glakit.drawable
 
 import android.graphics.*
-import androidx.annotation.ColorInt
 import android.content.Context
 import android.graphics.RectF
 import android.graphics.Shader
@@ -10,8 +9,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Bitmap
 import com.lhx.glakit.properties.ReadWritePropertyDelegate
 import kotlin.math.min
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.KProperty
 
 
 /**
@@ -163,6 +160,15 @@ class CornerBorderDrawable : BaseDrawable{
         rightTopCornerRadius = cornerRadius
         rightBottomCornerRadius = cornerRadius
         invalidateSelf()
+    }
+
+    //设置圆角半径
+    fun setCornerRadius(leftTopCornerRadius: Int, leftBottomCornerRadius: Int, rightBottomCornerRadius: Int, rightTopCornerRadius: Int){
+
+        this.leftTopCornerRadius = leftTopCornerRadius
+        this.leftBottomCornerRadius = leftBottomCornerRadius
+        this.rightTopCornerRadius = rightTopCornerRadius
+        this.rightBottomCornerRadius = rightBottomCornerRadius
     }
 
     //复制一份

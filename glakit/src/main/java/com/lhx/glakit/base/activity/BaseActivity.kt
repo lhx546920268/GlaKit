@@ -118,11 +118,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
         addActivity(this)
     }
 
-    override fun initialize(
-        inflater: LayoutInflater?,
-        container: BaseContainer,
-        saveInstanceState: Bundle?
-    ) {}
+    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {}
 
     override fun onResume() {
         super.onResume()
