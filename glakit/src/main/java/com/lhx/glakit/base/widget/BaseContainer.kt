@@ -14,19 +14,23 @@ import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.OverlayArea
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.loading.DefaultLoadingView
+import com.lhx.glakit.loading.InteractionCallback
 import com.lhx.glakit.loading.LoadingView
 import com.lhx.glakit.utils.StringUtils
+import com.lhx.glakit.utils.ToastUtils
+import com.lhx.glakit.utils.ViewUtils
 
 
 //基础视图容器
-class BaseContainer: RelativeLayout {
+class BaseContainer: RelativeLayout, InteractionCallback {
 
     @IntDef(PageStatus.NORMAL, PageStatus.LOADING, PageStatus.FAIL, PageStatus.EMPTY)
     @Retention(AnnotationRetention.SOURCE)
     annotation class ContainerPageStatus
 
     //内容视图
-    private var contentView: View? = null
+    var contentView: View? = null
+    private set
 
     //标题栏
     private var titleBar: TitleBar? = null
@@ -49,10 +53,12 @@ class BaseContainer: RelativeLayout {
     private var emptyView: View? = null
 
     //添加固定在底部的视图
-    private var bottomView: View? = null
+    var bottomView: View? = null
+    private set
 
     //添加固定在顶部的视图
-    private var topView: View? = null
+    var topView: View? = null
+    private set
 
     //顶部视图是否悬浮
     private var topViewFloat = false
@@ -69,6 +75,8 @@ class BaseContainer: RelativeLayout {
     //加载视图覆盖区域 默认都不覆盖
     var overlayArea = 0
 
+    //<editor-fold desc="constructor">
+
     constructor(context: Context?) : this(context, null)
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
@@ -78,6 +86,8 @@ class BaseContainer: RelativeLayout {
     ){
         setBackgroundColor(Color.WHITE)
     }
+
+    //</editor-fold>
 
     //<editor-fold desc="标题栏">
 
@@ -137,39 +147,36 @@ class BaseContainer: RelativeLayout {
 
     //<editor-fold desc="内容">
 
-    //获取内容视图
-    fun getContentView(): View? {
-        return contentView
-    }
-
-    fun setContentView(view: View?) {
-        if (contentView != null) {
-            throw RuntimeException(this.javaClass.name + "contentView 已经设置")
-        }
-
-        if(contentView != null){
-            removeView(contentView)
-        }
-
-        contentView = view
-        if(contentView != null){
-            contentView!!.id = R.id.base_fragment_content_id
-            val params = if (contentView!!.layoutParams is LayoutParams) {
-                contentView!!.layoutParams as LayoutParams
-            } else {
-                LayoutParams(
-                    LayoutParams.MATCH_PARENT,
-                    LayoutParams.MATCH_PARENT
-                )
-            }
-            params.alignWithParent = true
-            addView(contentView, 0, params)
-        }
-        layoutChildren()
-    }
-
     fun setContentView(@LayoutRes layoutResId: Int) {
         setContentView(LayoutInflater.from(context).inflate(layoutResId, null, false))
+    }
+
+    fun setContentView(view: View?){
+        if(contentView != view){
+            if(contentView != null){
+                removeView(contentView)
+            }
+
+            contentView = view
+            if(contentView != null){
+                contentView!!.apply {
+                    id = R.id.base_fragment_content_id
+                    val params = if (layoutParams is LayoutParams) {
+                        layoutParams as LayoutParams
+                    } else {
+                        LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+                    }
+                    params.alignWithParent = true
+                    layoutParams = params
+
+                    if (parent !== this@BaseContainer) {
+                        ViewUtils.removeFromParent(this)
+                        addView(this, 0)
+                    }
+                }
+            }
+            layoutChildren()
+        }
     }
 
     //重新布局子视图
@@ -223,6 +230,46 @@ class BaseContainer: RelativeLayout {
                 params.addRule(ABOVE, R.id.base_fragment_bottom_id)
             }
         }
+    }
+
+    //</editor-fold>
+
+    //<editor-fold desc="InteractionCallback">
+
+    override fun showLoading(delay: Long, text: CharSequence?) {
+        if (!loading) {
+            loading = true
+            if (GlaKitInitializer.loadViewClass != null) {
+                try {
+                    loadingView = GlaKitInitializer.loadViewClass!!.getConstructor(Context::class.java).newInstance(context)
+                } catch (e: Exception) {
+                    throw IllegalStateException("loadViewClass 无法通过context实例化")
+                }
+            } else {
+                loadingView = LayoutInflater.from(context).inflate(R.layout.default_loading_view, this, false) as LoadingView?
+            }
+            loadingView!!.delay = delay
+            if (loadingView is DefaultLoadingView) {
+                val loadingText = if(StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
+                (loadingView as DefaultLoadingView).getTextView().text = loadingText
+            }
+            val params = loadingView!!.layoutParams as LayoutParams
+            params.alignWithParent = true
+            params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+            params.addRule(ALIGN_PARENT_BOTTOM)
+            addView(loadingView)
+        }
+    }
+
+    override fun hideLoading() {
+        if(loading){
+            removeView(loadingView)
+            loadingView = null
+        }
+    }
+
+    override fun showToast(text: CharSequence, icon: Int) {
+        ToastUtils.showToast(context, text, icon)
     }
 
     //</editor-fold>
@@ -307,37 +354,6 @@ class BaseContainer: RelativeLayout {
         return pageStatus == PageStatus.FAIL
     }
 
-    //显示菊花
-    fun setLoading(loading: Boolean, delay: Long, text: String?) {
-        if (this.loading != loading) {
-            this.loading = loading
-            if (loading) {
-                if (GlaKitInitializer.loadViewClass != null) {
-                    try {
-                       loadingView = GlaKitInitializer.loadViewClass!!.getConstructor(Context::class.java).newInstance(context)
-                    } catch (e: Exception) {
-                        throw IllegalStateException("loadViewClass 无法通过context实例化")
-                    }
-                } else {
-                    loadingView = LayoutInflater.from(context).inflate(R.layout.default_loading_view, this, false) as LoadingView?
-                }
-                loadingView!!.delay = delay
-                if (loadingView is DefaultLoadingView) {
-                    val loadingText = if(StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
-                    (loadingView as DefaultLoadingView).getTextView().text = loadingText
-                }
-                val params = loadingView!!.layoutParams as LayoutParams
-                params.alignWithParent = true
-                params.addRule(BELOW, R.id.base_fragment_title_bar_id)
-                params.addRule(ALIGN_PARENT_BOTTOM)
-                addView(loadingView)
-            } else if (loadingView != null) {
-                removeView(loadingView)
-                loadingView = null
-            }
-        }
-    }
-
     fun isLoading(): Boolean {
         return loading
     }
@@ -347,88 +363,70 @@ class BaseContainer: RelativeLayout {
     //<editor-fold desc="顶部底部视图">
 
     //设置底部视图
-    fun setBottomView(bottomView: View?) {
-        setBottomView(bottomView, ViewGroup.LayoutParams.WRAP_CONTENT)
-    }
 
-    fun setBottomView(bottomView: View?, height: Int) {
-        if (this.bottomView !== bottomView) {
-            if (this.bottomView != null) {
-                removeView(this.bottomView)
+    fun setBottomView(view: View?, height: Int = ViewGroup.LayoutParams.WRAP_CONTENT) {
+        if (bottomView !== view) {
+            if (bottomView != null) {
+                removeView(bottomView)
             }
-            this.bottomView = bottomView
-            if (bottomView == null) return
+            bottomView = view
+            if (bottomView != null){
+                bottomView?.apply {
+                    val params = if (layoutParams is LayoutParams) {
+                        layoutParams as LayoutParams
+                    } else {
+                        LayoutParams(LayoutParams.MATCH_PARENT, height)
+                    }
 
-            val params = if (bottomView.layoutParams != null && bottomView.layoutParams is LayoutParams) {
-                bottomView.layoutParams as LayoutParams
-            } else {
-                LayoutParams(LayoutParams.MATCH_PARENT, height)
-            }
-
-            params.addRule(ALIGN_PARENT_BOTTOM)
-            bottomView.layoutParams = params
-            bottomView.id = R.id.base_fragment_bottom_id
-            if (bottomView.parent !== this) {
-                if (bottomView.parent != null) {
-                    val parent = bottomView.parent as ViewGroup
-                    parent.removeView(bottomView)
+                    params.addRule(ALIGN_PARENT_BOTTOM)
+                    layoutParams = params
+                    id = R.id.base_fragment_bottom_id
+                    if (parent !== this@BaseContainer) {
+                        ViewUtils.removeFromParent(this)
+                        addView(this)
+                    }
                 }
-                addView(bottomView)
             }
+
             layoutChildren()
         }
     }
 
     fun setBottomView(@LayoutRes res: Int) {
-        if (res != 0) {
-            setBottomView(LayoutInflater.from(context).inflate(res, this, false))
-        }
-    }
-
-    fun getBottomView(): View? {
-        return bottomView
-    }
-
-    fun setTopView(topView: View?) {
-        setTopView(topView, ViewGroup.LayoutParams.WRAP_CONTENT)
+        setBottomView(LayoutInflater.from(context).inflate(res, this, false))
     }
 
     //设置顶部视图
-    fun setTopView(topView: View?, height: Int) {
-        if (this.topView !== topView) {
-            if (this.topView != null) {
-                removeView(this.topView)
+    fun setTopView(view: View?, height: Int = ViewGroup.LayoutParams.WRAP_CONTENT) {
+        if (topView !== view) {
+            if (topView != null) {
+                removeView(topView)
             }
-            this.topView = topView
-            if (topView == null) return
+            topView = view
+            if(topView != null){
+                topView!!.apply {
+                    val params = if (layoutParams is LayoutParams) {
+                        layoutParams as LayoutParams
+                    } else {
+                        LayoutParams(LayoutParams.MATCH_PARENT, height)
+                    }
+                    params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+                    layoutParams = params
 
-            val params = if (topView.layoutParams != null && topView.layoutParams is LayoutParams) {
-                topView.layoutParams as LayoutParams
-            } else {
-                LayoutParams(LayoutParams.MATCH_PARENT, height)
-            }
-            params.addRule(BELOW, R.id.base_fragment_title_bar_id)
-            topView.layoutParams = params
-            topView.id = R.id.base_fragment_top_id
-            if (topView.parent !== this) {
-                if (topView.parent != null) {
-                    val parent = topView.parent as ViewGroup
-                    parent.removeView(topView)
+                    id = R.id.base_fragment_top_id
+                    if (parent !== this@BaseContainer) {
+                        ViewUtils.removeFromParent(this)
+                        addView(topView)
+                    }
                 }
-                addView(topView)
             }
+
             layoutChildren()
         }
     }
 
     fun setTopView(@LayoutRes res: Int) {
-        if (res != 0) {
-            setTopView(LayoutInflater.from(context).inflate(res, this, false), ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
-    }
-
-    fun getTopView(): View? {
-        return topView
+        setTopView(LayoutInflater.from(context).inflate(res, this, false))
     }
 
     //</editor-fold>

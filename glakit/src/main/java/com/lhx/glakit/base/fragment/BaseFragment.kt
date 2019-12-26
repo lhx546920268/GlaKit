@@ -122,39 +122,15 @@ abstract class BaseFragment : Fragment(), BasePage {
         }
     }
 
-    fun back(resultCode: Int) {
-        if (activity != null) {
-            activity!!.setResult(resultCode)
-            activity!!.finish()
-        }
-    }
-
-    fun back(resultCode: Int, data: Intent?) {
+    fun back(resultCode: Int, data: Intent? = null) {
         if (activity != null) {
             activity!!.setResult(resultCode, data)
             activity!!.finish()
         }
     }
 
-    fun backToFragment(fragmentClass: Class<out BaseFragment>) {
-        backTo(fragmentClass.name)
-    }
-
-    fun backTo(fragmentClass: Class<out BaseFragment>, include: Boolean) {
-        backToFragment(fragmentClass, include, Int.MAX_VALUE)
-    }
-
-    fun backToFragment(fragmentClass: Class<out BaseFragment>, include: Boolean, resultCode: Int) {
+    fun backToFragment(fragmentClass: Class<out BaseFragment>, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
         backTo(fragmentClass.name, include, resultCode)
-    }
-
-    fun backTo(toName: String) {
-        backTo(toName, false, Int.MAX_VALUE)
-    }
-
-    fun backTo(toName: String, include: Boolean) {
-
-        backTo(toName, include, Int.MAX_VALUE)
     }
 
     /**
@@ -163,7 +139,7 @@ abstract class BaseFragment : Fragment(), BasePage {
      * @param include 是否包含toName
      * @param resultCode [android.app.Activity.setResult]
      */
-    fun backTo(toName: String, include: Boolean, resultCode: Int) {
+    fun backTo(toName: String, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
         ActivityStack.finishActivities(toName, include, resultCode)
     }
 
@@ -179,19 +155,11 @@ abstract class BaseFragment : Fragment(), BasePage {
     //<editor-fold desc="启动Activity">
 
     //启动一个带activity的fragment
-    fun startActivity(fragmentClass: Class<out BaseFragment>) {
-        startActivity(fragmentClass, null)
-    }
-
-    fun startActivity(fragmentClass: Class<out BaseFragment>, bundle: Bundle?) {
+    fun startActivity(fragmentClass: Class<out BaseFragment>, bundle: Bundle? = null) {
         startActivityForResult(fragmentClass, 0, bundle)
     }
-
-    fun startActivityForResult(fragmentClass: Class<out BaseFragment>, requestCode: Int) {
-        startActivityForResult(fragmentClass, requestCode, null)
-    }
-
-    fun startActivityForResult(fragmentClass: Class<out BaseFragment>, requestCode: Int, bundle: Bundle?) {
+    
+    fun startActivityForResult(fragmentClass: Class<out BaseFragment>, requestCode: Int, bundle: Bundle? = null) {
         val intent = BaseActivity.getIntentWithFragment(context!!, fragmentClass)
         if (bundle != null) {
             bundle.remove(BaseActivity.FRAGMENT_STRING)

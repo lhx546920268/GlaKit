@@ -18,6 +18,7 @@ import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.AppUtils
+import java.lang.reflect.Proxy
 
 
 /**
@@ -71,6 +72,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
         }
 
     //<editor-fold desc="父类方法">
+
     override fun onCreate(savedInstanceState: Bundle?) {
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
 
@@ -102,7 +104,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
                 if (bundle != null) {
                     currentFragment.arguments = bundle
                 }
-                setCurrentFragment(currentFragment)
+                setFragment(currentFragment)
                 val enter = _fragment?.getEnterAnim()
                 if (enter != 0) {
                     overridePendingTransition(enter!!, R.anim.anim_no)
@@ -147,11 +149,6 @@ open class BaseActivity : AppCompatActivity(), BasePage {
         return R.layout.base_activity
     }
 
-    //设置当前显示的fragment,无动画效果
-    fun setCurrentFragment(currentFragment: BaseFragment) {
-        setCurrentFragment(currentFragment, 0, 0)
-    }
-
     /**
      * 设置当前显示的fragment,可设置动画效果
      *
@@ -159,7 +156,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
      * @param enter           进场动画
      * @param exit            出场动画
      */
-    fun setCurrentFragment(currentFragment: BaseFragment, @AnimRes enter: Int, @AnimRes exit: Int) {
+    fun setFragment(currentFragment: BaseFragment, @AnimRes enter: Int = 0, @AnimRes exit: Int = 0) {
         _fragment = currentFragment
         val transaction = supportFragmentManager.beginTransaction()
         if (enter != 0 && exit != 0) {

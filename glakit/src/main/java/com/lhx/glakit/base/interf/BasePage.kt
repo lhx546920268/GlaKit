@@ -11,13 +11,14 @@ import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.loading.InteractionCallback
 import com.lhx.glakit.utils.SizeUtils
 import java.io.Serializable
 
 /**
  * 基础页面接口
  */
-interface BasePage : BaseContainer.OnEventHandler {
+interface BasePage : BaseContainer.OnEventHandler, InteractionCallback {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
@@ -217,6 +218,26 @@ interface BasePage : BaseContainer.OnEventHandler {
 
     //</editor-fold>
 
+    //<editor-fold desc="InteractionCallback">
+
+    fun isLoading(): Boolean {
+        return if(baseContainer != null) baseContainer!!.isLoading() else false
+    }
+
+    override fun showLoading(delay: Long, text: CharSequence?) {
+        baseContainer?.showLoading(delay, text)
+    }
+
+    override fun hideLoading() {
+        baseContainer?.hideLoading()
+    }
+
+    override fun showToast(text: CharSequence, icon: Int) {
+        baseContainer?.showToast(text, icon)
+    }
+
+    //</editor-fold>
+
     //<editor-fold desc="页面状态">
 
     /**
@@ -231,23 +252,6 @@ interface BasePage : BaseContainer.OnEventHandler {
         return if(baseContainer != null) baseContainer!!.isPageLoading() else false
     }
 
-    fun setLoading(loading: Boolean) {
-        setLoading(loading, 0)
-    }
-
-    fun setLoading(loading: Boolean, delay: Long) {
-        setLoading(loading, delay, null)
-    }
-
-    /**
-     * 显示菊花
-     * @param loading 是否显示菊花
-     * @param delay 延迟显示 毫秒
-     * @param text 显示的文字
-     */
-    fun setLoading(loading: Boolean, delay: Long, text: String?) {
-        baseContainer?.setLoading(loading, delay, text)
-    }
 
     /**
      * 页面加载失败

@@ -72,7 +72,7 @@ abstract class HttpTask : Callback {
     //当前call
     private var _call: Call? = null
 
-    //是否需要使用新的httpClient 构建，当不是使用默认配置的时候可以设置成true 比如超时时间
+    //是否需要使用新的httpClient 构建，getHttpClient, 当不是使用默认配置的时候可以设置成true 比如超时时间
     var shouldUseNewBuilder = false
 
     //开始
@@ -128,6 +128,7 @@ abstract class HttpTask : Callback {
                 onFail()
             }
         }
+
         onComplete()
     }
 
@@ -140,11 +141,6 @@ abstract class HttpTask : Callback {
 
     //</editor-fold>
 
-    //处理成功
-    protected open fun processResponse(body: ResponseBody?){
-
-    }
-
     //<editor-fold desc="task 回调">
 
     //获取新的client
@@ -152,8 +148,11 @@ abstract class HttpTask : Callback {
         return builder.build()
     }
 
+    //处理结果
+    protected abstract fun processResponse(body: ResponseBody?)
+
     //准备 开始前调用
-    abstract fun prepare()
+    protected abstract fun prepare()
 
     //任务开始
     protected open fun onStart(){}

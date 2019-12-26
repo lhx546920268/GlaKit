@@ -1,7 +1,9 @@
 package com.lhx.glakit.api
 
+import com.alibaba.fastjson.JSONObject
 import com.lhx.glakit.loading.InteractionCallback
 import com.lhx.glakit.utils.StringUtils
+import okhttp3.ResponseBody
 
 /**
  * json http 任务
@@ -15,7 +17,7 @@ abstract class HttpJSONTask : HttpTask() {
     var shouldShowLoading = false
 
     //loading 显示延迟 毫秒
-    var loadingDelay = 500
+    var loadingDelay = 500L
 
     //是否需要显示错误信息
     var shouldShowErrorMessage = false
@@ -25,6 +27,31 @@ abstract class HttpJSONTask : HttpTask() {
 
     //api错误码
     var apiCode = 0
+
+    //api是否请求成
+    var isApiError = false
+    protected set
+
+    //原始json数据
+    var rowData: JSONObject? = null
+    protected set
+
+    //使用的数据
+    var data: JSONObject? = null
+    protected set
+
+    final override fun processResponse(body: ResponseBody?) {
+        if(body != null){
+            val json = JSONObject.parse(body.string())
+            if(json is JSONObject){
+                processJSON(json)
+            }else{
+                onFail()
+            }
+        }else{
+            onFail()
+        }
+    }
 
     override fun onStart() {
 
@@ -38,7 +65,7 @@ abstract class HttpJSONTask : HttpTask() {
         if(shouldShowErrorMessage && interactionCallback != null){
             val text = message
             if(!StringUtils.isEmpty(text)){
-                interactionCallback!!.showText(text!!)
+                interactionCallback!!.showToast(text!!)
             }
         }
     }
@@ -49,4 +76,7 @@ abstract class HttpJSONTask : HttpTask() {
             interactionCallback!!.hideLoading()
         }
     }
+
+    //处理json 返回api是否成功
+    protected abstract fun processJSON(JSON: JSONObject)
 }
