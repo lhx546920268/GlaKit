@@ -291,7 +291,7 @@ interface BasePage : BaseContainer.OnEventHandler, InteractionCallback {
     }
 
     fun getBottomView(): View? {
-        return baseContainer?.getBottomView()
+        return baseContainer?.bottomView
     }
 
     //设置顶部视图
@@ -308,7 +308,7 @@ interface BasePage : BaseContainer.OnEventHandler, InteractionCallback {
     }
 
     fun getTopView(): View? {
-        return baseContainer?.getTopView()
+        return baseContainer?.topView
     }
 
     //设置内容视图
@@ -321,7 +321,7 @@ interface BasePage : BaseContainer.OnEventHandler, InteractionCallback {
     }
 
     fun getContainerContentView(): View? {
-        return baseContainer?.getContentView()
+        return baseContainer?.contentView
     }
 
     //</editor-fold>

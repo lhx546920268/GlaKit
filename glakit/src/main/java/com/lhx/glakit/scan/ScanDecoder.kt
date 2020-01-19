@@ -67,7 +67,7 @@ class ScanDecoder(val handler: Handler, val cameraManager: CameraManager) : Thre
     //获取解码所需的
     fun buildLuminanceSource(data: ByteArray, width: Int, height: Int): YUVLuminanceSource {
 
-        val rect = cameraManager.getScanRect()
+        val rect = cameraManager.getScanRect()!!
         val previewFormat = cameraManager.getPreviewFormat()
 
         when(previewFormat) {

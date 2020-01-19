@@ -57,7 +57,7 @@ abstract class BaseContainerDialogFragment : BaseDialogFragment(), BasePage {
         }
 
         initialize(inflater, _container!!, savedInstanceState)
-        onConfigure(dialog!!.window!!, _container!!.getContentView()!!.layoutParams as RelativeLayout.LayoutParams)
+        onConfigure(dialog!!.window!!, _container!!.contentView!!.layoutParams as RelativeLayout.LayoutParams)
 
         return _container!!
     }

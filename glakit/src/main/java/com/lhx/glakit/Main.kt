@@ -1,9 +1,8 @@
 package com.lhx.glakit
 
-import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.reflect.KProperty
 
+@Deprecated("")
 class Main {
 
     data class Product(val price: Int)
@@ -29,6 +28,8 @@ class Main {
     }
 
     class Delegate(var value: Int) {
+
+        val a = 0
 
         fun tr(tr:(str: String) -> Unit){
             val a = IntTransformer()
@@ -71,27 +72,22 @@ class Main {
         }
     }
 
-
-
     companion object {
 
-
-        fun buildString(build: StringBuilder.() -> Unit): String {
-            val stringBuilder = StringBuilder()
-            stringBuilder.build()
-            return stringBuilder.toString()
-        }
-
-
-        fun <T> T.myApply(f: T.() -> Unit): T {
-            f()
-            return this
-        }
 
         @JvmStatic
         fun main(args: Array<String>) {
             println("Hello!")
 
+
+            val delegateCls = Class.forName("Delegate")
+            delegateCls.methods.map {method ->
+                val cls = Deprecated::class.java
+                val annotation = method.getAnnotation(cls)
+                if(annotation != null){
+                    
+                }
+            }
         }
 
 

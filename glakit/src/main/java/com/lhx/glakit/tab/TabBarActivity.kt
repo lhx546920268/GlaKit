@@ -71,7 +71,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
             field = value
 
             if (field != null) {
-                val relativeLayout = baseContainer?.getContentView() as RelativeLayout
+                val relativeLayout = baseContainer?.contentView as RelativeLayout
                 val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
                 relativeLayout.addView(field, relativeLayout.indexOfChild(tabBar), params)
