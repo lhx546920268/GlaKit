@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.alert_dialog.*
 /**
  * 信息弹窗fragment
  */
-class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
+class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                           title: String? = null,
                           subtitle: String? = null,
                           icon: Drawable? = null,
@@ -56,7 +56,6 @@ class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
     private val position = "position"
 
     //弹窗样式
-    @AlertStyle.Style
     private var _style = AlertStyle.ALERT
 
     //弹窗属性
@@ -366,7 +365,6 @@ class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
             AlertStyle.ALERT -> return SizeUtils.pxFormDip(280f, context!!)
             AlertStyle.ACTION_SHEET -> return SizeUtils.getWindowWidth(context!!)
         }
-        return 0
     }
 
     //是否有头部内容
@@ -527,7 +525,7 @@ class AlertDialogFragment(@AlertStyle.Style style: Int = AlertStyle.ALERT,
     }
 
     //按钮分割线
-    private inner class ItemDecoration internal constructor() : RecyclerView.ItemDecoration() {
+    private inner class ItemDecoration : RecyclerView.ItemDecoration() {
         ///分割线
         var divider = ColorDrawable(ContextCompat.getColor(context!!, R.color.divider_color))
 

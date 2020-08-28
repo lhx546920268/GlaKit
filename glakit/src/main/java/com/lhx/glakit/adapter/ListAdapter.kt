@@ -144,14 +144,14 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
             }
             sectionInfo!!.isHeaderForPosition(position) -> {
                 //存在头部
-                getItemId(0, sectionInfo.section, ITEM_TYPE_HEADER)
+                getItemId(0, sectionInfo.section, ItemType.HEADER)
             }
             sectionInfo.isFooterForPosition(position) -> {
                 //存在底部
-                getItemId(0, sectionInfo.section, ITEM_TYPE_FOOTER)
+                getItemId(0, sectionInfo.section, ItemType.FOOTER)
             }
             else -> {
-                getItemId(sectionInfo.getItemPosition(position), sectionInfo.section, ITEM_TYPE_VIEW)
+                getItemId(sectionInfo.getItemPosition(position), sectionInfo.section, ItemType.VIEW)
             }
         }
     }
@@ -174,14 +174,14 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
             }
             sectionInfo!!.isHeaderForPosition(position) -> {
                 //存在头部
-                getItemViewType(0, sectionInfo.section, ITEM_TYPE_HEADER)
+                getItemViewType(0, sectionInfo.section, ItemType.HEADER)
             }
             sectionInfo.isFooterForPosition(position) -> {
                 //存在底部
-                getItemViewType(0, sectionInfo.section, ITEM_TYPE_FOOTER)
+                getItemViewType(0, sectionInfo.section, ItemType.FOOTER)
             }
             else -> {
-                getItemViewType(sectionInfo.getItemPosition(position), sectionInfo.section, ITEM_TYPE_VIEW)
+                getItemViewType(sectionInfo.getItemPosition(position), sectionInfo.section, ItemType.VIEW)
             }
         }
     }

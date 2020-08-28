@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Glakit.iml" filepath="$PROJECT_DIR$/Glakit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/glakit/glakit.iml" filepath="$PROJECT_DIR$/glakit/glakit.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Glakit.iml" filepath="$PROJECT_DIR$/Glakit.iml" group="Glakit" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="Glakit/app" />
+      <module fileurl="file://$PROJECT_DIR$/glakit/glakit.iml" filepath="$PROJECT_DIR$/glakit/glakit.iml" group="Glakit/glakit" />
     </modules>
   </component>
 </project>

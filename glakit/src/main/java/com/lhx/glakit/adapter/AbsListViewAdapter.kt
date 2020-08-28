@@ -67,14 +67,14 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
             }
             position == sectionInfo?.getHeaderPosition() && sectionInfo.isExistHeader -> {
                 //存在头部
-                getItem(0, sectionInfo.section, ITEM_TYPE_HEADER)
+                getItem(0, sectionInfo.section, ItemType.HEADER)
             }
             position == sectionInfo?.getFooterPosition() && sectionInfo.isExistFooter -> {
                 //存在底部
-                getItem(0, sectionInfo.section, ITEM_TYPE_FOOTER)
+                getItem(0, sectionInfo.section, ItemType.FOOTER)
             }
             else -> {
-                getItem(sectionInfo!!.getItemPosition(position), sectionInfo.section, ITEM_TYPE_VIEW)
+                getItem(sectionInfo!!.getItemPosition(position), sectionInfo.section, ItemType.VIEW)
             }
         }
     }

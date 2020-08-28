@@ -1,21 +1,17 @@
 package com.lhx.glakit.adapter
 
 import android.view.View
-import androidx.annotation.IntDef
-import com.lhx.glakit.base.constant.Position
 
-//itemView类型 行
-const val ITEM_TYPE_VIEW = 0
+enum class ItemType {
+    //itemView类型 行
+    VIEW,
 
-//itemView类型 header
-const val ITEM_TYPE_HEADER = 1
+    //itemView类型 header
+    HEADER,
 
-//itemView类型 footer
-const val ITEM_TYPE_FOOTER = 2
-
-@IntDef(ITEM_TYPE_VIEW, ITEM_TYPE_HEADER, ITEM_TYPE_FOOTER)
-@Retention(AnnotationRetention.SOURCE)
-annotation class ItemType
+    //itemView类型 footer
+    FOOTER,
+}
 
 /**
  * section 适配器
@@ -41,13 +37,13 @@ internal interface SectionAdapter {
     }
 
     //getItemId 的重写方法
-    fun getItemId(positionInSection: Int, section: Int, @ItemType type: Int): Long{
-        return type.toLong()
+    fun getItemId(positionInSection: Int, section: Int, type: ItemType): Long{
+        return type.ordinal.toLong()
     }
 
     //getItemViewType 的重写方法
-    fun getItemViewType(positionInSection: Int, section: Int, @ItemType type: Int): Int{
-        return type
+    fun getItemViewType(positionInSection: Int, section: Int, type: ItemType): Int{
+        return type.ordinal
     }
 
     //点击item

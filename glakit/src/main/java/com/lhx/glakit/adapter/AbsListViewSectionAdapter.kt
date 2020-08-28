@@ -31,7 +31,7 @@ internal interface AbsListViewSectionAdapter {
     /**
      * getItem 的重写方法
      */
-    fun getItem(position: Int, section: Int, @ItemType type: Int): Any?{
+    fun getItem(position: Int, section: Int, type: ItemType): Any?{
         return null
     }
 

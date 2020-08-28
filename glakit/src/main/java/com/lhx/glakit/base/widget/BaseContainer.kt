@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
-import androidx.annotation.IntDef
 import androidx.annotation.LayoutRes
 import com.lhx.glakit.GlaKitInitializer
 import com.lhx.glakit.R
@@ -20,14 +19,8 @@ import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.utils.ViewUtils
 
-
 //基础视图容器
 class BaseContainer: RelativeLayout, InteractionCallback {
-
-    @IntDef(PageStatus.NORMAL, PageStatus.LOADING, PageStatus.FAIL, PageStatus.EMPTY)
-    @Retention(AnnotationRetention.SOURCE)
-    annotation class ContainerPageStatus
-
     //内容视图
     var contentView: View? = null
     private set
@@ -36,7 +29,6 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     private var titleBar: TitleBar? = null
 
     //页面状态
-    @ContainerPageStatus
     private var pageStatus = PageStatus.NORMAL
 
     //页面是否正在载入
@@ -276,7 +268,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
 
     //<editor-fold desc="Loading">
 
-    fun setPageStatus(@ContainerPageStatus status: Int){
+    fun setPageStatus(status: PageStatus){
         if(status != pageStatus){
             when(pageStatus){
                 PageStatus.LOADING -> {
@@ -295,6 +287,9 @@ class BaseContainer: RelativeLayout, InteractionCallback {
                     removeView(emptyView)
                     emptyView = null
                 }
+                else -> {
+
+                }
             }
             pageStatus = status
 
@@ -306,6 +301,9 @@ class BaseContainer: RelativeLayout, InteractionCallback {
                 PageStatus.EMPTY -> {
                     loadEmptyViewIfNeeded()
                     onEventHandler?.onShowEmptyView(emptyView!!)
+                }
+                else -> {
+
                 }
             }
 
