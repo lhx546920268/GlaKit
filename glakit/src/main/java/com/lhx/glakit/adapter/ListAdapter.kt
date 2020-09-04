@@ -23,7 +23,7 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
     /**
      * section信息数组
      */
-    val sections: ArrayList<out SectionInfo>
+    val sections: ArrayList<SectionInfo>
 
     /**
      * 是否需要刷新数据
@@ -59,7 +59,7 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
 
                 //保存section信息
                 val sectionInfo = createSectionInfo(section, numberOfItems, count)
-                sections + sectionInfo
+                sections.add(sectionInfo)
 
                 count += numberOfItems
                 if (sectionInfo.isExistHeader) count++
@@ -133,27 +133,6 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
     //是否是空视图 item
     fun isEmptyItem(position: Int): Boolean {
         return shouldDisplayEmptyView && realCount == 0 && emptyPosition == position
-    }
-
-    //getItemId 的重写方法
-    fun getListItemId(position: Int): Long {
-        val sectionInfo: SectionInfo? = sectionInfoForPosition(position)
-        return when {
-            isEmptyItem(position) || isLoadMoreItem(position) -> {
-                position.toLong()
-            }
-            sectionInfo!!.isHeaderForPosition(position) -> {
-                //存在头部
-                getItemId(0, sectionInfo.section, ItemType.HEADER)
-            }
-            sectionInfo.isFooterForPosition(position) -> {
-                //存在底部
-                getItemId(0, sectionInfo.section, ItemType.FOOTER)
-            }
-            else -> {
-                getItemId(sectionInfo.getItemPosition(position), sectionInfo.section, ItemType.VIEW)
-            }
-        }
     }
 
     //getItemViewType 的重写方法

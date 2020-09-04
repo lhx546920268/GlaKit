@@ -1,5 +1,6 @@
 package com.lhx.glakit.adapter
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -34,9 +35,10 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
 
     //关联的
     val recyclerView: RecyclerView?
-    get(){
-        return recyclerViewReference.get()
-    }
+    get() = recyclerViewReference.get()
+
+    val context: Context?
+    get() = recyclerViewReference.get()?.context
 
     override var totalCount: Int = 0
     override var realCount: Int = 0
@@ -166,8 +168,8 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
         return totalCount
     }
 
-    final override fun getItemId(position: Int): Long {
-        return getListItemId(position)
+    override fun getItemId(position: Int): Long {
+        return position.toLong();
     }
 
     final override fun getItemViewType(position: Int): Int {
@@ -275,12 +277,12 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
         scrollTo(section, -1, smooth)
     }
 
-    fun scrollTo(section: Int, indexInSection: Int, smooth: Boolean) {
+    fun scrollTo(section: Int, positionInSection: Int, smooth: Boolean) {
         if (recyclerView != null && section < sections.size) {
             val info = sections[section]
             var position = info.getHeaderPosition()
-            if (indexInSection >= 0) {
-                position = info.getItemStartPosition() + indexInSection
+            if (positionInSection >= 0) {
+                position = info.getItemStartPosition() + positionInSection
             }
             if (smooth) {
                 recyclerView!!.smoothScrollToPosition(position)
@@ -291,19 +293,19 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
     }
 
     //移动到对应位置，如果能置顶则置顶
-    fun scrollToWithOffset(section: Int, offset: Int) {
-        scrollToWithOffset(section, -1, offset)
+    fun scrollToWithOffset(positionInSection: Int, offset: Int) {
+        scrollToWithOffset(0, positionInSection, offset)
     }
 
-    fun scrollToWithOffset(section: Int, indexInSection: Int, offset: Int) {
+    fun scrollToWithOffset(section: Int, positionInSection: Int, offset: Int) {
 
         if (recyclerView!!.layoutManager is LinearLayoutManager) {
             val layoutManager =
                 recyclerView!!.layoutManager as LinearLayoutManager?
             val info = sections[section]
             var position = info.getHeaderPosition()
-            if (indexInSection >= 0) {
-                position = info.getItemStartPosition() + indexInSection
+            if (positionInSection >= 0) {
+                position = info.getItemStartPosition() + positionInSection
             }
             layoutManager!!.scrollToPositionWithOffset(position, offset)
         } else {

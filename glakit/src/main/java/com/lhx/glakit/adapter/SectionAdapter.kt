@@ -36,11 +36,6 @@ internal interface SectionAdapter {
         return false
     }
 
-    //getItemId 的重写方法
-    fun getItemId(positionInSection: Int, section: Int, type: ItemType): Long{
-        return type.ordinal.toLong()
-    }
-
     //getItemViewType 的重写方法
     fun getItemViewType(positionInSection: Int, section: Int, type: ItemType): Int{
         return type.ordinal
