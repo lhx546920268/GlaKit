@@ -104,7 +104,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong();
+        return position.toLong()
     }
 
     final override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {

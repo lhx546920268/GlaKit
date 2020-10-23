@@ -247,8 +247,6 @@ class TitleBar: ViewGroup {
             val titleLeft = left + (width - titleWidth) / 2
             val titleTop = top + (height - titleHeight) / 2
             titleView?.layout(titleLeft, titleTop, titleLeft + titleWidth, titleTop + titleHeight)
-
-            println("width = $width, height = $height")
         }
 
         val dividerHeight = resources.getDimensionPixelSize(R.dimen.divider_height)

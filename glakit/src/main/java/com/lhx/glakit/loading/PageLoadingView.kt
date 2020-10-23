@@ -78,6 +78,12 @@ class PageLoadingView : FrameLayout {
                 contentView.visibility = GONE
                 pageFailView?.visibility = VISIBLE
             }
+            PageStatus.EMPTY -> {
+
+            }
+            PageStatus.NORMAL -> {
+
+            }
         }
     }
 
