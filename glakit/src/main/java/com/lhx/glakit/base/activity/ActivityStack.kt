@@ -1,4 +1,5 @@
 package com.lhx.glakit.base.activity
+import android.content.Context
 
 
 /**
@@ -110,7 +111,8 @@ object ActivityStack {
     /**
      * 销毁所有activity
      */
-    fun finishAllActivities() {
+    fun finishAllActivities(context: Context) {
+
         for (activity in activities) {
             activity.finish()
         }

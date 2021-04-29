@@ -4,11 +4,13 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import com.lhx.glakit.R
 import com.lhx.glakit.drawable.LoadingDrawable
 import com.scwang.smartrefresh.layout.api.RefreshKernel
 import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.constant.RefreshState
-import kotlinx.android.synthetic.main.default_refresh_header.view.*
 
 
 /**
@@ -18,6 +20,9 @@ class DefaultRefreshHeader : RefreshHeader {
 
     //菊花
     private var _loadingDrawable = LoadingDrawable()
+
+    private lateinit var imageView: ImageView
+    private lateinit var textView: TextView
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -33,6 +38,9 @@ class DefaultRefreshHeader : RefreshHeader {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+
+        imageView = findViewById(R.id.imageView)
+        textView = findViewById(R.id.textView)
 
         _loadingDrawable = LoadingDrawable()
 
@@ -52,7 +60,7 @@ class DefaultRefreshHeader : RefreshHeader {
 
         imageView.visibility = View.GONE
         _loadingDrawable.stop()
-        textView!!.text = "刷新成功"
+        textView.text = "刷新成功"
 
         return if (shouldCloseImmediately) 0 else 200
     }
@@ -62,7 +70,7 @@ class DefaultRefreshHeader : RefreshHeader {
             RefreshState.Refreshing -> {
                 imageView.visibility = View.VISIBLE
                 _loadingDrawable.start()
-                textView!!.text = "加载中..."
+                textView.text = "加载中..."
             }
             RefreshState.ReleaseToRefresh -> textView.text = "松开即可刷新"
             else -> {

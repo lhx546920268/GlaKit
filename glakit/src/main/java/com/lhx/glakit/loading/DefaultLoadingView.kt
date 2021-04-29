@@ -4,12 +4,12 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import com.lhx.glakit.R
 import com.lhx.glakit.drawable.CornerBorderDrawable
-import com.lhx.glakit.drawable.DrawableUtils
 import com.lhx.glakit.drawable.LoadingDrawable
 import com.lhx.glakit.utils.SizeUtils
-import kotlinx.android.synthetic.main.default_loading_view.view.*
 
 /**
  * 默认的loading
@@ -18,6 +18,11 @@ class DefaultLoadingView: LoadingView {
 
     //菊花
     private var loadingDrawable = LoadingDrawable()
+    lateinit var textView: TextView
+        private set
+
+    private lateinit var imageView: ImageView
+    private lateinit var container: View
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -35,6 +40,11 @@ class DefaultLoadingView: LoadingView {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+
+        container = findViewById(R.id.container)
+        textView = findViewById(R.id.textView)
+        imageView = findViewById(R.id.imageView)
+
 
         val drawable = CornerBorderDrawable()
         drawable.setCornerRadius(SizeUtils.pxFormDip(8f, context))
@@ -54,12 +64,7 @@ class DefaultLoadingView: LoadingView {
         loadingDrawable.stop()
     }
 
-    fun getTextView(): TextView {
-        return textView
-    }
-
     override fun getContentView(): View {
         return container
     }
-
 }

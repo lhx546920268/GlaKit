@@ -25,45 +25,30 @@ abstract class BaseFragment : Fragment(), BasePage {
 
     //容器
     private var _container: BaseContainer? = null
+
     /**
      * 基础容器
      */
     override val baseContainer: BaseContainer?
-        get(){
-            return _container
-        }
+        get() = _container
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
      */
     override val attachedBundle: Bundle?
-        get(){
-            if(arguments != null){
-                return arguments
-            }
-
-            if(activity != null){
-                return activity!!.intent.extras
-            }
-
-            return null
-        }
+        get() = if(arguments != null) arguments else activity?.intent?.extras
 
     /**
      * 获取context
      */
     override val attachedContext: Context?
-        get(){
-            return context
-        }
+        get() = context
 
     /**
      * 关联的activity
      */
     override val attachedActivity: Activity?
-        get(){
-            return activity
-        }
+        get() = activity
 
     //是否需要处理 onActivityResult
     var shouldProcessActivityResult = false
@@ -76,9 +61,9 @@ abstract class BaseFragment : Fragment(), BasePage {
     }
 
     override fun onCreateView(inflater: LayoutInflater, viewGroup: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (_container == null) { ///创建容器视图
+        if (_container == null) { //创建容器视图
             _container = BaseContainer(context)
-            _container?.onEventHandler = this
+            _container?.mOnEventCallback = this
             _container?.setShowTitleBar(showTitleBar())
             //内容视图
             initialize(inflater, _container!!, savedInstanceState)
@@ -117,16 +102,12 @@ abstract class BaseFragment : Fragment(), BasePage {
 
     //返回
     fun back() {
-        if (activity != null) {
-            activity!!.finish()
-        }
+        requireActivity().finish()
     }
 
     fun back(resultCode: Int, data: Intent? = null) {
-        if (activity != null) {
-            activity!!.setResult(resultCode, data)
-            activity!!.finish()
-        }
+        requireActivity().setResult(resultCode)
+        requireActivity().finish()
     }
 
     fun backToFragment(fragmentClass: Class<out BaseFragment>, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
@@ -160,7 +141,7 @@ abstract class BaseFragment : Fragment(), BasePage {
     }
     
     fun startActivityForResult(fragmentClass: Class<out BaseFragment>, requestCode: Int, bundle: Bundle? = null) {
-        val intent = BaseActivity.getIntentWithFragment(context!!, fragmentClass)
+        val intent = BaseActivity.getIntentWithFragment(requireContext(), fragmentClass)
         if (bundle != null) {
             bundle.remove(BaseActivity.FRAGMENT_STRING)
             intent.putExtras(bundle)
@@ -186,7 +167,7 @@ abstract class BaseFragment : Fragment(), BasePage {
     open fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         val activity: Activity? = activity
         if (activity != null) {
-            if (keyCode == KeyEvent.KEYCODE_BACK && !activity.isTaskRoot) {
+            if (keyCode == KeyEvent.KEYCODE_BACK && !requireActivity().isTaskRoot) {
                 back()
                 return true
             }

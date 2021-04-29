@@ -2,15 +2,17 @@ package com.lhx.glakit.base.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.GridView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
-import kotlinx.android.synthetic.main.grid_fragment.*
 
 
 /**
  * 网格视图
  */
 open class GridFragment : RefreshableFragment() {
+
+    protected lateinit var gridView: GridView
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
@@ -25,6 +27,7 @@ open class GridFragment : RefreshableFragment() {
         }
 
         setContainerContentView(res)
+        gridView = findViewById(R.id.gridView)!!
 
         setRefreshView(gridView)
         val backToTopButton = getBackToTopButton()

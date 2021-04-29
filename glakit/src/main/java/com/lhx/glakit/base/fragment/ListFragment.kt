@@ -2,15 +2,16 @@ package com.lhx.glakit.base.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.ListView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
-import kotlinx.android.synthetic.main.list_fragment.*
-
 
 /**
  * 列表 listView
  */
 open class ListFragment : RefreshableFragment() {
+
+    protected lateinit var listView: ListView
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
@@ -25,6 +26,7 @@ open class ListFragment : RefreshableFragment() {
         }
 
         setContainerContentView(res)
+        listView = findViewById(R.id.listView)!!
 
         setRefreshView(listView)
         val backToTopButton = getBackToTopButton()

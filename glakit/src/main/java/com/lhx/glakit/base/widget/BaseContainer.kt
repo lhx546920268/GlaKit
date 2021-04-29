@@ -62,7 +62,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     }
 
     //事件回调
-    var onEventHandler: OnEventHandler? = null
+    var mOnEventCallback: OnEventCallback? = null
 
     //加载视图覆盖区域 默认都不覆盖
     var overlayArea = 0
@@ -127,8 +127,8 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             val textView = titleBar!!.setShowBackButton(show)
             textView?.setOnClickListener(object : OnSingleClickListener() {
                 override fun onSingleClick(v: View) {
-                    if (onEventHandler != null) {
-                        onEventHandler!!.onBack()
+                    if (mOnEventCallback != null) {
+                        mOnEventCallback!!.onBack()
                     }
                 }
             })
@@ -243,7 +243,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             loadingView!!.delay = delay
             if (loadingView is DefaultLoadingView) {
                 val loadingText = if(StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
-                (loadingView as DefaultLoadingView).getTextView().text = loadingText
+                (loadingView as DefaultLoadingView).textView.text = loadingText
             }
             val params = loadingView!!.layoutParams as LayoutParams
             params.alignWithParent = true
@@ -296,11 +296,11 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             when(pageStatus){
                 PageStatus.LOADING, PageStatus.FAIL -> {
                     loadPageLoadingViewIfNeeded()
-                    onEventHandler?.onShowPageLoadingView(pageLoadingView!!)
+                    mOnEventCallback?.onShowPageLoadingView(pageLoadingView!!)
                 }
                 PageStatus.EMPTY -> {
                     loadEmptyViewIfNeeded()
-                    onEventHandler?.onShowEmptyView(emptyView!!)
+                    mOnEventCallback?.onShowEmptyView(emptyView!!)
                 }
                 else -> {
 
@@ -327,7 +327,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             pageLoadingView!!.setOnClickListener(object : OnSingleClickListener(){
                 override fun onSingleClick(v: View) {
                     if(pageStatus == PageStatus.FAIL){
-                        onEventHandler?.onReloadPage()
+                        mOnEventCallback?.onReloadPage()
                     }
                 }
             })
@@ -431,7 +431,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
 
 
     //事件回调
-    interface OnEventHandler {
+    interface OnEventCallback {
 
         /**
          * 页面刷新

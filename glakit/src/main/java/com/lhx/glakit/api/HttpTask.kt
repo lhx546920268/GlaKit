@@ -97,7 +97,6 @@ abstract class HttpTask : Callback {
             }
 
             val client = if(shouldUseNewBuilder) getHttpClient(sharedHttpClient.newBuilder()) else sharedHttpClient
-
             _call = client.newCall(builder.build())
             _call!!.enqueue(this)
         }
@@ -143,7 +142,7 @@ abstract class HttpTask : Callback {
 
     //<editor-fold desc="task 回调">
 
-    //获取新的client
+    //获取新的client 通过这个设置超时时间
     protected open fun getHttpClient(builder: OkHttpClient.Builder): OkHttpClient{
         return builder.build()
     }

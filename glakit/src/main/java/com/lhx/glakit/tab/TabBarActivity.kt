@@ -18,8 +18,6 @@ import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.DrawableUtils
 import com.lhx.glakit.utils.ViewUtils
-import kotlinx.android.synthetic.main.tab_bar_activity.*
-import kotlinx.android.synthetic.main.tab_bar_item.view.*
 
 
 /**
@@ -30,6 +28,8 @@ abstract class TabBarActivity: BaseContainerActivity() {
 
     //按钮数量
     private var count: Int = 0
+
+    private val tabBar: LinearLayout by lazy { findViewById(R.id.tabBar) }
 
     //当前选中的
     var checkedPosition: Int = Position.NO_POSITION
@@ -141,7 +141,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
                 params.weight = 1f
                 params.gravity = Gravity.CENTER_VERTICAL
                 onConfigureItem(item, params, i)
-                tabBar!!.addView(item, params)
+                tabBar.addView(item, params)
 
                 tabBarItems.add(item)
             }
@@ -177,7 +177,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
 
 
     //获取图标
-    private fun getIcon(position: Int): Drawable? {
+    private fun getIcon(position: Int): Drawable {
         val stateListDrawable = StateListDrawable()
         var drawable = ContextCompat.getDrawable(this, getNormalIconRes(position))
         require(drawable != null){
@@ -216,7 +216,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
     }
 
     //获取文字颜色
-    private fun getTextColor(item: TabBarItem): ColorStateList? {
+    private fun getTextColor(item: TabBarItem): ColorStateList {
         val states = arrayOfNulls<IntArray>(2)
         states[0] = intArrayOf(android.R.attr.state_selected)
         states[1] = intArrayOf()

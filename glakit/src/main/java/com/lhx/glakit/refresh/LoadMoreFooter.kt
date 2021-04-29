@@ -5,11 +5,11 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.LoadingDrawable
 import com.lhx.glakit.utils.SizeUtils
-import kotlinx.android.synthetic.main.load_more_footer.view.*
 
 /**
  * 加载更多底部
@@ -18,6 +18,9 @@ class LoadMoreFooter : FrameLayout {
 
     //菊花
     private var loadingDrawable = LoadingDrawable()
+
+    private lateinit var imageView: ImageView
+    private lateinit var textView: TextView
 
     //状态
     var loadingStatus = LoadMoreStatus.NORMAL
@@ -45,6 +48,10 @@ class LoadMoreFooter : FrameLayout {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+
+        imageView = findViewById(R.id.imageView)
+        textView = findViewById(R.id.textView)
+
         imageView.setImageDrawable(loadingDrawable)
     }
 

@@ -18,7 +18,7 @@ import java.io.Serializable
 /**
  * 基础页面接口
  */
-interface BasePage : BaseContainer.OnEventHandler, InteractionCallback {
+interface BasePage : BaseContainer.OnEventCallback, InteractionCallback {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle

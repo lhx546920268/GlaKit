@@ -18,7 +18,6 @@ import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.AppUtils
-import java.lang.reflect.Proxy
 
 
 /**
@@ -35,41 +34,32 @@ open class BaseActivity : AppCompatActivity(), BasePage {
     //是否可见
     private var _visible = false
     val isVisible: Boolean
-    get() {
-        return _visible
-    }
+        get() = _visible
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
      */
     override val attachedBundle: Bundle?
-        get(){
-            return intent.extras
-        }
+        get() = intent.extras
 
     /**
      * 获取context
      */
     override val attachedContext: Context?
-        get(){
-            return this
-        }
+        get() = this
+
 
     /**
      * 关联的activity
      */
     override val attachedActivity: Activity?
-        get(){
-            return this
-        }
+        get() = this
 
     /**
      * 基础容器
      */
     override val baseContainer: BaseContainer?
-        get(){
-            return null
-        }
+        get() = if(_fragment != null) _fragment!!.baseContainer else null
 
     //<editor-fold desc="父类方法">
 
@@ -78,6 +68,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
 
         super.onCreate(savedInstanceState)
 
+        //状态栏
         AppUtils.setStatusBarStyle(
             window, ContextCompat.getColor(this, R.color.status_bar_background_color),
             resources.getBoolean(R.bool.status_bar_is_light)
@@ -195,7 +186,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
 
 
     //启动一个activity
-    fun startActivity(activityClass: Class<out Activity?>?): Intent? {
+    fun startActivity(activityClass: Class<out Activity?>?): Intent {
         val intent = Intent(this, activityClass)
         startActivity(intent)
         return intent

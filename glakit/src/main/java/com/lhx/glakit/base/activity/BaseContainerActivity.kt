@@ -18,9 +18,7 @@ open class BaseContainerActivity : BaseActivity() {
      * 基础容器
      */
     override val baseContainer: BaseContainer?
-        get(){
-            return _container
-        }
+        get() = _container
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,18 +26,17 @@ open class BaseContainerActivity : BaseActivity() {
             _container = BaseContainer(this)
             _container?.run{
                 setShowTitleBar(showTitleBar())
-                onEventHandler = this@BaseContainerActivity
+                mOnEventCallback = this@BaseContainerActivity
             }
             setContentView(_container)
             initialize(layoutInflater, _container!!, savedInstanceState)
         }
-        name = (javaClass.name)
+        name = javaClass.name
     }
 
     override fun getContentViewRes(): Int {
         return 0
     }
-
 
     //打开activity 不要动画
     fun closeAnimate() {
@@ -66,7 +63,6 @@ open class BaseContainerActivity : BaseActivity() {
     //<editor-fold desc="Fragment">
 
     //启动一个带activity的fragment
-
     fun startFragment(fragmentClass: Class<out BaseFragment>, bundle: Bundle? = null) {
         startFragmentForResult(fragmentClass, 0, bundle)
     }

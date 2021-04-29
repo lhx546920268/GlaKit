@@ -6,12 +6,12 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.drawable.LoadingDrawable
 import com.lhx.glakit.utils.SizeUtils
-import kotlinx.android.synthetic.main.page_loading_view.view.*
 
 //页面加载视图
 class PageLoadingView : FrameLayout {
@@ -21,6 +21,11 @@ class PageLoadingView : FrameLayout {
 
     //加载失败
     private var pageFailView: View? = null
+
+    private lateinit var imageView: ImageView
+    private lateinit var contentView: View
+    lateinit var textView: TextView
+        private set
 
     //状态
     var status = PageStatus.LOADING
@@ -47,6 +52,9 @@ class PageLoadingView : FrameLayout {
 
     override fun onFinishInflate() {
         super.onFinishInflate()
+        imageView = findViewById(R.id.imageView)
+        textView = findViewById(R.id.textView)
+        contentView = findViewById(R.id.contentView)
 
         imageView.setImageDrawable(loadingDrawable)
     }
@@ -59,10 +67,6 @@ class PageLoadingView : FrameLayout {
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         loadingDrawable.stop()
-    }
-
-    fun getTextView(): TextView {
-        return textView
     }
 
     //状态改变了

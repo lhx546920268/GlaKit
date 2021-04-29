@@ -8,7 +8,9 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.StateListDrawable
 import android.os.Bundle
 import android.view.*
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentManager
@@ -20,8 +22,6 @@ import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ViewUtils
-import kotlinx.android.synthetic.main.action_sheet_dialog.*
-import kotlinx.android.synthetic.main.alert_dialog.*
 
 
 /**
@@ -92,6 +92,17 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     //是否需要计算内容高度 当内容或者按钮数量过多时可设置，防止内容显示不完
     var shouldMeasureContentHeight = false
 
+    private lateinit var logoImageView: ImageView
+    private lateinit var titleTextView: TextView
+    private lateinit var subtitleTextView: TextView
+    private lateinit var recyclerView: RecyclerView
+    private var topTransparentView: View? = null
+    private var cancelTextView: TextView? = null
+    private lateinit var scrollContainer: LinearLayout
+    private lateinit var scrollView: ScrollView
+    private var topContainer: View? = null
+    private lateinit var divider: View
+
     init {
 
         _style = style
@@ -128,6 +139,17 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
     //初始化视图
     private fun initViews() {
+        _contentView?.apply {
+            logoImageView = findViewById(R.id.logoImageView)
+            titleTextView = findViewById(R.id.titleTextView)
+            subtitleTextView = findViewById(R.id.subtitleTextView)
+            recyclerView = findViewById(R.id.recyclerView)
+            scrollContainer = findViewById(R.id.scrollContainer)
+            scrollView = findViewById(R.id.scrollView)
+            topTransparentView = findViewById(R.id.topTransparentView)
+            cancelTextView = findViewById(R.id.cancelTextView)
+            divider = findViewById(R.id.divider)
+        }
 
         if ((_buttonTitles == null || _buttonTitles!!.isEmpty()) && _style == AlertStyle.ALERT) {
             _buttonTitles = arrayOf("确定")
@@ -160,16 +182,18 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
         //actionSheet 样式不一样
         if (_style == AlertStyle.ACTION_SHEET) {
-            cancelTextView.setOnClickListener(this)
-            cancelTextView.textSize = props.buttonTextSize
-            cancelTextView.setTextColor(props.buttonTextColor)
-            cancelTextView.setPadding(
-                props.buttonLeftRightPadding, props.buttonTopBottomPadding,
-                props.buttonLeftRightPadding, props.buttonTopBottomPadding
-            )
+            cancelTextView?.apply {
+                setOnClickListener(this@AlertDialogFragment)
+                textSize = props.buttonTextSize
+                setTextColor(props.buttonTextColor)
+                setPadding(
+                    props.buttonLeftRightPadding, props.buttonTopBottomPadding,
+                    props.buttonLeftRightPadding, props.buttonTopBottomPadding
+                )
+            }
             setBackground(topContainer)
-            setBackgroundSelector(cancelTextView)
-            topTransparentView.setOnClickListener(this)
+            setBackgroundSelector(cancelTextView!!)
+            topTransparentView?.setOnClickListener(this)
             val has = hasTopContent()
 
             //隐藏顶部分割线 没有按钮也隐藏
@@ -194,7 +218,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
         recyclerView.layoutManager = layoutManager
 
         if (_buttonTitles != null && _buttonTitles!!.size > 1) { //添加分割线
-            recyclerView!!.addItemDecoration(ItemDecoration())
+            recyclerView.addItemDecoration(ItemDecoration())
         }
 
         recyclerView.adapter = Adapter()
@@ -291,7 +315,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 }
 
                 //取消按钮高度
-                cancelButtonHeight += StringUtils.measureTextHeight(cancelTextView.text, cancelTextView.paint, maxWidth)
+                cancelButtonHeight += StringUtils.measureTextHeight(cancelTextView!!.text, cancelTextView!!.paint, maxWidth)
                 + props.buttonTopBottomPadding * 2 + props.dialogPadding
             }
             AlertStyle.ALERT -> {
@@ -316,7 +340,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 }
             }
         }
-        var maxHeight = SizeUtils.getWindowHeight(context!!) - props.dialogPadding * 2 -
+        var maxHeight = SizeUtils.getWindowHeight(requireContext()) - props.dialogPadding * 2 -
                     cancelButtonHeight - scrollContainer.paddingBottom - scrollContainer.paddingTop
         if (divider.visibility == View.VISIBLE) {
             maxHeight -= props.dividerHeight
@@ -362,8 +386,8 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     //获取内容视图宽度
     private fun getContentViewWidth(): Int {
         when (_style) {
-            AlertStyle.ALERT -> return SizeUtils.pxFormDip(280f, context!!)
-            AlertStyle.ACTION_SHEET -> return SizeUtils.getWindowWidth(context!!)
+            AlertStyle.ALERT -> return SizeUtils.pxFormDip(280f, requireContext())
+            AlertStyle.ACTION_SHEET -> return SizeUtils.getWindowWidth(requireContext())
         }
     }
 
@@ -417,7 +441,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
                                     onItemClickListener!!.onItemClick(
                                         this@AlertDialogFragment,
-                                        holder.adapterPosition
+                                        holder.bindingAdapterPosition
                                     )
                                 }
                             })
@@ -427,7 +451,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                         if (onItemClickListener != null) {
                             onItemClickListener!!.onItemClick(
                                 this@AlertDialogFragment,
-                                holder.adapterPosition
+                                holder.bindingAdapterPosition
                             )
                         }
                     }

@@ -53,7 +53,7 @@ abstract class BaseContainerDialogFragment : BaseDialogFragment(), BasePage {
         _container = BaseContainer(context)
         _container?.run {
             setShowTitleBar(showTitleBar())
-            onEventHandler = this@BaseContainerDialogFragment
+            mOnEventCallback = this@BaseContainerDialogFragment
         }
 
         initialize(inflater, _container!!, savedInstanceState)

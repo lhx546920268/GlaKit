@@ -1,14 +1,11 @@
 package com.lhx.glakit.drawable
 
-import androidx.annotation.ColorInt
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.view.animation.LinearInterpolator
 import android.animation.ValueAnimator
 import android.graphics.*
 import android.graphics.drawable.Animatable
-import androidx.annotation.FloatRange
-import androidx.annotation.IntRange
 import com.lhx.glakit.properties.ReadWritePropertyDelegate
 import com.lhx.glakit.utils.ColorUtils
 import com.lhx.glakit.utils.MathUtils

@@ -14,7 +14,8 @@ import androidx.annotation.LayoutRes
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.StringUtils
-import kotlinx.android.synthetic.main.web_fragment.*
+import com.lhx.glakit.widget.GKWebView
+import com.lhx.glakit.widget.ProgressBar
 
 
 /**
@@ -59,6 +60,9 @@ open class WebFragment : BaseFragment() {
     //是否显示菊花 与进度条互斥
     protected var shouldDisplayIndicator = false
 
+    protected var webView: GKWebView? = null
+    protected var progressBar: ProgressBar? = null
+
     //返回自定义的 layout res
     @LayoutRes
     fun getContentRes(): Int {
@@ -74,6 +78,8 @@ open class WebFragment : BaseFragment() {
         }
 
         setContainerContentView(res)
+        webView = findViewById(R.id.webView)
+        progressBar = findViewById(R.id.progressBar)
 
         shouldUseWebTitle = getBooleanFromBundle(WEB_USE_WEB_TITLE, true)
         shouldDisplayProgress = getBooleanFromBundle(WEB_DISPLAY_PROGRESS, true)
@@ -113,81 +119,81 @@ open class WebFragment : BaseFragment() {
     //配置webView
     private fun configureWeb(){
 
-        webView.webChromeClient = webChromeClient
-        webView.webViewClient = webViewClient
+        progressBar?.progressColor = getColorCompat(R.color.web_progress_color)
+        webView?.also {
+            it.webChromeClient = webChromeClient
+            it.webViewClient = webViewClient
 
-        progressBar.progressColor = getColorCompat(R.color.web_progress_color)
-        val settings = webView.settings
-        val userAgent = getCustomUserAgent()
-        if (!StringUtils.isEmpty(userAgent)) {
-            settings.userAgentString = "${settings.userAgentString} $userAgent"
+            val settings = it.settings
+            val userAgent = getCustomUserAgent()
+            if (!StringUtils.isEmpty(userAgent)) {
+                settings.userAgentString = "${settings.userAgentString} $userAgent"
+            }
+
+            settings.useWideViewPort = true // 设置此属性，可任意比例缩放,将图片调整到适合webview的大小
+
+            // 便页面支持缩放：
+            settings.javaScriptEnabled = true
+            settings.builtInZoomControls = false
+            settings.setSupportZoom(false)
+            settings.defaultFontSize = 12
+            settings.defaultFixedFontSize = 12
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+
+                //适配5.0不允许http和https混合使用情况
+                settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+                it.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                it.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            }
+
+            settings.setSupportMultipleWindows(false)
+            settings.allowFileAccess = true
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+
+                // 通过 file url 加载的 Javascript 读取其他的本地文件 .建议关闭
+                settings.allowFileAccessFromFileURLs = false
+                // 允许通过 file url 加载的 Javascript 可以访问其他的源，包括其他的文件和 http，https 等其他的源
+                settings.allowUniversalAccessFromFileURLs = false
+            }
+
+            //settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL); // 支持内容重新布局
+            settings.loadWithOverviewMode = true // 缩放至屏幕的大小
+            settings.loadsImagesAutomatically = true // 支持自动加载图片
+            settings.blockNetworkImage = false
+            settings.defaultTextEncodingName = "utf-8" //设置编码格式
+            settings.domStorageEnabled = true //设置适应Html5
+
+            //settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK); //设置缓存
+            settings.databaseEnabled = true
+            settings.setAppCacheEnabled(true)
+            settings.setGeolocationEnabled(true)
+
+            //设置定位的数据库路径
+            val dir = context?.applicationContext?.getDir("database", Context.MODE_PRIVATE)?.path
+            settings.setGeolocationDatabasePath(dir)
         }
-        
-        settings.useWideViewPort = true // 设置此属性，可任意比例缩放,将图片调整到适合webview的大小
-        
-        // 便页面支持缩放：
-        settings.javaScriptEnabled = true
-        settings.builtInZoomControls = false
-        settings.setSupportZoom(false)
-        settings.defaultFontSize = 12
-        settings.defaultFixedFontSize = 12
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            
-            //适配5.0不允许http和https混合使用情况
-            settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        }
-        
-        settings.setSupportMultipleWindows(false)
-        settings.allowFileAccess = true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { 
-            
-            // 通过 file url 加载的 Javascript 读取其他的本地文件 .建议关闭
-            settings.allowFileAccessFromFileURLs = false
-            // 允许通过 file url 加载的 Javascript 可以访问其他的源，包括其他的文件和 http，https 等其他的源
-            settings.allowUniversalAccessFromFileURLs = false
-        }
-        
-        //settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL); // 支持内容重新布局
-        settings.loadWithOverviewMode = true // 缩放至屏幕的大小
-        settings.loadsImagesAutomatically = true // 支持自动加载图片
-        settings.blockNetworkImage = false
-        settings.defaultTextEncodingName = "utf-8" //设置编码格式
-        settings.domStorageEnabled = true //设置适应Html5
-        
-        //settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK); //设置缓存
-        settings.databaseEnabled = true
-        settings.setAppCacheEnabled(true)
-        settings.setGeolocationEnabled(true)
-        
-        //设置定位的数据库路径
-        val dir = context?.applicationContext?.getDir("database", Context.MODE_PRIVATE)?.path
-        settings.setGeolocationDatabasePath(dir)
     }
 
     override fun onDestroy() {
-        if (webView != null) {
-            webView.destroy()
-        }
+        webView?.destroy()
         super.onDestroy()
     }
 
     //加载
     fun loadWebContent() {
         if (webView == null) return
-        
+
         if (!StringUtils.isEmpty(toBeOpenedURL) || !StringUtils.isEmpty(htmlString)) {
             if (!StringUtils.isEmpty(toBeOpenedURL)) {
-                webView.loadUrl(toBeOpenedURL)
+                webView!!.loadUrl(toBeOpenedURL!!)
             } else {
                 var html = htmlString
                 if (shouldAddMobileMeta()) {
                     html = "<style>img {width:100%;}</style><meta name='viewport' content='width=device-width, initial-scale=1'/>${htmlString}"
                 }
-                webView.loadDataWithBaseURL(null, html, "text/html", "utf8", null)
+                webView!!.loadDataWithBaseURL(null, html!!, "text/html", "utf8", null)
             }
         }
     }
@@ -206,9 +212,9 @@ open class WebFragment : BaseFragment() {
         if (StringUtils.isEmpty(js)) return
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView.evaluateJavascript(js, null)
+            webView?.evaluateJavascript(js!!, null)
         } else {
-            webView.loadUrl(js)
+            webView?.loadUrl(js!!)
         }
     }
 
@@ -224,7 +230,7 @@ open class WebFragment : BaseFragment() {
 
         override fun onProgressChanged(view: WebView, newProgress: Int) {
             if (shouldDisplayProgress) {
-                progressBar.setProgress(newProgress / 100.0f)
+                progressBar?.setProgress(newProgress / 100.0f)
             }
         }
 
@@ -257,10 +263,10 @@ open class WebFragment : BaseFragment() {
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if(webView != null){
+        webView?.also {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
-                if (webView.canGoBack()) {
-                    webView.goBack()
+                if (it.canGoBack()) {
+                    it.goBack()
                     return true
                 }
             }

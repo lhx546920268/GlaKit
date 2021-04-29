@@ -17,10 +17,9 @@ import com.lhx.glakit.refresh.DefaultRefreshHeader
 import com.lhx.glakit.refresh.RefreshHeader
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.widget.BackToTopButton
+import com.scwang.smartrefresh.layout.SmartRefreshLayout
 import com.scwang.smartrefresh.layout.api.RefreshLayout
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener
-import kotlinx.android.synthetic.main.list_refresh_fragment.*
-
 
 /**
  * 可下拉刷新的
@@ -55,6 +54,8 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     fun hasRefresh(): Boolean {
         return false
     }
+
+    protected var smartRefreshLayout: SmartRefreshLayout? = null
 
     //</editor-fold>
 
@@ -97,6 +98,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     //初始化刷新控件
     private fun initRefreshLayout() {
         if (hasRefresh()) {
+            smartRefreshLayout = findViewById(R.id.smartRefreshLayout)
             _refreshHeader = getRefreshHeader()
             _refreshHeader?.apply {
 
@@ -138,14 +140,14 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
         if (smartRefreshLayout != null && _refreshing) {
             _refreshing = false
             _refreshHeader!!.shouldCloseImmediately = closeImmediately
-            smartRefreshLayout.finishRefresh()
+            smartRefreshLayout!!.finishRefresh()
         }
     }
 
     //手动刷新
     fun autoRefresh() {
         if (smartRefreshLayout != null && !_refreshing) {
-            smartRefreshLayout.autoRefresh()
+            smartRefreshLayout!!.autoRefresh()
         }
     }
 

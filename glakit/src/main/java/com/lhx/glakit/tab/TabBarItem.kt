@@ -3,14 +3,15 @@ package com.lhx.glakit.tab
 import android.content.Context
 import android.util.AttributeSet
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.RelativeLayout
+import android.widget.TextView
+import com.lhx.glakit.R
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.widget.BadgeValueTextView
-import kotlinx.android.synthetic.main.tab_bar_item.view.*
-
 
 /**
- * 标签按钮
+ * 标签栏按钮
  */
 class TabBarItem : RelativeLayout {
 
@@ -21,6 +22,9 @@ class TabBarItem : RelativeLayout {
         attrs,
         defStyleAttr
     )
+
+    val imageView: ImageView by lazy { findViewById(R.id.imageView) }
+    val textView: TextView by lazy { findViewById(R.id.textView) }
 
     //角标
     private val badgeValueTextView: BadgeValueTextView by lazy{

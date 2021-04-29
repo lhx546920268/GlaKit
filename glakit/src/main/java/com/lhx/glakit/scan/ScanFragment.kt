@@ -2,7 +2,6 @@ package com.lhx.glakit.scan
 
 import android.graphics.SurfaceTexture
 import android.os.Bundle
-import android.os.Handler
 import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
@@ -11,7 +10,6 @@ import com.lhx.glakit.R
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.ViewUtils
-import kotlinx.android.synthetic.main.scan_fragment.*
 import pub.devrel.easypermissions.EasyPermissions
 
 
@@ -26,6 +24,8 @@ abstract class ScanFragment: BaseFragment(), TextureView.SurfaceTextureListener,
     //是否正在暂停
     private var _pausing = false
 
+    private lateinit var textureView: TextureView
+
     final override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         setContainerContentView(R.layout.scan_fragment)
         val frameLayout = getContentView(inflater, getContainerContentView() as FrameLayout) as FrameLayout
@@ -34,6 +34,8 @@ abstract class ScanFragment: BaseFragment(), TextureView.SurfaceTextureListener,
             ViewUtils.removeFromParent(view)
             frameLayout.addView(view)
         }
+
+        textureView = findViewById(R.id.textureView)!!
 
         cameraManager = CameraManager(this)
         cameraManager.cameraManagerListener = this
@@ -64,18 +66,18 @@ abstract class ScanFragment: BaseFragment(), TextureView.SurfaceTextureListener,
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         cameraManager.setPreviewSize(width, height)
         cameraManager.setSurfaceTexture(surface)
-        Handler().postDelayed({
+        view?.postDelayed({
             cameraManager.openCamera()
         }, 300)
     }
 
-    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) {}
+    override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {}
 
-    override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?): Boolean {
+    override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
         return true
     }
 
-    override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) {}
+    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {}
 
     //暂停相机
     protected fun pauseCamera() {
