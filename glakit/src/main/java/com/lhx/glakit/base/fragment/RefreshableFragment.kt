@@ -174,7 +174,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
         if (scrollToTopIconRes == 0) return null
 
         if (_backToTopButton == null) {
-            _backToTopButton = BackToTopButton(context)
+            _backToTopButton = BackToTopButton(requireContext())
             _backToTopButton?.apply{
                 setImageResource(scrollToTopIconRes)
                 val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)

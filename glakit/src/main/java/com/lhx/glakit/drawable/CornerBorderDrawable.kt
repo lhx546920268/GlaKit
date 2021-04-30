@@ -98,7 +98,7 @@ class CornerBorderDrawable : BaseDrawable{
             //全圆
             val radius = min(bounds.width(), bounds.height()) / 2.0f
             path.addRoundRect(
-                rectF, radius, radius, Path.Direction
+                bounds, radius, radius, Path.Direction
                     .CW
             )
         } else {

@@ -38,4 +38,7 @@
     <item name="about_tel" type="id"/>
 
     <item name="selected_view" type="id"/>
+
+    <!--  baseActivity  -->
+    <item name="current_content" type="id"/>
 </resources>

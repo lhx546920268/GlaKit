@@ -26,9 +26,9 @@ open class GKWebView : WebView {
     //是否需要获取viewPager
     private var _shouldGetViewPager = true
 
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
@@ -44,7 +44,7 @@ open class GKWebView : WebView {
         if (!TextUtils.isEmpty(data)) {
             data += "<style>img {width:100%;}</style><meta name=\"viewport\" content=\"width=device-width," +
                     "initial-scale=1\"/>"
-            loadDataWithBaseURL(null, data, "text/html", "utf-8", null)
+            loadDataWithBaseURL(null, data!!, "text/html", "utf-8", null)
         }
     }
 

@@ -35,16 +35,16 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
 
     //关联的
     val recyclerView: RecyclerView?
-    get() = recyclerViewReference.get()
+        get() = recyclerViewReference.get()
 
     val context: Context?
-    get() = recyclerViewReference.get()?.context
+        get() = recyclerViewReference.get()?.context
 
     override var totalCount: Int = 0
     override var realCount: Int = 0
 
     override val sections: ArrayList<SectionInfo> by lazy {
-        ArrayList<SectionInfo>()
+        ArrayList()
     }
     override var shouldReloadData: Boolean = true
 
@@ -169,7 +169,7 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong();
+        return position.toLong()
     }
 
     final override fun getItemViewType(position: Int): Int {
@@ -198,7 +198,7 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
                     override fun onSingleClick(v: View) {
 
                         //添加点击事件
-                        val p = holder.adapterPosition
+                        val p = holder.bindingAdapterPosition
                         val info: SectionInfo = sectionInfoForPosition(p)!!
 
                         when{

@@ -10,40 +10,22 @@ import androidx.annotation.DrawableRes
 import com.google.android.material.snackbar.Snackbar
 import com.lhx.glakit.R
 import com.lhx.glakit.toast.ToastContainer
+import com.lhx.glakit.widget.ToastManager
 
 /**
  * Toast 工具类
  */
 object ToastUtils {
 
-    fun showToast(container: ToastContainer, text: CharSequence, @DrawableRes icon: Int = 0, gravity: Int = Gravity.BOTTOM) {
+    fun showToast(context: Context, text: CharSequence, @DrawableRes icon: Int = 0, gravity: Int = Gravity.BOTTOM){
 
-        Snackbar.make(container.toastContainer, text, Snackbar.LENGTH_SHORT)
-//        toast?.apply {
-//            textView.text = text
-//            imageView.setImageResource(icon)
-//            setGravity(gravity, 0, 0)
-//            show()
-//        }
     }
 
-    //自定义toast
-//    private class CustomToast (context: Context): Toast(context){
-//
-//        val textView: TextView
-//            get() => cont
-//        get() {
-//           return view.findViewById(R.id.textView)
-//        }
-//
-//        val imageView: ImageView
-//        get() {
-//            return view.findViewById(R.id.imageView)
-//        }
-//
-//        init {
-//            view = View.inflate(context, R.layout.custom_toast, null)
-//            duration = LENGTH_SHORT
-//        }
-//    }
+    fun showToast(view: View, text: CharSequence, @DrawableRes icon: Int = 0, gravity: Int = Gravity.BOTTOM) {
+        ToastManager.sharedManager.show(text, view)
+    }
+
+    fun showToast(container: ToastContainer, text: CharSequence, @DrawableRes icon: Int = 0, gravity: Int = Gravity.BOTTOM) {
+        showToast(container.toastContainer, text, icon, gravity)
+    }
 }

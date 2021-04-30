@@ -5,7 +5,6 @@ import android.view.View
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
 
-
 /**
  * recyclerView holder
  */
@@ -25,12 +24,12 @@ class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
      * @param <T> 视图类型
      * @return 对应的view </T>
      * */
-    fun <T : View?> getView(@IdRes id: Int): T? {
+    fun <T : View> getView(@IdRes id: Int): T {
         var view: T? = null
         if (mViews == null) {
             mViews = SparseArray()
         } else {
-            view = mViews!![id] as T?
+            view = mViews!![id] as T
         }
         if (view == null) {
             view = itemView.findViewById<View>(id) as T

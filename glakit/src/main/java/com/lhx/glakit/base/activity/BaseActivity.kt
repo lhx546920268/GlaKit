@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.View
 import android.view.Window
 import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
@@ -19,11 +20,10 @@ import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.AppUtils
 
-
 /**
  * 基础activity
  */
-open class BaseActivity : AppCompatActivity(), BasePage {
+open class BaseActivity: AppCompatActivity(), BasePage {
 
     //activity 名称 为fragment的类名 或者 activity类名
     var name: String? = null
@@ -60,6 +60,12 @@ open class BaseActivity : AppCompatActivity(), BasePage {
      */
     override val baseContainer: BaseContainer?
         get() = if(_fragment != null) _fragment!!.baseContainer else null
+
+    /**
+     * 内容视图 需要设置id为 current_content
+     */
+    protected val currentContentView: View?
+        get() = if(baseContainer != null) baseContainer!!.contentView else findViewById(R.id.current_content)
 
     //<editor-fold desc="父类方法">
 

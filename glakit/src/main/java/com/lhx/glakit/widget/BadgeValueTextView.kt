@@ -50,9 +50,9 @@ class BadgeValueTextView : AppCompatTextView {
         }
     }
 
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){
 
         if (attrs != null) {
             val array = getContext().obtainStyledAttributes(attrs, R.styleable.BadgeValueTextView)

@@ -136,12 +136,12 @@ class SegmentedControl : LinearLayoutCompat {
     private var _itemPaddingRight = 0
     private var _itemPaddingBottom = 0
 
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){
 
         orientation = HORIZONTAL
-        cornerRadius = SizeUtils.pxFormDip(5f, context!!)
+        cornerRadius = SizeUtils.pxFormDip(5f, context)
         _itemPaddingLeft = SizeUtils.pxFormDip(10f, context)
         _itemPaddingTop = SizeUtils.pxFormDip(5f, context)
         _itemPaddingRight = SizeUtils.pxFormDip(10f, context)
@@ -249,7 +249,7 @@ class SegmentedControl : LinearLayoutCompat {
     }
 
     //分段选择 item
-    private class SegmentedItem(context: Context?) : AppCompatTextView(context) {
+    private class SegmentedItem(context: Context) : AppCompatTextView(context) {
 
         //正常drawable
         var normalBackgroundDrawable = NormalBackgroundDrawable()

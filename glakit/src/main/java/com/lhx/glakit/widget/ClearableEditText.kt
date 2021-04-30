@@ -31,15 +31,15 @@ class ClearableEditText : AppCompatTextView, TextWatcher {
     ///是否聚焦
     private var _hasFocus = false
 
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
     ){
         if (attrs != null) {
-            val array = context!!.obtainStyledAttributes(attrs, R.styleable.ClearableEditText)
+            val array = context.obtainStyledAttributes(attrs, R.styleable.ClearableEditText)
             val res = array.getResourceId(R.styleable.ClearableEditText_clear_icon, 0)
             if (res > 0) {
                 clearDrawable = ContextCompat.getDrawable(context, res)
@@ -55,7 +55,7 @@ class ClearableEditText : AppCompatTextView, TextWatcher {
             showClearBtn()
         }
 
-        setHintTextColor(ContextCompat.getColor(context!!, R.color.hint_color))
+        setHintTextColor(ContextCompat.getColor(context, R.color.hint_color))
     }
 
     //显示删除按钮
