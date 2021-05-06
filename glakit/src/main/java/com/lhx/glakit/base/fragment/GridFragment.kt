@@ -2,6 +2,7 @@ package com.lhx.glakit.base.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.BaseAdapter
 import android.widget.GridView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
@@ -12,14 +13,14 @@ import com.lhx.glakit.base.widget.BaseContainer
  */
 open class GridFragment : RefreshableFragment() {
 
-    protected lateinit var gridView: GridView
+    protected val gridView: GridView by lazy { requireViewById(R.id.gridView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
         super.initialize(inflater, container, saveInstanceState)
         var res = getContentRes()
         if (res <= 0) {
-            if (hasRefresh()) {
+            if (hasRefresh) {
                 res = R.layout.grid_refresh_fragment
             } else {
                 res = R.layout.grid_fragment
@@ -27,10 +28,12 @@ open class GridFragment : RefreshableFragment() {
         }
 
         setContainerContentView(res)
-        gridView = findViewById(R.id.gridView)!!
 
-        setRefreshView(gridView)
         val backToTopButton = getBackToTopButton()
         backToTopButton?.listView = gridView
+    }
+
+    override fun notifyDataSetChanged() {
+        (gridView.adapter as BaseAdapter?)?.notifyDataSetChanged()
     }
 }

@@ -39,7 +39,7 @@
     <!--AlertController 样式-->
 
     <!--圆角半径-->
-    <dimen name="alert_corner_radius">5dp</dimen>
+    <dimen name="alert_corner_radius">10dp</dimen>
 
     <!--按钮高度padding-->
     <dimen name="alert_button_top_bottom_padding">13dp</dimen>

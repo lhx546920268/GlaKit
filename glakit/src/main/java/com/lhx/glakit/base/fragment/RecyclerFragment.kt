@@ -11,25 +11,26 @@ import com.lhx.glakit.base.widget.BaseContainer
  */
 open class RecyclerFragment : RefreshableFragment() {
 
-    protected lateinit var recyclerView: RecyclerView
+    protected val recyclerView: RecyclerView by lazy { requireViewById(R.id.recyclerView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         super.initialize(inflater, container, saveInstanceState)
 
         var res = getContentRes()
         if (res <= 0) {
-            if (hasRefresh()) {
+            if (hasRefresh) {
                 res = R.layout.recycler_refresh_fragment
             } else {
                 res = R.layout.recycler_fragment
             }
         }
         setContainerContentView(res)
-        recyclerView = findViewById(R.id.recyclerView)!!
-
-        setRefreshView(recyclerView)
 
         val backToTopButton = getBackToTopButton()
         backToTopButton?.recyclerView = recyclerView
+    }
+
+    override fun notifyDataSetChanged() {
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 }

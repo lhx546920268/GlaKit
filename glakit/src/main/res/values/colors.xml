@@ -92,7 +92,7 @@
     <color name="alert_destructive_button_background_color">@color/white</color>
 
     <!--警示按钮高亮背景颜色-->
-    <color name="alert_destructive_button_high_lighted_background_color">@color/white</color>
+    <color name="alert_destructive_button_high_lighted_background_color">@color/alert_high_lighted_background_color</color>
 
     <!--无法点击的按钮字体颜色-->
     <color name="alert_disable_button_text_color">@color/gray</color>

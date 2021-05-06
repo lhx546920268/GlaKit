@@ -48,7 +48,7 @@ class CornerDrawableFragment: BaseFragment() {
             drawable.shouldAbsoluteCircle = true
             drawable.backgroundColor = Color.BLUE
 
-            drawable.attachView(cornerText1)
+            drawable.attachView(cornerText1, true)
 
             val loadingDrawable = LoadingDrawable()
             loadingDrawable.intrinsicWidth = pxFromDip(37.0f)
@@ -56,6 +56,13 @@ class CornerDrawableFragment: BaseFragment() {
 
             imgSquare.setImageDrawable(loadingDrawable)
             loadingDrawable.start()
+
+            drawable.borderColor = 0
+            drawable.borderWidth = 0
+            drawable.shouldAbsoluteCircle = false
+            drawable.backgroundColor = Color.RED
+            drawable.setCornerRadius(pxFromDip(10.0f))
+            drawable.attachView(imgRect, true)
         }
     }
 }

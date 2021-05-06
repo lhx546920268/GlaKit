@@ -51,7 +51,7 @@ object AppUtils {
      * @param context
      * @return
      */
-    fun getAppVersionName(context: Context): String? {
+    fun getAppVersionName(context: Context): String {
         var ver = ""
         try {
             val packageName: String = context.packageName
@@ -204,7 +204,7 @@ object AppUtils {
     fun openMapForNavigation(context: Context, dest: String?, destLatitude: Double, destLongitude: Double) {
 
         if(context is FragmentActivity){
-            val fragment = AlertDialogFragment.actionSheet("查看路线", buttonTitles = arrayOf("百度地图", "高德地图"))
+            val fragment = AlertUtils.actionSheet("查看路线", buttonTitles = arrayOf("百度地图", "高德地图"))
             fragment.onItemClickListener = object : AlertDialogFragment.OnItemClickListener{
 
                 override fun onItemClick(fragment: AlertDialogFragment, position: Int) {

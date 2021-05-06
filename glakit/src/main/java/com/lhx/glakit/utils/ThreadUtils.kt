@@ -4,8 +4,6 @@ import android.os.Handler
 import android.os.Looper
 
 
-
-
 /**
  * 线程工具类
  */

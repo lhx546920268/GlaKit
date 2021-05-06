@@ -8,7 +8,9 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.*
+import androidx.annotation.AnimRes
+import androidx.annotation.IdRes
+import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityStack
@@ -60,7 +62,11 @@ abstract class BaseFragment : Fragment(), BasePage {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, viewGroup: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        viewGroup: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         if (_container == null) { //创建容器视图
             _container = BaseContainer(context)
             _container?.mOnEventCallback = this
@@ -110,7 +116,11 @@ abstract class BaseFragment : Fragment(), BasePage {
         requireActivity().finish()
     }
 
-    fun backToFragment(fragmentClass: Class<out BaseFragment>, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
+    fun backToFragment(
+        fragmentClass: Class<out BaseFragment>,
+        include: Boolean = false,
+        resultCode: Int = Int.MAX_VALUE
+    ) {
         backTo(fragmentClass.name, include, resultCode)
     }
 
@@ -140,7 +150,11 @@ abstract class BaseFragment : Fragment(), BasePage {
         startActivityForResult(fragmentClass, 0, bundle)
     }
     
-    fun startActivityForResult(fragmentClass: Class<out BaseFragment>, requestCode: Int, bundle: Bundle? = null) {
+    fun startActivityForResult(
+        fragmentClass: Class<out BaseFragment>,
+        requestCode: Int,
+        bundle: Bundle? = null
+    ) {
         val intent = BaseActivity.getIntentWithFragment(requireContext(), fragmentClass)
         if (bundle != null) {
             bundle.remove(BaseActivity.FRAGMENT_STRING)
@@ -156,11 +170,13 @@ abstract class BaseFragment : Fragment(), BasePage {
     //</editor-fold>
 
     ///获取子视图
-    fun <T : View> findViewById(resId: Int): T? {
-        if(_container != null){
-            return _container!!.findViewById(resId)
-        }
-        return null
+    fun <T : View> findViewById(@IdRes id: Int): T? {
+        return _container?.findViewById(id)
+    }
+
+    fun <T : View> requireViewById(@IdRes id: Int): T {
+        return findViewById(id)
+            ?: throw IllegalArgumentException("ID does not reference a View inside this View")
     }
 
     //点击物理键

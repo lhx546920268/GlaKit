@@ -163,7 +163,7 @@ class CornerBorderDrawable : BaseDrawable{
     }
 
     //设置圆角半径
-    fun setCornerRadius(leftTopCornerRadius: Int, leftBottomCornerRadius: Int, rightBottomCornerRadius: Int, rightTopCornerRadius: Int){
+    fun setCornerRadius(leftTopCornerRadius: Int, leftBottomCornerRadius: Int, rightTopCornerRadius: Int, rightBottomCornerRadius: Int){
 
         this.leftTopCornerRadius = leftTopCornerRadius
         this.leftBottomCornerRadius = leftBottomCornerRadius

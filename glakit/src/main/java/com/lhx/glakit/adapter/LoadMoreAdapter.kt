@@ -98,7 +98,9 @@ internal interface LoadMoreAdapter {
     fun displayEmptyViewEnable(): Boolean {
         if(!loadMoreEnable)
             return true
-        return loadMoreControl.loadingStatus == LoadMoreStatus.NORMAL || loadMoreControl.loadingStatus == LoadMoreStatus.NO_MORE_DATA
+        return loadMoreControl.loadingStatus.let {
+            it == LoadMoreStatus.NORMAL || it == LoadMoreStatus.NO_MORE_DATA
+        }
     }
 
     //是否正在加载更多
@@ -111,7 +113,7 @@ internal interface LoadMoreAdapter {
      */
     fun startLoadMore(){
         if(loadMoreEnable){
-            if(loadMoreControl.loadingStatus == LoadMoreStatus.LOADING){
+            if(loadMoreControl.loadingStatus != LoadMoreStatus.LOADING){
                 loadMoreControl.loadingStatus = LoadMoreStatus.LOADING
                 onLoadMore()
             }

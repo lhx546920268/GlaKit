@@ -24,8 +24,8 @@ android {
         }
     }
 
-    viewBinding {
-        enabled = true
+    buildFeatures {
+        viewBinding = true
     }
 
     compileOptions {
@@ -51,10 +51,10 @@ dependencies {
     api 'androidx.recyclerview:recyclerview:1.2.0'
 
     //通知
-    implementation 'org.greenrobot:eventbus:3.1.1'
+    api 'org.greenrobot:eventbus:3.1.1'
 
     //下拉刷新
-    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'
+    api 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0'
 
     //Zxing核心包
     api 'com.google.zxing:core:3.4.0'

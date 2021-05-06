@@ -4,6 +4,7 @@ import android.util.SparseArray
 import android.view.View
 import androidx.annotation.IdRes
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 
 /**
  * recyclerView holder
@@ -12,11 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
     //保存view的集合
-    private var mViews: SparseArray<View?>? = null
-
-    fun <T : View?> getItemView(): T {
-        return itemView as T
-    }
+    private var mViews: SparseArray<View>? = null
 
     /**
      * 通过id 获取view
@@ -29,7 +26,7 @@ class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         if (mViews == null) {
             mViews = SparseArray()
         } else {
-            view = mViews!![id] as T
+            view = mViews!![id] as T?
         }
         if (view == null) {
             view = itemView.findViewById<View>(id) as T

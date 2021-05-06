@@ -1,7 +1,5 @@
 package com.lhx.glakit.dialog
 
-import androidx.annotation.IntDef
-
 //信息弹窗样式
 enum class AlertStyle {
 

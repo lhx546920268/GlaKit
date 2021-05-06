@@ -13,13 +13,13 @@ import com.lhx.glakit.section.SectionInfo
 /**
  * listView 适配器
  */
-abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSectionAdapter{
+abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSectionAdapter {
 
     override var totalCount: Int = 0
     override var realCount: Int = 0
 
     override val sections: ArrayList<SectionInfo> by lazy {
-        ArrayList<SectionInfo>()
+        ArrayList()
     }
     override var shouldReloadData: Boolean = true
 
@@ -58,10 +58,10 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
         return totalCount
     }
 
-   final override fun getItem(position: Int): Any? {
+    final override fun getItem(position: Int): Any? {
 
         val sectionInfo: SectionInfo? = sectionInfoForPosition(position)
-        return when{
+        return when {
             isEmptyItem(position) || isLoadMoreItem(position) -> {
                 null
             }
@@ -86,16 +86,16 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
     final override fun getViewTypeCount(): Int {
         var count = numberOfViewTypes()
         headerType = count
-        count ++
+        count++
 
         footerType = count
-        count ++
+        count++
 
         loadMoreType = count
         count++
 
         loadMoreNoMoreDataType = count
-        count ++
+        count++
 
         emptyType = count
         count++
@@ -107,7 +107,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
         return position.toLong()
     }
 
-    final override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
+    final override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
 
         //触发加载更多
         triggerLoadMoreIfNeeded(position)
@@ -119,7 +119,10 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
             var params = emptyView!!.layoutParams
 
             if (params !is AbsListView.LayoutParams) {
-                params = AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, AbsListView.LayoutParams.WRAP_CONTENT)
+                params = AbsListView.LayoutParams(
+                    AbsListView.LayoutParams.MATCH_PARENT,
+                    AbsListView.LayoutParams.WRAP_CONTENT
+                )
             }
             var height = getEmptyViewHeight()
             if (height <= 0) {
@@ -127,10 +130,10 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
             }
 
             params.height = height
-            emptyView!!.layoutParams = params
-            onEmptyViewDisplay(emptyView!!)
-
-            return emptyView
+            return emptyView!!.apply {
+                layoutParams = params
+                onEmptyViewDisplay(this)
+            }
         }
 
         var result = convertView
@@ -155,7 +158,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
 
 
         val sectionInfo: SectionInfo = sectionInfoForPosition(position)!!
-        val view = when{
+        val view = when {
             sectionInfo.isHeaderForPosition(position) -> {
                 getSectionFooter(sectionInfo.section, result, parent)
             }
@@ -167,7 +170,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
             }
         }
 
-        view?.apply {
+        return view!!.apply {
             setTag(R.id.list_view_type_tag_key, type)
             setTag(R.id.list_view_item_position_tag_key, position)
             if (getTag(R.id.list_view_item_onclick_tag_key) == null) {
@@ -180,7 +183,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
                         val p = v.getTag(R.id.list_view_item_position_tag_key) as Int
                         val info: SectionInfo = sectionInfoForPosition(p)!!
 
-                        when{
+                        when {
                             info.isHeaderForPosition(p) -> {
                                 onHeaderClick(info.section, v)
                             }
@@ -195,7 +198,5 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
                 })
             }
         }
-
-        return view
     }
 }

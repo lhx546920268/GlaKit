@@ -1,30 +1,21 @@
-package com.lhx.glakit.widget
+package com.lhx.glakit.toast
 
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.content.Context
-import android.graphics.Color
 import android.os.Handler
 import android.os.Looper
-import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.TextView
-import androidx.core.animation.addListener
-import androidx.core.view.ViewCompat
 import com.google.android.material.animation.AnimationUtils
-import com.google.android.material.snackbar.Snackbar
 import com.lhx.glakit.R
-import com.lhx.glakit.drawable.CornerBorderDrawable
-import com.lhx.glakit.utils.ColorUtils
-import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.ViewUtils
 
-class ToastManager private constructor() {
+internal class ToastManager private constructor() {
 
     private var currentToast: ToastContentLayout? = null
+    private var currentAnimator: Animator? = null
     private val handler = Handler(Looper.getMainLooper())
     private val delayCallback = Runnable {
         dismiss(true)
@@ -39,6 +30,9 @@ class ToastManager private constructor() {
             ?: throw java.lang.IllegalArgumentException(
                 "No suitable parent found from the given view. Please provide a valid view.")
 
+        currentAnimator?.cancel()
+        currentAnimator = null
+
         if(currentToast != null){
             handler.removeCallbacks(delayCallback)
         }
@@ -50,12 +44,14 @@ class ToastManager private constructor() {
             content = LayoutInflater.from(inView.context).inflate(R.layout.toast_content_layout, parent, false) as ToastContentLayout
             parent.addView(content)
         }
+        content.alpha = 1.0f
         content.textView.text = text
         currentToast = content
         handler.postDelayed(delayCallback, 2000)
     }
 
     fun dismiss(animated: Boolean = true){
+        currentAnimator?.cancel()
         if(animated){
             val valueAnimator = ValueAnimator.ofFloat(1.0f, 0.0f)
             valueAnimator.interpolator = AnimationUtils.LINEAR_INTERPOLATOR
@@ -65,19 +61,20 @@ class ToastManager private constructor() {
             valueAnimator.duration = 200
             valueAnimator.addListener(object : Animator.AnimatorListener{
                 override fun onAnimationEnd(animation: Animator?) {
-                    TODO("Not yet implemented")
+                    removeToast()
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {
-                    TODO("Not yet implemented")
                 }
 
                 override fun onAnimationRepeat(animation: Animator?) {
-                    TODO("Not yet implemented")
                 }
-                
-                on
+
+                override fun onAnimationStart(animation: Animator?) {
+                }
             })
+            valueAnimator.start()
+            currentAnimator = valueAnimator
         }else{
             removeToast()
         }

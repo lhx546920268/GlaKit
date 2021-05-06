@@ -60,8 +60,8 @@ open class WebFragment : BaseFragment() {
     //是否显示菊花 与进度条互斥
     protected var shouldDisplayIndicator = false
 
-    protected var webView: GKWebView? = null
-    protected var progressBar: ProgressBar? = null
+    protected val webView: GKWebView by lazy { requireViewById(R.id.webView )}
+    protected val progressBar: ProgressBar by lazy { requireViewById(R.id.progressBar) }
 
     //返回自定义的 layout res
     @LayoutRes
@@ -78,8 +78,6 @@ open class WebFragment : BaseFragment() {
         }
 
         setContainerContentView(res)
-        webView = findViewById(R.id.webView)
-        progressBar = findViewById(R.id.progressBar)
 
         shouldUseWebTitle = getBooleanFromBundle(WEB_USE_WEB_TITLE, true)
         shouldDisplayProgress = getBooleanFromBundle(WEB_DISPLAY_PROGRESS, true)
@@ -119,8 +117,8 @@ open class WebFragment : BaseFragment() {
     //配置webView
     private fun configureWeb(){
 
-        progressBar?.progressColor = getColorCompat(R.color.web_progress_color)
-        webView?.also {
+        progressBar.progressColor = getColorCompat(R.color.web_progress_color)
+        webView.also {
             it.webChromeClient = webChromeClient
             it.webViewClient = webViewClient
 
@@ -150,13 +148,11 @@ open class WebFragment : BaseFragment() {
 
             settings.setSupportMultipleWindows(false)
             settings.allowFileAccess = true
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
 
-                // 通过 file url 加载的 Javascript 读取其他的本地文件 .建议关闭
-                settings.allowFileAccessFromFileURLs = false
-                // 允许通过 file url 加载的 Javascript 可以访问其他的源，包括其他的文件和 http，https 等其他的源
-                settings.allowUniversalAccessFromFileURLs = false
-            }
+            // 通过 file url 加载的 Javascript 读取其他的本地文件 .建议关闭
+            settings.allowFileAccessFromFileURLs = false
+            // 允许通过 file url 加载的 Javascript 可以访问其他的源，包括其他的文件和 http，https 等其他的源
+            settings.allowUniversalAccessFromFileURLs = false
 
             //settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL); // 支持内容重新布局
             settings.loadWithOverviewMode = true // 缩放至屏幕的大小
@@ -177,23 +173,21 @@ open class WebFragment : BaseFragment() {
     }
 
     override fun onDestroy() {
-        webView?.destroy()
+        webView.destroy()
         super.onDestroy()
     }
 
     //加载
     fun loadWebContent() {
-        if (webView == null) return
-
         if (!StringUtils.isEmpty(toBeOpenedURL) || !StringUtils.isEmpty(htmlString)) {
             if (!StringUtils.isEmpty(toBeOpenedURL)) {
-                webView!!.loadUrl(toBeOpenedURL!!)
+                webView.loadUrl(toBeOpenedURL!!)
             } else {
                 var html = htmlString
                 if (shouldAddMobileMeta()) {
                     html = "<style>img {width:100%;}</style><meta name='viewport' content='width=device-width, initial-scale=1'/>${htmlString}"
                 }
-                webView!!.loadDataWithBaseURL(null, html!!, "text/html", "utf8", null)
+                webView.loadDataWithBaseURL(null, html!!, "text/html", "utf8", null)
             }
         }
     }
@@ -212,9 +206,9 @@ open class WebFragment : BaseFragment() {
         if (StringUtils.isEmpty(js)) return
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView?.evaluateJavascript(js!!, null)
+            webView.evaluateJavascript(js!!, null)
         } else {
-            webView?.loadUrl(js!!)
+            webView.loadUrl(js!!)
         }
     }
 
@@ -230,7 +224,7 @@ open class WebFragment : BaseFragment() {
 
         override fun onProgressChanged(view: WebView, newProgress: Int) {
             if (shouldDisplayProgress) {
-                progressBar?.setProgress(newProgress / 100.0f)
+                progressBar.setProgress(newProgress / 100.0f)
             }
         }
 

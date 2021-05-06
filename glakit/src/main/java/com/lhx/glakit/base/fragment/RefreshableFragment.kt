@@ -35,7 +35,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     //是否正在下拉刷新
     private var _refreshing = false
     val isRefreshing: Boolean
-    get() = _refreshing
+        get() = _refreshing
 
     //回到顶部按钮
     private var _backToTopButton: BackToTopButton? = null
@@ -44,18 +44,14 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     @DrawableRes
     protected var scrollToTopIconRes = 0
 
-    //当前用来下拉刷新的视图
-    private var _refreshView: View? = null
-
     //刷新头部
     protected var _refreshHeader: RefreshHeader? = null
 
     //是否有下拉刷新功能
-    fun hasRefresh(): Boolean {
-        return false
-    }
+    open val hasRefresh
+        get() = false
 
-    protected var smartRefreshLayout: SmartRefreshLayout? = null
+    protected val smartRefreshLayout: SmartRefreshLayout? by lazy { findViewById(R.id.smartRefreshLayout) }
 
     //</editor-fold>
 
@@ -69,7 +65,12 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     }
 
     //
-    fun onRefresh() {}
+    open fun onRefresh() {}
+
+    //调用adapter的
+    open fun notifyDataSetChanged() {
+
+    }
 
     @CallSuper
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
@@ -97,16 +98,16 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
 
     //初始化刷新控件
     private fun initRefreshLayout() {
-        if (hasRefresh()) {
-            smartRefreshLayout = findViewById(R.id.smartRefreshLayout)
+        if (hasRefresh) {
             _refreshHeader = getRefreshHeader()
-            _refreshHeader?.apply {
+            _refreshHeader?.also {
 
-                onScrollHandler = this@RefreshableFragment
+                it.onScrollHandler = this@RefreshableFragment
                 smartRefreshLayout?.apply {
                     setHeaderHeight(50f)
-                    setRefreshHeader(_refreshHeader!!)
+                    setRefreshHeader(it)
                     setOnRefreshListener(this@RefreshableFragment)
+                    setEnableRefresh(true)
                     setEnableAutoLoadMore(false)
                     setEnableLoadMore(false)
                 }
@@ -151,12 +152,6 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
         }
     }
 
-    fun setRefreshView(refreshView: View) {
-        if (_refreshView !== refreshView) {
-            _refreshView = refreshView
-        }
-    }
-
     override fun onScroll(isDragging: Boolean, percent: Float, offset: Int) {
 
     }
@@ -166,11 +161,11 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
     //<editor-fold desc="回到顶部">
 
     //是否需要显示回到顶部按钮
-    fun shouldDisplayBackToTop(): Boolean {
-        return true
+    open fun shouldDisplayBackToTop(): Boolean {
+        return false
     }
 
-    fun getBackToTopButton(): BackToTopButton? {
+    open fun getBackToTopButton(): BackToTopButton? {
         if (scrollToTopIconRes == 0) return null
 
         if (_backToTopButton == null) {
@@ -195,7 +190,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
 
     //返回自定义的 layout res
     @LayoutRes
-    fun getContentRes(): Int {
+    open fun getContentRes(): Int {
         return 0
     }
 }

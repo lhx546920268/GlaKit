@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import com.google.zxing.Result
 import com.lhx.glakit.dialog.AlertDialogFragment
+import com.lhx.glakit.utils.AlertUtils
 import com.lhx.glakit.utils.AppUtils
 import pub.devrel.easypermissions.EasyPermissions
 import java.io.IOException
@@ -121,12 +122,12 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
     //打开相机
     fun openCamera() {
         val permissions = neededPermissions()
-        if (EasyPermissions.hasPermissions(fragment.context!!, *permissions)) {
+        if (EasyPermissions.hasPermissions(fragment.requireContext(), *permissions)) {
             if (_camera == null) {
                 _camera = Camera.open()
             }
             if (_camera == null) {
-                AlertDialogFragment.alert(title = "摄像头不可用", buttonTitles = arrayOf("确定")).show(fragment.childFragmentManager)
+                AlertUtils.alert(title = "摄像头不可用", buttonTitles = arrayOf("确定")).show(fragment.childFragmentManager)
             } else {
                 try {
                     _camera!!.apply {
@@ -262,13 +263,13 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
         }
         if (alert && !_alert) {
             _alert = true
-            val alertDialogFragment = AlertDialogFragment.alert("扫一扫需要您的相机权限才能使用","取消", null, arrayOf("去打开"))
+            val alertDialogFragment = AlertUtils.alert("扫一扫需要您的相机权限才能使用","取消", null, arrayOf("去打开"))
 
             alertDialogFragment.onItemClickListener = object : AlertDialogFragment.OnItemClickListener{
                 override fun onItemClick(fragment: AlertDialogFragment, position: Int) {
                     _alert = false
                     if (position == 1) {
-                        AppUtils.openAppSettings(fragment.context!!)
+                        AppUtils.openAppSettings(fragment.requireContext())
                     }
                 }
             }

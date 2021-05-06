@@ -21,6 +21,7 @@ import com.lhx.glakit.utils.ViewUtils
 
 //基础视图容器
 class BaseContainer: RelativeLayout, InteractionCallback {
+
     //内容视图
     var contentView: View? = null
     private set
@@ -261,7 +262,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     }
 
     override fun showToast(text: CharSequence, icon: Int) {
-        ToastUtils.showToast(context, text, icon)
+        ToastUtils.showToast(this, text, icon)
     }
 
     //</editor-fold>

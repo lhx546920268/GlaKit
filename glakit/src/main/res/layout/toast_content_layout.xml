@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.lhx.glakit.widget.ToastContentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.lhx.glakit.toast.ToastContentLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="15dp"
+        android:paddingHorizontal="25dp"
+        android:paddingVertical="15dp"
         android:id="@+id/container"
-        android:layout_gravity="center">
+        android:layout_marginBottom="40dp"
+        android:layout_gravity="bottom|center_horizontal">
 
         <TextView
             android:layout_width="wrap_content"
@@ -19,4 +21,4 @@
 
     </FrameLayout>
 
-</com.lhx.glakit.widget.ToastContentLayout>
+</com.lhx.glakit.toast.ToastContentLayout>

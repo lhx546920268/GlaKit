@@ -33,37 +33,18 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                           icon: Drawable? = null,
                           buttonTitles: Array<String>?): BaseDialogFragment(), View.OnClickListener{
 
-    companion object{
-
-        fun alert(title: String? = null,
-                  subtitle: String? = null,
-                  icon: Drawable? = null,
-                  buttonTitles: Array<String>?): AlertDialogFragment{
-
-            return AlertDialogFragment(AlertStyle.ALERT, title, subtitle, icon, buttonTitles)
-        }
-
-        fun actionSheet(title: String? = null,
-                  subtitle: String? = null,
-                  icon: Drawable? = null, buttonTitles: Array<String>?): AlertDialogFragment{
-
-            return AlertDialogFragment(AlertStyle.ACTION_SHEET, title, subtitle, icon, buttonTitles)
-        }
-    }
-
-    //关闭dialog
-    private val dismissDialogWhat = 1
-    private val position = "position"
-
     //弹窗样式
     private var _style = AlertStyle.ALERT
 
     //弹窗属性
     private var _props: AlertProps? = null
-    val props: AlertProps
-    get(){
-        return _props!!
-    }
+    var alertProps: AlertProps?
+        set(value) {
+            _props = value
+        }
+        get() = _props
+    private val props: AlertProps
+        get() = _props!!
 
     //内容视图
     private var _contentView: View? = null
@@ -92,16 +73,19 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     //是否需要计算内容高度 当内容或者按钮数量过多时可设置，防止内容显示不完
     var shouldMeasureContentHeight = false
 
-    private lateinit var logoImageView: ImageView
-    private lateinit var titleTextView: TextView
-    private lateinit var subtitleTextView: TextView
-    private lateinit var recyclerView: RecyclerView
-    private var topTransparentView: View? = null
-    private var cancelTextView: TextView? = null
-    private lateinit var scrollContainer: LinearLayout
-    private lateinit var scrollView: ScrollView
-    private var topContainer: View? = null
-    private lateinit var divider: View
+    private val logoImageView: ImageView by lazy { findViewById(R.id.logoImageView) }
+    private val titleTextView: TextView by lazy { findViewById(R.id.titleTextView) }
+    private val subtitleTextView: TextView by lazy { findViewById(R.id.subtitleTextView) }
+    private val recyclerView: RecyclerView by lazy { findViewById(R.id.recyclerView) }
+
+    private val scrollContainer: LinearLayout by lazy { findViewById(R.id.scrollContainer) }
+    private val scrollView: ScrollView by lazy { findViewById(R.id.scrollView) }
+    private val divider: View by lazy { findViewById(R.id.divider) }
+
+    //actionSheet专用
+    private val topTransparentView: View by lazy { findViewById(R.id.topTransparentView) }
+    private val topContainer: View by lazy { findViewById(R.id.topContainer) }
+    private val cancelTextView: TextView by lazy { findViewById(R.id.cancelTextView) }
 
     init {
 
@@ -113,7 +97,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     }
 
     fun show(manager: FragmentManager) {
-        show(manager, null)
+        showNow(manager, null)
     }
 
     override fun onAttach(context: Context) {
@@ -129,7 +113,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        if(_contentView != null){
+        if(_contentView == null){
             _contentView = inflater.inflate(if (_style == AlertStyle.ALERT) R.layout.alert_dialog else R.layout.action_sheet_dialog, container, false)
             initViews()
         }
@@ -137,19 +121,13 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
         return _contentView!!
     }
 
+    ///获取子视图
+    private fun <T : View> findViewById(resId: Int): T {
+        return _contentView!!.findViewById(resId)
+    }
+
     //初始化视图
     private fun initViews() {
-        _contentView?.apply {
-            logoImageView = findViewById(R.id.logoImageView)
-            titleTextView = findViewById(R.id.titleTextView)
-            subtitleTextView = findViewById(R.id.subtitleTextView)
-            recyclerView = findViewById(R.id.recyclerView)
-            scrollContainer = findViewById(R.id.scrollContainer)
-            scrollView = findViewById(R.id.scrollView)
-            topTransparentView = findViewById(R.id.topTransparentView)
-            cancelTextView = findViewById(R.id.cancelTextView)
-            divider = findViewById(R.id.divider)
-        }
 
         if ((_buttonTitles == null || _buttonTitles!!.isEmpty()) && _style == AlertStyle.ALERT) {
             _buttonTitles = arrayOf("确定")
@@ -182,7 +160,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
         //actionSheet 样式不一样
         if (_style == AlertStyle.ACTION_SHEET) {
-            cancelTextView?.apply {
+            cancelTextView.apply {
                 setOnClickListener(this@AlertDialogFragment)
                 textSize = props.buttonTextSize
                 setTextColor(props.buttonTextColor)
@@ -192,8 +170,8 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 )
             }
             setBackground(topContainer)
-            setBackgroundSelector(cancelTextView!!)
-            topTransparentView?.setOnClickListener(this)
+            setBackgroundSelector(cancelTextView)
+            topTransparentView.setOnClickListener(this)
             val has = hasTopContent()
 
             //隐藏顶部分割线 没有按钮也隐藏
@@ -315,7 +293,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 }
 
                 //取消按钮高度
-                cancelButtonHeight += StringUtils.measureTextHeight(cancelTextView!!.text, cancelTextView!!.paint, maxWidth)
+                cancelButtonHeight += StringUtils.measureTextHeight(cancelTextView.text, cancelTextView.paint, maxWidth)
                 + props.buttonTopBottomPadding * 2 + props.dialogPadding
             }
             AlertStyle.ALERT -> {

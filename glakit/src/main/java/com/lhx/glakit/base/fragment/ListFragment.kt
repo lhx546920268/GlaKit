@@ -2,6 +2,7 @@ package com.lhx.glakit.base.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.BaseAdapter
 import android.widget.ListView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
@@ -11,14 +12,14 @@ import com.lhx.glakit.base.widget.BaseContainer
  */
 open class ListFragment : RefreshableFragment() {
 
-    protected lateinit var listView: ListView
+    protected val listView: ListView by lazy { requireViewById(R.id.listView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
         super.initialize(inflater, container, saveInstanceState)
         var res: Int = getContentRes()
         if (res <= 0) {
-            if (hasRefresh()) {
+            if (hasRefresh) {
                 res = R.layout.list_refresh_fragment
             } else {
                 res = R.layout.list_fragment
@@ -26,10 +27,12 @@ open class ListFragment : RefreshableFragment() {
         }
 
         setContainerContentView(res)
-        listView = findViewById(R.id.listView)!!
 
-        setRefreshView(listView)
         val backToTopButton = getBackToTopButton()
         backToTopButton?.listView = listView
+    }
+
+    override fun notifyDataSetChanged() {
+        (listView.adapter as BaseAdapter?)?.notifyDataSetChanged()
     }
 }

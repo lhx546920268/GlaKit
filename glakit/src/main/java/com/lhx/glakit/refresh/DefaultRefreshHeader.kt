@@ -19,10 +19,14 @@ import com.scwang.smartrefresh.layout.constant.RefreshState
 class DefaultRefreshHeader : RefreshHeader {
 
     //菊花
-    private var _loadingDrawable = LoadingDrawable()
+    private val loadingDrawable: LoadingDrawable by lazy {
+        val drawable = LoadingDrawable()
+        drawable.color = Color.GRAY
+        drawable
+    }
 
-    private lateinit var imageView: ImageView
-    private lateinit var textView: TextView
+    private val imageView: ImageView by lazy { findViewById(R.id.imageView) }
+    private val textView: TextView by lazy { findViewById(R.id.textView) }
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -32,36 +36,22 @@ class DefaultRefreshHeader : RefreshHeader {
         defStyleAttr
     )
 
-    init {
-        _loadingDrawable.color = Color.GRAY
-    }
-
     override fun onFinishInflate() {
         super.onFinishInflate()
 
-        imageView = findViewById(R.id.imageView)
-        textView = findViewById(R.id.textView)
-
-        _loadingDrawable = LoadingDrawable()
-
-        imageView.setImageDrawable(_loadingDrawable)
+        imageView.setImageDrawable(loadingDrawable)
         imageView.visibility = View.GONE
     }
 
     override fun onInitialized(kernel: RefreshKernel, height: Int, maxDragHeight: Int) {
 
         imageView.visibility = View.GONE
-        _loadingDrawable.stop()
+        loadingDrawable.stop()
         textView.text = "下拉刷新"
     }
 
 
     override fun onFinish(refreshLayout: RefreshLayout, success: Boolean): Int {
-
-        imageView.visibility = View.GONE
-        _loadingDrawable.stop()
-        textView.text = "刷新成功"
-
         return if (shouldCloseImmediately) 0 else 200
     }
 
@@ -69,13 +59,18 @@ class DefaultRefreshHeader : RefreshHeader {
         when (newState) {
             RefreshState.Refreshing -> {
                 imageView.visibility = View.VISIBLE
-                _loadingDrawable.start()
+                loadingDrawable.start()
                 textView.text = "加载中..."
             }
-            RefreshState.ReleaseToRefresh -> textView.text = "松开即可刷新"
+            RefreshState.ReleaseToRefresh, RefreshState.RefreshReleased -> textView.text = "松开即可刷新"
+            RefreshState.LoadFinish, RefreshState.RefreshFinish -> {
+                imageView.visibility = View.GONE
+                loadingDrawable.stop()
+                textView.text = "刷新成功"
+            }
             else -> {
                 imageView.visibility = View.GONE
-                _loadingDrawable.stop()
+                loadingDrawable.stop()
                 textView.text = "下拉刷新"
             }
         }
