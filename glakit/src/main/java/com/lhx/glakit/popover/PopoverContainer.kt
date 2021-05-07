@@ -1,6 +1,8 @@
 package com.lhx.glakit.popover
 
 import android.content.Context
+import android.graphics.Color
+import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -8,8 +10,8 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.ScaleAnimation
-import androidx.core.content.ContextCompat
-import com.lhx.glakit.R
+import android.widget.FrameLayout
+import androidx.core.view.ViewCompat
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.utils.ViewUtils
 import kotlin.math.min
@@ -49,25 +51,27 @@ open class PopoverContainer : ViewGroup {
     //是否要执行动画
     private var _shouldExecuteAnimate = true
     
-    constructor(context: Context?) : super(context)
-    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,
         defStyleAttr
     ){
-
-        overlayView.setOnClickListener(object : OnSingleClickListener() {
+        setOnClickListener(object : OnSingleClickListener() {
             override fun onSingleClick(v: View) {
                 dismiss(true)
             }
         })
 
-        overlayView.setBackgroundColor(ContextCompat.getColor(context!!, R.color.dialog_background))
+        overlayView.setBackgroundColor(Color.TRANSPARENT)
         addView(overlayView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         addView(popoverLayout, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
     }
 
+    final override fun setOnClickListener(l: OnClickListener?) {
+        super.setOnClickListener(l)
+    }
 
     final override fun addView(child: View?, params: LayoutParams?) {
         super.addView(child, params)
@@ -86,32 +90,82 @@ open class PopoverContainer : ViewGroup {
         super.setPadding(0, 0, 0, 0)
     }
 
+    //找到合适的父视图
+    private fun findSuitableParent(target: View): ViewGroup? {
+        var view: View? = target
+        var fallback: ViewGroup? = null
+        do {
+            if (view is FrameLayout) {
+                fallback = if (view.getId() == android.R.id.content) {
+                    // If we've hit the decor content view, then we didn't find a CoL in the
+                    // hierarchy, so use it.
+                    return view
+                } else {
+                    // It's not the content view but we'll use it as our fallback
+                    view
+                }
+            }
+            if (view != null) {
+                // Else, we will loop and crawl up the view hierarchy and try to find a parent
+                val parent = view.parent
+                view = if (parent is View) parent else null
+            }
+        } while (view != null)
+
+        // If we reach here then we didn't find a CoL or a suitable content view so we'll fallback
+        return fallback
+    }
+
     //显示
     open fun show(clickedView: View?, animate: Boolean) {
         _clickedView = clickedView
-        if (_clickedView != null) {
-            _clickedView!!.getLocationOnScreen(_clickedLocations)
-        }
         _shouldAnimate = animate
+
+        _clickedView?.also {
+            it.getLocationOnScreen(_clickedLocations)
+
+            //如果没有父视图，添加
+            if(parent == null){
+                val parent = findSuitableParent(it)
+                if(parent != null){
+                    parent.addView(this)
+                }
+            }
+        }
+
+        val params = layoutParams
+        params.width = LayoutParams.MATCH_PARENT
+        params.height = LayoutParams.MATCH_PARENT
+
+        if(_shouldAnimate){
+            visibility = INVISIBLE
+        }
+
+        _shouldExecuteAnimate = true
+        if(ViewCompat.isLaidOut(this)){
+            executeAnimate()
+        }
     }
 
     //移除
     open fun dismiss(animate: Boolean) {
         if (animate) {
-            val animation = ScaleAnimation(1.0f, 0f, 1.0f, 0f, getCurrentPivotX(), 0f)
-            animation.duration = 250
-            animation.setAnimationListener(object : AnimationListener {
-                override fun onAnimationStart(animation: Animation) {}
-                override fun onAnimationEnd(animation: Animation) {
-                    onDismiss()
-                }
+            post {
+                val animation = ScaleAnimation(1.0f, 0f, 1.0f, 0f, getCurrentPivotX(), 0f)
+                animation.duration = 250
+                animation.setAnimationListener(object : AnimationListener {
+                    override fun onAnimationStart(animation: Animation) {}
+                    override fun onAnimationEnd(animation: Animation) {
+                        onDismiss()
+                    }
 
-                override fun onAnimationRepeat(animation: Animation) {}
-            })
-            popoverLayout.startAnimation(animation)
-            val alphaAnimation = AlphaAnimation(1.0f, 0f)
-            alphaAnimation.duration = 250
-            overlayView.startAnimation(alphaAnimation)
+                    override fun onAnimationRepeat(animation: Animation) {}
+                })
+                popoverLayout.startAnimation(animation)
+                val alphaAnimation = AlphaAnimation(1.0f, 0f)
+                alphaAnimation.duration = 250
+                overlayView.startAnimation(alphaAnimation)
+            }
         } else {
             onDismiss()
         }
@@ -196,9 +250,11 @@ open class PopoverContainer : ViewGroup {
 
             //中心点位置
             val centerX: Int = x1 - x2 + _clickedView!!.width / 2
-            pLeft = _paddingLeft + centerX - popoverLayout.measuredWidth / 2
+            pLeft = centerX - popoverLayout.measuredWidth / 2
             if (pLeft + popoverLayout.measuredWidth > width) {
                 pLeft = width - popoverLayout.measuredWidth - _paddingRight
+            } else if (pLeft < _paddingLeft){
+                pLeft = _paddingLeft
             }
 
             popoverLayout.arrowOffset = centerX - pLeft
@@ -238,20 +294,23 @@ open class PopoverContainer : ViewGroup {
         if (_shouldExecuteAnimate) {
             _shouldExecuteAnimate = false
             if (_shouldAnimate) {
-                val animation = ScaleAnimation(0f, 1.0f, 0f, 1.0f, getCurrentPivotX(), 0f)
-                animation.duration = 250
-                animation.setAnimationListener(object : AnimationListener {
-                    override fun onAnimationStart(animation: Animation) {}
-                    override fun onAnimationEnd(animation: Animation) {
-                        onShow()
-                    }
+                post {
+                    visibility = VISIBLE
+                    val animation = ScaleAnimation(0f, 1.0f, 0f, 1.0f, getCurrentPivotX(), 0f)
+                    animation.duration = 250
+                    animation.setAnimationListener(object : AnimationListener {
+                        override fun onAnimationStart(animation: Animation) {}
+                        override fun onAnimationEnd(animation: Animation) {
+                            onShow()
+                        }
 
-                    override fun onAnimationRepeat(animation: Animation) {}
-                })
-                popoverLayout.startAnimation(animation)
-                val alphaAnimation = AlphaAnimation(0f, 1.0f)
-                alphaAnimation.duration = 250
-                overlayView.startAnimation(alphaAnimation)
+                        override fun onAnimationRepeat(animation: Animation) {}
+                    })
+                    popoverLayout.startAnimation(animation)
+                    val alphaAnimation = AlphaAnimation(0f, 1.0f)
+                    alphaAnimation.duration = 250
+                    overlayView.startAnimation(alphaAnimation)
+                }
             } else {
                 onShow()
             }

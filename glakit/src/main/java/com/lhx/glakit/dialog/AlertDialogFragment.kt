@@ -64,8 +64,8 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     //点击按钮后弹窗是否消失
     var shouldDismissAfterClickItem = true
 
-    //点击事件回调
-    var onItemClickListener: OnItemClickListener? = null
+    //点击某个按钮 从左到右，从上到下
+    var onItemClick: ((position: Int) -> Unit)? = null
 
     //适配器
     var adapter: AlertDialogAdapter? = null
@@ -413,12 +413,11 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 override fun onSingleClick(v: View) {
 
                     if (shouldDismissAfterClickItem) {
-                        if(onItemClickListener != null){
+                        if(onItemClick != null){
                             addOnDismissHandler(object : OnDismissHandler{
                                 override fun onDismiss(dialogFragment: BaseDialogFragment) {
 
-                                    onItemClickListener!!.onItemClick(
-                                        this@AlertDialogFragment,
+                                    onItemClick!!(
                                         holder.bindingAdapterPosition
                                     )
                                 }
@@ -426,9 +425,8 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                         }
                         dismiss()
                     } else {
-                        if (onItemClickListener != null) {
-                            onItemClickListener!!.onItemClick(
-                                this@AlertDialogFragment,
+                        if (onItemClick != null) {
+                            onItemClick!!(
                                 holder.bindingAdapterPosition
                             )
                         }
@@ -572,13 +570,6 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 }
             }
         }
-    }
-
-    //弹窗按钮点击回调
-    interface OnItemClickListener {
-
-        //点击某个按钮 从左到右，从上到下
-        fun onItemClick(fragment: AlertDialogFragment, position: Int)
     }
 
     //弹窗适配器

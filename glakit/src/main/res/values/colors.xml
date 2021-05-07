@@ -14,7 +14,7 @@
 
 
     <!--黑色半透明背景-->
-    <color name="translucent_black">#77000000</color>
+    <color name="translucent_black">#66000000</color>
 
     <!--弹窗背景-->
     <color name="dialog_background">#66000000</color>

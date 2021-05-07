@@ -12,7 +12,6 @@ import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakitDemo.R
-import java.lang.ref.WeakReference
 
 class SectionRecycleViewFragment: RecyclerFragment() {
 
@@ -20,7 +19,7 @@ class SectionRecycleViewFragment: RecyclerFragment() {
         get() = true
 
     private var numberOfSection = 2
-    private val adapter: Adapter by lazy { Adapter(WeakReference(recyclerView)) }
+    private val adapter: Adapter by lazy { Adapter(recyclerView) }
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -45,7 +44,7 @@ class SectionRecycleViewFragment: RecyclerFragment() {
         }, 2000)
     }
 
-    private inner class Adapter(recyclerViewReference: WeakReference<RecyclerView>): RecyclerViewAdapter(recyclerViewReference) {
+    private inner class Adapter(recyclerView: RecyclerView): RecyclerViewAdapter(recyclerView) {
 
         init {
             loadMoreEnable = true

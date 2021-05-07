@@ -118,9 +118,8 @@ object AppUtils {
             if (phones.size > 1) {
 
                 val fragment = AlertDialogFragment(buttonTitles = phones)
-                fragment.onItemClickListener = object : AlertDialogFragment.OnItemClickListener{
-                    override fun onItemClick(fragment: AlertDialogFragment, position: Int) {
-                        if (position < phones.size) {
+                fragment.onItemClick = { position ->
+                    if (position < phones.size) {
                             var nPhone = phones[position]
                             if (nPhone.contains("-")) {
                                 nPhone = nPhone.replace("-".toRegex(), "")
@@ -132,26 +131,24 @@ object AppUtils {
                             } catch (e: SecurityException) {
                             }
                         }
-                    }
                 }
+
                 fragment.show(activity.supportFragmentManager, null)
             } else {
                 val phone = phones[0]
                 val fragment = AlertDialogFragment(title = "是否拨打 $phone", buttonTitles = arrayOf("取消", "拨打"))
-                fragment.onItemClickListener = object : AlertDialogFragment.OnItemClickListener{
-                    override fun onItemClick(fragment: AlertDialogFragment, position: Int) {
-                        if (position == 1) {
-                            var nPhone = phone
-                            if (nPhone.contains("-")) {
-                                nPhone = nPhone.replace("-".toRegex(), "")
-                            }
-                            try {
-                                val intent =
-                                    Intent(Intent.ACTION_CALL, Uri.parse("tel:$nPhone"))
-                                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                context.startActivity(intent)
-                            } catch (e: SecurityException) {
-                            }
+                fragment.onItemClick = { position ->
+                    if (position == 1) {
+                        var nPhone = phone
+                        if (nPhone.contains("-")) {
+                            nPhone = nPhone.replace("-".toRegex(), "")
+                        }
+                        try {
+                            val intent =
+                                Intent(Intent.ACTION_CALL, Uri.parse("tel:$nPhone"))
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                            context.startActivity(intent)
+                        } catch (e: SecurityException) {
                         }
                     }
                 }
@@ -205,10 +202,8 @@ object AppUtils {
 
         if(context is FragmentActivity){
             val fragment = AlertUtils.actionSheet("查看路线", buttonTitles = arrayOf("百度地图", "高德地图"))
-            fragment.onItemClickListener = object : AlertDialogFragment.OnItemClickListener{
-
-                override fun onItemClick(fragment: AlertDialogFragment, position: Int) {
-                    when (position) {
+            fragment.onItemClick = { position ->
+                when (position) {
                         0 -> {
                             if (isInstall(context, "com.baidu.BaiduMap")) {
                                 val intent = Intent()
@@ -243,7 +238,6 @@ object AppUtils {
                             }
                         }
                     }
-                }
             }
 
             val activity: FragmentActivity = context

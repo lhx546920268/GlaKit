@@ -15,15 +15,14 @@ import com.lhx.glakit.R
 import com.lhx.glakit.section.EdgeInsets
 import com.lhx.glakit.section.GridSectionInfo
 import com.lhx.glakit.section.SectionInfo
-import java.lang.ref.WeakReference
 
 
 /**
  * 网格布局
  */
 @Suppress("unused_parameter")
-abstract class RecyclerViewGridAdapter(recyclerViewReference: WeakReference<RecyclerView>,
-                              @RecyclerView.Orientation val orientation: Int = RecyclerView.VERTICAL): RecyclerViewAdapter(recyclerViewReference) {
+abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
+                              @RecyclerView.Orientation val orientation: Int = RecyclerView.VERTICAL): RecyclerViewAdapter(recyclerView) {
 
     //item之间的间隔 px
     var itemSpace = 0
@@ -57,7 +56,7 @@ abstract class RecyclerViewGridAdapter(recyclerViewReference: WeakReference<Recy
 
     
     init {
-        recyclerView?.apply {
+        recyclerView.apply {
             dividerColor = ContextCompat.getColor(context, R.color.divider_color)
             _differentColumnProduct = getDifferentColumnProduct()
 

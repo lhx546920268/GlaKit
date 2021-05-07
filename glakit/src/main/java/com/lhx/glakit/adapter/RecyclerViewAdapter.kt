@@ -18,7 +18,7 @@ import java.lang.ref.WeakReference
 /**
  * Recycler 布局控制器
  */
-abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<RecyclerView>) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
+abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
 
     companion object{
         const val LOAD_MORE_VIEW_TYPE = 9999 //加载更多视图类型
@@ -32,9 +32,10 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
         const val FOOTER_VIEW_TYPE = 9995 //底部视图类型
     }
 
-
     //关联的
-    val recyclerView: RecyclerView?
+    private val recyclerViewReference = WeakReference(recyclerView)
+
+    protected val recyclerView: RecyclerView?
         get() = recyclerViewReference.get()
 
     val context: Context?
@@ -70,7 +71,7 @@ abstract class RecyclerViewAdapter(val recyclerViewReference: WeakReference<Recy
     init {
 
         //关闭默认动画
-        recyclerView?.apply {
+        recyclerView.apply {
             val animator = itemAnimator
             if (animator is DefaultItemAnimator) {
                 animator.supportsChangeAnimations = false

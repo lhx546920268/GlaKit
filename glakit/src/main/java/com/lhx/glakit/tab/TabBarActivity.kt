@@ -8,7 +8,6 @@ import android.view.*
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.ColorInt
-import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.BaseContainerActivity
@@ -44,7 +43,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
                     newValue = count - 1
                 }
 
-                val fragment = getFragment(field)
+                val fragment = getFragment(newValue)
                 if (fragment != null) {
                     if (field >= 0 && field < tabBarItems.size) {
                         tabBarItems[field].checked = false
@@ -54,7 +53,6 @@ abstract class TabBarActivity: BaseContainerActivity() {
                     tabBarItems[field].checked = true
                     currentFragment = fragment
                 }
-
                 onCheck(field)
             }
         }
@@ -115,7 +113,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
     protected fun initTabBar() {
 
         //初始化标签
-        count = numberOfTabBarItems()
+        count = numberOfTabBarItems
         if (count > 0) {
             for (i in 0 until count) {
                 val item = LayoutInflater.from(this).inflate(R.layout.tab_bar_item, null) as TabBarItem
@@ -192,7 +190,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
         if (checkIcon != 0) {
             checkDrawable = ContextCompat.getDrawable(this, checkIcon)
         } else {
-            val color = getCheckedTintColor()
+            val color = checkedTintColor
             if (color != 0) {
                 checkDrawable = DrawableUtils.getTintDrawable(checkDrawable, color)
             }
@@ -204,7 +202,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
 
         checkDrawable.setBounds(0, 0, width, height)
         stateListDrawable.addState(intArrayOf(android.R.attr.state_selected), checkDrawable)
-        val color = getNormalTintColor()
+        val color = normalTitleColor
         if (color != 0) {
             drawable = DrawableUtils.getTintDrawable(drawable, color)
         }
@@ -220,7 +218,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
         val states = arrayOfNulls<IntArray>(2)
         states[0] = intArrayOf(android.R.attr.state_selected)
         states[1] = intArrayOf()
-        val colors = intArrayOf(getCheckedTitleColor(), getNormalTitleColor())
+        val colors = intArrayOf(checkedTitleColor, normalTitleColor)
         return ColorStateList(states, colors)
     }
 
@@ -233,7 +231,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
     }
 
     //标签数量
-    abstract fun numberOfTabBarItems(): Int
+    abstract val numberOfTabBarItems: Int
 
     //获取对应fragment
     abstract fun getFragment(position: Int): BaseFragment?
@@ -247,28 +245,19 @@ abstract class TabBarActivity: BaseContainerActivity() {
     }
 
     //按钮标题颜色
-    @ColorInt
-    abstract fun getNormalTitleColor(): Int
-    @ColorInt
-    abstract fun getCheckedTitleColor(): Int
+    abstract val normalTitleColor: Int
+    abstract val checkedTitleColor: Int
 
     //获取图标
-    @DrawableRes
     abstract fun getNormalIconRes(position: Int): Int
-    @DrawableRes
     abstract fun getCheckedIconRes(position: Int): Int
-
 
     //按钮正常着色 0时 不着色
     @ColorInt
-    open fun getNormalTintColor(): Int {
-        return 0
-    }
+    open val getNormalTintColor = 0
 
     @ColorInt
-    open fun getCheckedTintColor(): Int {
-        return 0
-    }
+    open val checkedTintColor = 0
 
     //配置 item
     fun onConfigureItem(item: TabBarItem, params: LinearLayout.LayoutParams, position: Int) {}

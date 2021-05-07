@@ -1,6 +1,7 @@
 package com.lhx.glakit.timer
 
 import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 
 
@@ -41,7 +42,7 @@ abstract class CountDownTimer(){
     }
 
     //
-    private val _handler = Handler{
+    private val _handler = Handler(Looper.getMainLooper()){
         synchronized(this) {
             if (_canceled) {
                 return@Handler true

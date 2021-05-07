@@ -14,10 +14,19 @@ object AlertUtils {
         subtitle: String? = null,
         icon: Drawable? = null,
         buttonTitles: Array<String>?,
-        destructivePosition: Int? = null
+        destructivePosition: Int? = null,
+        onItemClick: ((position: Int) -> Unit)? = null
     ): AlertDialogFragment {
 
-        return build(AlertStyle.ALERT, title, subtitle, icon, buttonTitles, destructivePosition)
+        return build(
+            AlertStyle.ALERT,
+            title,
+            subtitle,
+            icon,
+            buttonTitles,
+            destructivePosition,
+            onItemClick
+        )
     }
 
     fun actionSheet(
@@ -25,7 +34,8 @@ object AlertUtils {
         subtitle: String? = null,
         icon: Drawable? = null,
         buttonTitles: Array<String>?,
-        destructivePosition: Int? = null
+        destructivePosition: Int? = null,
+        onItemClick: ((position: Int) -> Unit)? = null
     ): AlertDialogFragment {
 
         return build(
@@ -34,7 +44,8 @@ object AlertUtils {
             subtitle,
             icon,
             buttonTitles,
-            destructivePosition
+            destructivePosition,
+            onItemClick
         )
     }
 
@@ -44,9 +55,11 @@ object AlertUtils {
         subtitle: String? = null,
         icon: Drawable? = null,
         buttonTitles: Array<String>?,
-        destructivePosition: Int? = null
+        destructivePosition: Int? = null,
+        onItemClick: ((position: Int) -> Unit)? = null
     ): AlertDialogFragment {
         val fragment = AlertDialogFragment(style, title, subtitle, icon, buttonTitles)
+        fragment.onItemClick = onItemClick
         if (destructivePosition != -1) {
             fragment.adapter = object : AlertDialogFragment.AlertDialogAdapter {
                 override fun shouldEnable(fragment: AlertDialogFragment, position: Int): Boolean {

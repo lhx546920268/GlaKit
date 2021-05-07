@@ -109,5 +109,4 @@ internal class ToastManager private constructor() {
         // If we reach here then we didn't find a CoL or a suitable content view so we'll fallback
         return fallback
     }
-
 }
