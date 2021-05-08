@@ -1,20 +1,22 @@
 package com.lhx.glakit.api
 
 import androidx.annotation.CallSuper
+import com.lhx.glakit.utils.ThreadUtils
 import okhttp3.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 
+
 /**
  * http 任务
  */
-@Suppress("unused_parameter")
-abstract class HttpTask : Callback {
+@Suppress("unused_parameter", "unchecked_cast")
+abstract class HttpTask: Callback, HttpCancelable {
 
-    companion object{
+    companion object {
 
-        private val sharedHttpClient: OkHttpClient by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED){
+        private val sharedHttpClient: OkHttpClient by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
             OkHttpClient.Builder()
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .callTimeout(15, TimeUnit.SECONDS)
@@ -25,49 +27,49 @@ abstract class HttpTask : Callback {
     }
 
     //状态
-    private object Status {
+    private enum class Status {
 
         //准备中
-        const val PREPARING = 0
+        PREPARING,
 
         //执行中
-        const val EXECUTING = 1
+        EXECUTING,
 
         //已取消
-        const val CANCELLED = 2
+        CANCELLED,
 
         //成功
-        const val SUCCESSFUL = 3
+        SUCCESSFUL,
 
         //失败
-        const val FAILURE = 4
+        FAILURE,
     }
 
     //请求方法
-    object HttpMethod {
+    enum class HttpMethod {
 
-        const val GET = 0
-        const val POST = 1
+        GET,
+        POST,
     }
 
     //请求URL
-    abstract var currentURL: String
+    abstract val currentURL: String
 
     //请求参数
-    protected var requestBody: RequestBody? = null
+    protected val requestBody: RequestBody? = null
 
     //请求方法
-    var httpMethod = HttpMethod.GET
+    protected val httpMethod = HttpMethod.GET
 
-    //请求名称 用来识别是哪个请求
+    //请求名称 用来识别是哪个请求，返回值一定不是空的
+    override
     var name: String? = null
-    get() {
-        return if(field == null) this.javaClass.name else field
-    }
+        get() {
+            return if (field == null) this.javaClass.name else field
+        }
 
     //当前状态
-    var status = Status.PREPARING
-    private set
+    private var status = Status.PREPARING
 
     //当前call
     private var _call: Call? = null
@@ -75,28 +77,46 @@ abstract class HttpTask : Callback {
     //是否需要使用新的httpClient 构建，getHttpClient, 当不是使用默认配置的时候可以设置成true 比如超时时间
     var shouldUseNewBuilder = false
 
+    //是否是网络错误
+    var isNetworkError = false
+        private set
+
+    //api是否请求成
+    var isApiSuccess = false
+        protected set
+
+    //回调
+    var callback: Callback? = null
+
+    //成功
+    var onSuccess: ((task: HttpTask) -> Unit)? = null
+
+    //失败
+    var onFailure: ((task: HttpTask) -> Unit)? = null
+
     //开始
     @Synchronized
-    fun start(){
-        if(status == Status.PREPARING){
+    fun start() {
+        if (status == Status.PREPARING) {
 
             prepare()
             status = Status.EXECUTING
             onStart()
             val builder = Request.Builder().url(currentURL)
-            when(httpMethod){
+            when (httpMethod) {
                 HttpMethod.GET -> {
                     builder.get()
                 }
                 HttpMethod.POST -> {
-                    require(requestBody != null){
+                    require(requestBody != null) {
                         "POST requestBody can not be null"
                     }
-                    builder.post(requestBody!!)
+                    builder.post(requestBody)
                 }
             }
 
-            val client = if(shouldUseNewBuilder) getHttpClient(sharedHttpClient.newBuilder()) else sharedHttpClient
+            val client =
+                if (shouldUseNewBuilder) getHttpClient(sharedHttpClient.newBuilder()) else sharedHttpClient
             _call = client.newCall(builder.build())
             _call!!.enqueue(this)
         }
@@ -104,38 +124,33 @@ abstract class HttpTask : Callback {
 
     //取消
     @Synchronized
-    fun cancel(){
-        if(status == Status.EXECUTING){
+    override fun cancel() {
+        if (status == Status.EXECUTING || status == Status.PREPARING) {
             status = Status.CANCELLED
-            _call!!.cancel()
+            _call?.cancel()
             onCancelled()
+            onComplete()
         }
     }
 
-    //是否正在执行
-    fun isExecuting(): Boolean{
-        return status == Status.EXECUTING
-    }
+    override val isExecuting: Boolean
+        get() = status == Status.EXECUTING
 
     //<editor-fold desc="okHttp 请求回调">
 
     final override fun onResponse(call: Call, response: Response) {
         response.use {
-            if(it.isSuccessful){
-                processResponse(response.body)
-            }else{
-                onFail()
+            if (it.isSuccessful && processResponse(response.body)) {
+                processSuccessResult()
+            } else {
+                processFailResult()
             }
         }
-
-        onComplete()
     }
 
     final override fun onFailure(call: Call, e: IOException) {
-        if(status != Status.CANCELLED){
-            onFail()
-        }
-        onComplete()
+        isNetworkError = true
+        processFailResult()
     }
 
     //</editor-fold>
@@ -143,36 +158,80 @@ abstract class HttpTask : Callback {
     //<editor-fold desc="task 回调">
 
     //获取新的client 通过这个设置超时时间
-    protected open fun getHttpClient(builder: OkHttpClient.Builder): OkHttpClient{
+    protected open fun getHttpClient(builder: OkHttpClient.Builder): OkHttpClient {
         return builder.build()
     }
 
     //处理结果
-    protected abstract fun processResponse(body: ResponseBody?)
+    protected abstract fun processResponse(body: ResponseBody?): Boolean
 
     //准备 开始前调用
     protected abstract fun prepare()
 
     //任务开始
-    protected open fun onStart(){}
+    protected open fun onStart() {}
 
     //任务取消
-    protected open fun onCancelled(){}
+    protected open fun onCancelled() {}
 
     //任务失败
-    @CallSuper
-    protected open fun onFail(){
-        status = Status.FAILURE
+    protected open fun onFailure() {}
+
+    @Synchronized
+    private fun processFailResult() {
+        ThreadUtils.runOnMainThread{
+            if(status != Status.CANCELLED){
+                status = Status.FAILURE
+                onFailure()
+                if(onFailure != null){
+                    onFailure!!(this)
+                }
+                callback?.onFailure(this)
+                onComplete()
+            }
+        }
     }
 
     //任务成功
-    @CallSuper
-    protected open fun onSuccess(){
-        status = Status.SUCCESSFUL
+    protected open fun onSuccess() {
+
+    }
+
+    private fun processSuccessResult() {
+        isApiSuccess = true
+        onSuccess()
+        callback?.onSuccess(this)
+
+        synchronized(this){
+            if(status != Status.CANCELLED){
+                status = Status.SUCCESSFUL
+                if(onSuccess != null){
+                    onSuccess!!(this)
+                }
+                onComplete()
+            }
+        }
     }
 
     //任务完成 无论成功还是失败
-    protected open fun onComplete(){}
+    @CallSuper
+    protected open fun onComplete() {
+        callback?.onComplete(this)
+        _call = null
+    }
 
     //</editor-fold>
+
+    //回调
+    interface Callback {
+
+        //请求失败
+        fun onFailure(task: HttpTask)
+
+        //请求成功
+        fun onSuccess(task: HttpTask)
+
+        //请求完成
+        fun onComplete(task: HttpTask)
+    }
 }

@@ -180,10 +180,15 @@ abstract class RefreshableFragment: BaseFragment(), RefreshHeader.RefreshOnScrol
 
                 visibility = View.GONE
                 layoutParams = params
+                onBackToTop = this@RefreshableFragment::onBackToTop
                 baseContainer?.addView(this)
             }
         }
         return _backToTopButton
+    }
+
+    open fun onBackToTop() {
+
     }
 
     //</editor-fold>

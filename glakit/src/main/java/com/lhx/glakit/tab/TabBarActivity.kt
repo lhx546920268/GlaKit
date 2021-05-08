@@ -99,8 +99,6 @@ abstract class TabBarActivity: BaseContainerActivity() {
     }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
-        super.initialize(inflater, container, saveInstanceState)
-
         setContainerContentView(R.layout.tab_bar_activity)
         initTabBar()
     }

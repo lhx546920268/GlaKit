@@ -13,6 +13,7 @@ import androidx.annotation.IdRes
 import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
 import com.lhx.glakit.R
+import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.activity.ActivityStack
 import com.lhx.glakit.base.activity.BaseActivity
 import com.lhx.glakit.base.interf.BasePage
@@ -60,6 +61,11 @@ abstract class BaseFragment : Fragment(), BasePage {
         if (showBackItem()) {
             setShowBackButton(true)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycle.addObserver(this)
     }
 
     override fun onCreateView(
@@ -199,4 +205,12 @@ abstract class BaseFragment : Fragment(), BasePage {
     //屏幕焦点改变
     fun onWindowFocusChanged(hasFocus: Boolean) {
     }
+
+    //http可取消的任务
+    private var _currentTasks: HashSet<HttpCancelable>? = null
+    override var currentTasks: HashSet<HttpCancelable>?
+        get() = _currentTasks
+        set(value) {
+            _currentTasks = value
+        }
 }

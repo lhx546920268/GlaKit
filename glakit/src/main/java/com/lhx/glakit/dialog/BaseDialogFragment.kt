@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.lhx.glakit.R
-
+import com.lhx.glakit.base.interf.VoidCallback
 
 /**
  * 基础弹窗fragment
@@ -15,10 +15,9 @@ import com.lhx.glakit.R
 abstract class BaseDialogFragment: DialogFragment() {
 
     //弹窗消失回调
-    private val onDismissHandlers: HashSet<OnDismissHandler> by lazy {
-        HashSet<OnDismissHandler>()
+    private val onDismissHandlers: HashSet<VoidCallback> by lazy {
+        HashSet()
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,13 +46,13 @@ abstract class BaseDialogFragment: DialogFragment() {
     }
 
     //添加弹窗消失回调
-    fun addOnDismissHandler(onDismissHandler: OnDismissHandler?) {
+    fun addOnDismissHandler(onDismissHandler: VoidCallback?) {
         if (onDismissHandler == null) return
         onDismissHandlers.add(onDismissHandler)
     }
 
     //移除
-    fun removeOnDismissHandler(onDismissHandler: OnDismissHandler?) {
+    fun removeOnDismissHandler(onDismissHandler: VoidCallback?) {
         if (onDismissHandler == null) return
         onDismissHandlers.remove(onDismissHandler)
     }
@@ -63,19 +62,11 @@ abstract class BaseDialogFragment: DialogFragment() {
 
         if (onDismissHandlers.isNotEmpty()) {
             for (onDismissHandler in onDismissHandlers) {
-                onDismissHandler.onDismiss(this)
+                onDismissHandler()
             }
         }
     }
 
     //获取内容视图
     abstract fun getContentView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) : View
-
-
-    //弹窗消失回调
-    interface OnDismissHandler {
-
-        //弹窗消失
-        fun onDismiss(dialogFragment: BaseDialogFragment)
-    }
 }

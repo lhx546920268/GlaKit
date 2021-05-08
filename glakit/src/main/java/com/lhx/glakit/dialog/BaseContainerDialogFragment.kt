@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.RelativeLayout
+import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 
@@ -16,38 +17,36 @@ import com.lhx.glakit.base.widget.BaseContainer
  * 基础内容视图弹窗
  */
 abstract class BaseContainerDialogFragment : BaseDialogFragment(), BasePage {
+
     /**
      * 获取 activity 或者 fragment 绑定的bundle
      */
     override val attachedBundle: Bundle?
-        get(){
-            return arguments
-        }
+        get() = arguments
 
     /**
      * 获取context
      */
     override val attachedContext: Context?
-        get(){
-            return context
-        }
+        get() = context
 
     /**
      * 关联的activity
      */
     override val attachedActivity: Activity?
-        get(){
-            return activity
-        }
+        get() = activity
 
-    private var _container: BaseContainer? = null
     /**
      * 基础容器
      */
+    private var _container: BaseContainer? = null
     override val baseContainer: BaseContainer?
-        get(){
-            return _container
-        }
+        get() = _container
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycle.addObserver(this)
+    }
 
     override fun getContentView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _container = BaseContainer(context)
@@ -61,6 +60,14 @@ abstract class BaseContainerDialogFragment : BaseDialogFragment(), BasePage {
 
         return _container!!
     }
+
+    //http可取消的任务
+    private var _currentTasks: HashSet<HttpCancelable>? = null
+    override var currentTasks: HashSet<HttpCancelable>?
+        get() = _currentTasks
+        set(value) {
+            _currentTasks = value
+        }
 
     /**
      * 配置弹窗信息

@@ -6,7 +6,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.StrictMode
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.Window
 import androidx.annotation.*
@@ -16,14 +15,12 @@ import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityStack.addActivity
 import com.lhx.glakit.base.activity.ActivityStack.removeActivity
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.base.interf.BasePage
-import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.AppUtils
 
 /**
  * 基础activity
  */
-open class BaseActivity: AppCompatActivity(), BasePage {
+open class BaseActivity: AppCompatActivity() {
 
     //activity 名称 为fragment的类名 或者 activity类名
     var name: String? = null
@@ -37,35 +34,10 @@ open class BaseActivity: AppCompatActivity(), BasePage {
         get() = _visible
 
     /**
-     * 获取 activity 或者 fragment 绑定的bundle
-     */
-    override val attachedBundle: Bundle?
-        get() = intent.extras
-
-    /**
-     * 获取context
-     */
-    override val attachedContext: Context?
-        get() = this
-
-
-    /**
-     * 关联的activity
-     */
-    override val attachedActivity: Activity?
-        get() = this
-
-    /**
-     * 基础容器
-     */
-    override val baseContainer: BaseContainer?
-        get() = if(_fragment != null) _fragment!!.baseContainer else null
-
-    /**
      * 内容视图 需要设置id为 current_content
      */
     protected val currentContentView: View?
-        get() = if(baseContainer != null) baseContainer!!.contentView else findViewById(R.id.current_content)
+        get() = if(_fragment?.baseContainer != null) _fragment!!.baseContainer!!.contentView else findViewById(R.id.current_content)
 
     //<editor-fold desc="父类方法">
 
@@ -116,8 +88,6 @@ open class BaseActivity: AppCompatActivity(), BasePage {
         //添加到堆栈中
         addActivity(this)
     }
-
-    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {}
 
     override fun onResume() {
         super.onResume()

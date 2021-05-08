@@ -28,55 +28,47 @@ abstract class HttpJSONTask : HttpTask() {
     //api错误码
     var apiCode = 0
 
-    //api是否请求成
-    var isApiError = false
-    protected set
-
     //原始json数据
     var rowData: JSONObject? = null
-    protected set
+        protected set
 
     //使用的数据
     var data: JSONObject? = null
-    protected set
+        protected set
 
-    final override fun processResponse(body: ResponseBody?) {
-        if(body != null){
+    final override fun processResponse(body: ResponseBody?): Boolean {
+        if (body != null) {
             val json = JSONObject.parse(body.string())
-            if(json is JSONObject){
-                processJSON(json)
-            }else{
-                onFail()
+            if (json is JSONObject) {
+                return processJSON(json)
             }
-        }else{
-            onFail()
         }
+        return false
     }
 
     override fun onStart() {
 
-        if(shouldShowLoading && interactionCallback != null){
+        if (shouldShowLoading && interactionCallback != null) {
             interactionCallback!!.showLoading(loadingDelay)
         }
     }
 
-    override fun onFail() {
-        super.onFail()
-        if(shouldShowErrorMessage && interactionCallback != null){
+    override fun onFailure() {
+        if (shouldShowErrorMessage && interactionCallback != null) {
             val text = message
-            if(!StringUtils.isEmpty(text)){
+            if (!StringUtils.isEmpty(text)) {
                 interactionCallback!!.showToast(text!!)
             }
         }
     }
 
     override fun onComplete() {
-
-        if(shouldShowLoading && interactionCallback != null){
+        if (shouldShowLoading && interactionCallback != null) {
             interactionCallback!!.hideLoading()
         }
+        super.onComplete()
     }
 
     //处理json 返回api是否成功
-    protected abstract fun processJSON(JSON: JSONObject)
+    protected abstract fun processJSON(json: JSONObject): Boolean
 }

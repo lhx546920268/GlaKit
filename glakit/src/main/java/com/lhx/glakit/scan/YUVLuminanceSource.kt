@@ -19,7 +19,7 @@ class YUVLuminanceSource(val yuvData: ByteArray,
         require(!(left + width > dataWidth || top + height > dataHeight)) { "Crop rectangle does not fit within image data." }
     }
 
-    override fun getRow(y: Int, row: ByteArray?): ByteArray? {
+    override fun getRow(y: Int, row: ByteArray?): ByteArray {
 
         require(!(y < 0 || y >= height)) { "Requested row is outside the image: $y" }
 
@@ -34,7 +34,7 @@ class YUVLuminanceSource(val yuvData: ByteArray,
         return result
     }
 
-    override fun getMatrix(): ByteArray? {
+    override fun getMatrix(): ByteArray {
         val width = width
         val height = height
 

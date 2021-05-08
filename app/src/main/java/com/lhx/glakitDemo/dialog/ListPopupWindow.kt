@@ -1,9 +1,11 @@
 package com.lhx.glakitDemo.dialog
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,13 +19,21 @@ class ListPopupWindow(context: Context): BasePopupWindow(context) {
     private val recyclerView: RecyclerView by lazy {
         val view = RecyclerView(context)
         view.layoutManager = LinearLayoutManager(context)
+        view.setBackgroundColor(Color.RED)
         view.adapter = Adapter(view)
         view
+    }
+
+    init {
+        animationStyle = AnimationStyle.TRANSLATE
     }
 
     override val popupContentView: View
         get() = recyclerView
 
+    override fun configLayoutParams(view: View, params: FrameLayout.LayoutParams) {
+
+    }
 
     private inner class Adapter(recyclerView: RecyclerView) :
         RecyclerViewAdapter(recyclerView) {

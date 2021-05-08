@@ -23,7 +23,6 @@ import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ViewUtils
 
-
 /**
  * 信息弹窗fragment
  */
@@ -414,14 +413,11 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
                     if (shouldDismissAfterClickItem) {
                         if(onItemClick != null){
-                            addOnDismissHandler(object : OnDismissHandler{
-                                override fun onDismiss(dialogFragment: BaseDialogFragment) {
-
-                                    onItemClick!!(
-                                        holder.bindingAdapterPosition
-                                    )
-                                }
-                            })
+                            addOnDismissHandler{
+                                onItemClick!!(
+                                    holder.bindingAdapterPosition
+                                )
+                            }
                         }
                         dismiss()
                     } else {

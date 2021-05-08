@@ -7,6 +7,7 @@ import android.widget.AbsListView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.lhx.glakit.base.interf.VoidCallback
 
 
 /**
@@ -51,7 +52,7 @@ class BackToTopButton: AppCompatImageView, AbsListView.OnScrollListener {
     var backToTopPosition = 30
 
     //触发回到顶部回调
-    var backToTopHandler: BackToTopHandler? = null
+    var onBackToTop: VoidCallback? = null
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -66,8 +67,8 @@ class BackToTopButton: AppCompatImageView, AbsListView.OnScrollListener {
             } else if (listView != null) {
                 listView!!.smoothScrollToPosition(0)
             }
-            if (backToTopHandler != null) {
-                backToTopHandler!!.onBackToTop()
+            if (onBackToTop != null) {
+                onBackToTop!!()
             }
             visibility = View.GONE
         }
@@ -109,10 +110,5 @@ class BackToTopButton: AppCompatImageView, AbsListView.OnScrollListener {
                 }
             }
         }
-    }
-
-    interface BackToTopHandler {
-        //回到顶部
-        fun onBackToTop()
     }
 }

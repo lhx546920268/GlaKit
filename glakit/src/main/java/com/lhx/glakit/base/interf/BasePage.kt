@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
+import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.loading.InteractionCallback
@@ -18,7 +19,7 @@ import java.io.Serializable
 /**
  * 基础页面接口
  */
-interface BasePage : BaseContainer.OnEventCallback, InteractionCallback {
+interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpProcessor {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
@@ -113,7 +114,7 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback {
     ///获取bundle内容
     fun <T : Parcelable?> getParcelableArrayListFromBundle(key: String?): ArrayList<T>? {
         if(attachedBundle != null){
-            return attachedBundle!!.getParcelableArrayList<T>(key)
+            return attachedBundle!!.getParcelableArrayList(key)
         }
         return null
     }

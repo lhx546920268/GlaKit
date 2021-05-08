@@ -1,6 +1,7 @@
 package com.lhx.glakit.scan
 
 import android.os.Handler
+import android.os.Looper
 import android.os.Message
 import com.google.zxing.Result
 
@@ -8,7 +9,7 @@ import com.google.zxing.Result
 /**
  * 相机事件回调
  */
-class CameraHandler(val cameraManager: CameraManager) : Handler() {
+class CameraHandler(val cameraManager: CameraManager) : Handler(Looper.getMainLooper()) {
 
     companion object{
         //事件类型

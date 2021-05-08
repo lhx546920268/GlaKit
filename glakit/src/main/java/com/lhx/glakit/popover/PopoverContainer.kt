@@ -150,22 +150,20 @@ open class PopoverContainer : ViewGroup {
     //移除
     open fun dismiss(animate: Boolean) {
         if (animate) {
-            post {
-                val animation = ScaleAnimation(1.0f, 0f, 1.0f, 0f, getCurrentPivotX(), 0f)
-                animation.duration = 250
-                animation.setAnimationListener(object : AnimationListener {
-                    override fun onAnimationStart(animation: Animation) {}
-                    override fun onAnimationEnd(animation: Animation) {
-                        onDismiss()
-                    }
+            val animation = ScaleAnimation(1.0f, 0f, 1.0f, 0f, getCurrentPivotX(), 0f)
+            animation.duration = 250
+            animation.setAnimationListener(object : AnimationListener {
+                override fun onAnimationStart(animation: Animation) {}
+                override fun onAnimationEnd(animation: Animation) {
+                    onDismiss()
+                }
 
-                    override fun onAnimationRepeat(animation: Animation) {}
-                })
-                popoverLayout.startAnimation(animation)
-                val alphaAnimation = AlphaAnimation(1.0f, 0f)
-                alphaAnimation.duration = 250
-                overlayView.startAnimation(alphaAnimation)
-            }
+                override fun onAnimationRepeat(animation: Animation) {}
+            })
+            popoverLayout.startAnimation(animation)
+            val alphaAnimation = AlphaAnimation(1.0f, 0f)
+            alphaAnimation.duration = 250
+            overlayView.startAnimation(alphaAnimation)
         } else {
             onDismiss()
         }
