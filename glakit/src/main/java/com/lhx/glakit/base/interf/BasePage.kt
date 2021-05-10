@@ -10,6 +10,7 @@ import android.view.View
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.api.HttpProcessor
+import com.lhx.glakit.base.activity.ActivityStack
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.loading.InteractionCallback
@@ -357,4 +358,21 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpPro
 
     //子类可重写这个方法设置 contentView
     fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?)
+
+    /**
+     * 返回某个指定的 fragment
+     * @param toName 对应的fragment类名 或者 activity类名 [BaseActivity.getName()]
+     * @param include 是否包含toName
+     * @param resultCode [android.app.Activity.setResult]
+     */
+    fun backTo(toName: String, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
+        ActivityStack.finishActivities(toName, include, resultCode)
+    }
+
+    /**
+     * 返回到底部
+     */
+    fun backToRoot() {
+        ActivityStack.finishActivitiesToRoot()
+    }
 }

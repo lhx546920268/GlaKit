@@ -12,13 +12,11 @@ import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.refresh.LoadMoreControl
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.viewholder.RecyclerViewHolder
-import java.lang.ref.WeakReference
-
 
 /**
  * Recycler 布局控制器
  */
-abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
+abstract class RecyclerViewAdapter(val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
 
     companion object{
         const val LOAD_MORE_VIEW_TYPE = 9999 //加载更多视图类型
@@ -32,14 +30,8 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
         const val FOOTER_VIEW_TYPE = 9995 //底部视图类型
     }
 
-    //关联的
-    private val recyclerViewReference = WeakReference(recyclerView)
-
-    protected val recyclerView: RecyclerView?
-        get() = recyclerViewReference.get()
-
-    val context: Context?
-        get() = recyclerViewReference.get()?.context
+    val context: Context
+        get() = recyclerView.context
 
     override var totalCount: Int = 0
     override var realCount: Int = 0
@@ -98,36 +90,33 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
      * 获取item
      */
     fun getItem(positionInSection: Int, section: Int): View? {
-        if(recyclerView != null && recyclerView!!.layoutManager != null){
+        return recyclerView.layoutManager?.let {
             val sectionInfo = sections[section]
             val position = sectionInfo.getItemStartPosition() + positionInSection
-            return recyclerView!!.layoutManager!!.findViewByPosition(position)
+            it.findViewByPosition(position)
         }
-        return null
     }
 
     /**
      * 获取section header
      */
     fun getSectionHeader(section: Int): View? {
-        if(recyclerView != null && recyclerView!!.layoutManager != null) {
+        return recyclerView.layoutManager?.let {
             val sectionInfo = sections[section]
             val position = sectionInfo.getHeaderPosition()
-            return recyclerView!!.layoutManager!!.findViewByPosition(position)
+            it.findViewByPosition(position)
         }
-        return null
     }
 
     /**
      * 获取section footer
      */
     fun getSectionFooter(section: Int): View? {
-        if(recyclerView != null && recyclerView!!.layoutManager != null) {
+        return recyclerView.layoutManager?.let {
             val sectionInfo = sections[section]
             val position = sectionInfo.getFooterPosition()
-            return recyclerView!!.layoutManager!!.findViewByPosition(position)
+            it.findViewByPosition(position)
         }
-        return null
     }
 
     /**
@@ -135,10 +124,9 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
      */
     fun getItemViewHolder(positionInSection: Int, section: Int): RecyclerViewHolder? {
         val item = getItem(positionInSection, section)
-        if(item != null){
-            return recyclerView!!.getChildViewHolder(item) as RecyclerViewHolder
+        return item?.let {
+            recyclerView.getChildViewHolder(it) as RecyclerViewHolder
         }
-        return null
     }
 
     /**
@@ -146,10 +134,9 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
      */
     fun getSectionHeaderViewHolder(section: Int): RecyclerViewHolder? {
         val header = getSectionHeader(section)
-        if(header != null){
-            return recyclerView!!.getChildViewHolder(header) as RecyclerViewHolder
+        return header?.let {
+            recyclerView.getChildViewHolder(it) as RecyclerViewHolder
         }
-        return null
     }
 
     /**
@@ -157,10 +144,9 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
      */
     fun getSectionFooterViewHolder(section: Int): RecyclerViewHolder? {
         val footer = getSectionFooter(section)
-        if(footer != null){
-            return recyclerView!!.getChildViewHolder(footer) as RecyclerViewHolder
+        return footer?.let {
+            recyclerView.getChildViewHolder(it) as RecyclerViewHolder
         }
-        return null
     }
 
 
@@ -240,7 +226,7 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
 
                 var height = getEmptyViewHeight()
                 if (height < 0) {
-                    height = recyclerView!!.height
+                    height = recyclerView.height
                 }
                 params.height = height
                 holder.itemView.layoutParams = params
@@ -279,16 +265,16 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
     }
 
     fun scrollTo(section: Int, positionInSection: Int, smooth: Boolean) {
-        if (recyclerView != null && section < sections.size) {
+        if (section < sections.size) {
             val info = sections[section]
             var position = info.getHeaderPosition()
             if (positionInSection >= 0) {
                 position = info.getItemStartPosition() + positionInSection
             }
             if (smooth) {
-                recyclerView!!.smoothScrollToPosition(position)
+                recyclerView.smoothScrollToPosition(position)
             } else {
-                recyclerView!!.scrollToPosition(position)
+                recyclerView.scrollToPosition(position)
             }
         }
     }
@@ -300,15 +286,15 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
 
     fun scrollToWithOffset(section: Int, positionInSection: Int, offset: Int) {
 
-        if (recyclerView!!.layoutManager is LinearLayoutManager) {
+        if (recyclerView.layoutManager is LinearLayoutManager) {
             val layoutManager =
-                recyclerView!!.layoutManager as LinearLayoutManager?
+                recyclerView.layoutManager as LinearLayoutManager
             val info = sections[section]
             var position = info.getHeaderPosition()
             if (positionInSection >= 0) {
                 position = info.getItemStartPosition() + positionInSection
             }
-            layoutManager!!.scrollToPositionWithOffset(position, offset)
+            layoutManager.scrollToPositionWithOffset(position, offset)
         } else {
             throw RuntimeException("scrollToWithOffset 仅仅支持 LinearLayoutManager")
         }

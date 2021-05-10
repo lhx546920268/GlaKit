@@ -1,35 +1,34 @@
-package com.lhx.glakit.base.fragment
+package com.lhx.glakit.base.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.BaseAdapter
-import android.widget.ListView
+import android.widget.GridView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 
 /**
- * 列表 listView
+ * 网格视图
  */
-open class ListFragment : RefreshableFragment() {
+class GridActivity: RefreshableActivity() {
 
-    protected val listView: ListView by lazy { requireViewById(R.id.listView) }
+    val gridView: GridView by lazy { findViewById(R.id.gridView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
-
-        var res: Int = getRefreshableContentRes()
+        var res = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.list_refresh_fragment
+                res = R.layout.grid_refresh_fragment
             } else {
-                res = R.layout.list_fragment
+                res = R.layout.grid_fragment
             }
         }
 
         setContainerContentView(res)
-        backToTopButton?.listView = listView
+        backToTopButton?.listView = gridView
     }
 
     override fun notifyDataSetChanged() {
-        (listView.adapter as BaseAdapter?)?.notifyDataSetChanged()
+        (gridView.adapter as BaseAdapter?)?.notifyDataSetChanged()
     }
 }

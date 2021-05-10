@@ -36,6 +36,7 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
 
     //容器
     private var _container: BaseContainer? = null
+
     /**
      * 基础容器
      */

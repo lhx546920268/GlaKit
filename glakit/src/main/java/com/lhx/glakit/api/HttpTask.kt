@@ -1,11 +1,11 @@
 package com.lhx.glakit.api
 
 import androidx.annotation.CallSuper
+import com.lhx.glakit.base.interf.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
 import okhttp3.*
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-
 
 
 /**
@@ -85,14 +85,15 @@ abstract class HttpTask: Callback, HttpCancelable {
     var isApiSuccess = false
         protected set
 
+    //下面3个回调保证在主线程
     //回调
     var callback: Callback? = null
 
     //成功
-    var onSuccess: ((task: HttpTask) -> Unit)? = null
+    var onSuccess: ValueCallback<HttpTask>? = null
 
     //失败
-    var onFailure: ((task: HttpTask) -> Unit)? = null
+    var onFailure: ValueCallback<HttpTask>? = null
 
     //开始
     @Synchronized
@@ -192,7 +193,7 @@ abstract class HttpTask: Callback, HttpCancelable {
         }
     }
 
-    //任务成功
+    //任务成功 异步
     protected open fun onSuccess() {
 
     }
@@ -200,7 +201,7 @@ abstract class HttpTask: Callback, HttpCancelable {
     private fun processSuccessResult() {
         isApiSuccess = true
         onSuccess()
-        callback?.onSuccess(this)
+        callback?.onSuccess(this) //异步解析
 
         synchronized(this){
             if(status != Status.CANCELLED){

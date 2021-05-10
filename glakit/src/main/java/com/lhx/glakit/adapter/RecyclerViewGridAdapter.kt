@@ -156,7 +156,7 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
     /**
      * section的偏移量
      */
-    fun getSectionInsets(section: Int): EdgeInsets? {
+    fun getSectionInsets(section: Int): EdgeInsets {
         return sectionInsets
     }
 
@@ -264,7 +264,7 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
                     right = bottom
                     left = right
                     val insets = getSectionInsets(sections.size - 1)
-                    if (insets == null || insets.bottom == 0) {
+                    if (insets.bottom == 0) {
                         top = getItemSpace(sections.size - 1)
                     }
                 }

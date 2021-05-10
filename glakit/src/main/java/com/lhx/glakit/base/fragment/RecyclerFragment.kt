@@ -14,9 +14,8 @@ open class RecyclerFragment : RefreshableFragment() {
     protected val recyclerView: RecyclerView by lazy { requireViewById(R.id.recyclerView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
-        super.initialize(inflater, container, saveInstanceState)
 
-        var res = getContentRes()
+        var res = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
                 res = R.layout.recycler_refresh_fragment
@@ -25,8 +24,6 @@ open class RecyclerFragment : RefreshableFragment() {
             }
         }
         setContainerContentView(res)
-
-        val backToTopButton = getBackToTopButton()
         backToTopButton?.recyclerView = recyclerView
     }
 

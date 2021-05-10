@@ -1,35 +1,33 @@
-package com.lhx.glakit.base.fragment
+package com.lhx.glakit.base.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.BaseAdapter
-import android.widget.GridView
+import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 
-
 /**
- * 网格视图
+ * RecyclerView
  */
-open class GridFragment : RefreshableFragment() {
+class RecyclerActivity: RefreshableActivity(){
 
-    protected val gridView: GridView by lazy { requireViewById(R.id.gridView) }
+    val recyclerView: RecyclerView by lazy { findViewById(R.id.recyclerView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
+
         var res = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.grid_refresh_fragment
+                res = R.layout.recycler_refresh_fragment
             } else {
-                res = R.layout.grid_fragment
+                res = R.layout.recycler_fragment
             }
         }
-
         setContainerContentView(res)
-        backToTopButton?.listView = gridView
+        backToTopButton?.recyclerView = recyclerView
     }
 
     override fun notifyDataSetChanged() {
-        (gridView.adapter as BaseAdapter?)?.notifyDataSetChanged()
+        recyclerView.adapter?.notifyDataSetChanged()
     }
 }

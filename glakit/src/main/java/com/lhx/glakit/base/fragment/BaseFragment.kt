@@ -14,7 +14,6 @@ import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
 import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
-import com.lhx.glakit.base.activity.ActivityStack
 import com.lhx.glakit.base.activity.BaseActivity
 import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
@@ -128,23 +127,6 @@ abstract class BaseFragment : Fragment(), BasePage {
         resultCode: Int = Int.MAX_VALUE
     ) {
         backTo(fragmentClass.name, include, resultCode)
-    }
-
-    /**
-     * 返回某个指定的 fragment
-     * @param toName 对应的fragment类名 或者 activity类名 [BaseActivity.getName()]
-     * @param include 是否包含toName
-     * @param resultCode [android.app.Activity.setResult]
-     */
-    fun backTo(toName: String, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
-        ActivityStack.finishActivities(toName, include, resultCode)
-    }
-
-    /**
-     * 返回到底部
-     */
-    fun backToRoot() {
-        ActivityStack.finishActivitiesToRoot()
     }
 
     //</editor-fold>

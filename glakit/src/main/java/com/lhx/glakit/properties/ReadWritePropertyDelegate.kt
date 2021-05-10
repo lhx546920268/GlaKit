@@ -3,6 +3,9 @@ package com.lhx.glakit.properties
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+/**
+ * 属性代理，可监听值改变，只有值不同的时候才会回调
+ */
 class ReadWritePropertyDelegate<T>(var value: T, val observer: ((oldValue: T, newValue: T) -> Unit)? = null):
     ReadWriteProperty<Any?, T> {
 

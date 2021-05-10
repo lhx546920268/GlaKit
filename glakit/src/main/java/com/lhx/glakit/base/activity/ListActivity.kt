@@ -1,4 +1,4 @@
-package com.lhx.glakit.base.fragment
+package com.lhx.glakit.base.activity
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -10,9 +10,9 @@ import com.lhx.glakit.base.widget.BaseContainer
 /**
  * 列表 listView
  */
-open class ListFragment : RefreshableFragment() {
+class ListActivity: RefreshableActivity() {
 
-    protected val listView: ListView by lazy { requireViewById(R.id.listView) }
+    val listView: ListView by lazy { findViewById(R.id.listView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 

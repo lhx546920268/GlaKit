@@ -1,4 +1,4 @@
-package com.lhx.glakit.base.fragment
+package com.lhx.glakit.base.activity
 
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +15,7 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout
 /**
  * 可下拉刷新的
  */
-@Suppress("unused_parameter")
-abstract class RefreshableFragment: BaseFragment(), RefreshablePage {
+abstract class RefreshableActivity: BaseContainerActivity(), RefreshablePage {
 
     override var curPage = GlaKitInitializer.HttpFirstPage
 
@@ -35,7 +34,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshablePage {
         get() {
             if (!shouldDisplayBackToTop) return null
             if (field == null) {
-                field = BackToTopButton(requireContext())
+                field = BackToTopButton(this)
                 field?.apply{
                     setImageResource(R.drawable.back_to_top_icon)
                     val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -54,8 +53,6 @@ abstract class RefreshableFragment: BaseFragment(), RefreshablePage {
 
     //是否需要显示回到顶部按钮
     val shouldDisplayBackToTop = false
-
-    //</editor-fold>
 
     //返回自定义的 layout res
     @LayoutRes

@@ -52,10 +52,6 @@ open class BaseActivity: AppCompatActivity() {
             resources.getBoolean(R.bool.status_bar_is_light)
         )
 
-        //java.net.SocketException: sendto failed: ECONNRESET (Connection reset by peer)
-        val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
-        StrictMode.setThreadPolicy(policy)
-
         val layoutRes = getContentViewRes()
         if (layoutRes != 0) {
             setContentView(layoutRes)

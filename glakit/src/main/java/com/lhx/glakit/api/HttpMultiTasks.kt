@@ -1,5 +1,7 @@
 package com.lhx.glakit.api
 
+import com.lhx.glakit.base.interf.ValueCallback
+
 /**
  * 多任务处理
  */
@@ -12,7 +14,7 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
     var onlyFlagNetworkError = false
 
     //所有任务完成回调 hasFail 是否有任务失败了
-    var completion: ((tasks: HttpMultiTasks) -> Unit)? = null
+    private var completions = HashSet<ValueCallback<HttpMultiTasks>>()
 
     //任务列表
     private var tasks = ArrayList<HttpTask>()
@@ -28,7 +30,7 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
     override val isExecuting: Boolean
         get() = _isExecuting
 
-    ///添加任务 key 为HttpTask.name
+    //添加任务 key 为HttpTask.name
     fun addTask(task: HttpTask, key: String = task.name ?: "") {
         require(!_isExecuting){
             "HttpMultiTasks is executing"
@@ -36,6 +38,16 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
         tasks.add(task)
         taskMap[key] = task
         task.callback = this
+    }
+
+    //添加回调
+    fun addCompletionHandler(callback: ValueCallback<HttpMultiTasks>){
+        completions.add(callback)
+    }
+
+    //移除回调
+    fun removeCompletionHandler(callback: ValueCallback<HttpMultiTasks>){
+        completions.remove(callback)
     }
 
     //开始所有任务
@@ -97,8 +109,9 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
         }
 
         if(tasks.size == 0){
-            if(completion != null){
-                completion!!(this)
+            _isExecuting = false
+            for(completion in completions){
+                completion(this)
             }
             taskMap.clear()
         }
