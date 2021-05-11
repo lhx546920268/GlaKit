@@ -5,30 +5,31 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.lhx.glakit.R
-import com.lhx.glakit.properties.ReadWritePropertyDelegate
+import com.lhx.glakit.properties.ObservableProperty
 import com.lhx.glakit.utils.SizeUtils
+import kotlin.reflect.KProperty
 
 
 /**
  * 气泡弹窗
  */
 @Suppress("unused_parameter", "LeakingThis")
-open class PopoverLayout : FrameLayout{
+open class PopoverLayout : FrameLayout, ObservableProperty.Callback{
 
     //气泡颜色
-    var popoverColor by ReadWritePropertyDelegate(Color.WHITE, this::observer)
+    var popoverColor by ObservableProperty(Color.WHITE, this)
 
     //圆角 px
-    var cornerRadius by ReadWritePropertyDelegate(0, this::observer)
+    var cornerRadius by ObservableProperty(0, this)
 
     //箭头高度 px
-    var arrowHeight by ReadWritePropertyDelegate(0, this::observer)
+    var arrowHeight by ObservableProperty(0, this)
 
     //箭头宽度 px
-    var arrowWidth by ReadWritePropertyDelegate(0, this::observer)
+    var arrowWidth by ObservableProperty(0, this)
 
     //箭头方向
-    var arrowDirection by ReadWritePropertyDelegate(ArrowDirection.top, this::observer)
+    var arrowDirection by ObservableProperty(ArrowDirection.top, this)
 
     //设置箭头偏移量 0为居中
     var arrowOffset = 0
@@ -91,10 +92,7 @@ open class PopoverLayout : FrameLayout{
         super.setWillNotDraw(willNotDraw)
     }
 
-    /**
-     * 监听值变化
-     */
-    private fun <T> observer(oldValue: T, newValue: T){
+    override fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>) {
         postInvalidate()
     }
 

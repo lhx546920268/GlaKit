@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.ItemType
@@ -11,6 +13,7 @@ import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.viewholder.RecyclerViewHolder
+import com.lhx.glakitDemo.BR
 import com.lhx.glakitDemo.R
 
 class SectionRecycleViewFragment: RecyclerFragment() {
@@ -61,7 +64,8 @@ class SectionRecycleViewFragment: RecyclerFragment() {
                     RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.section_footer, parent, false))
                 }
                 else -> {
-                    RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.list_item, parent, false))
+                    val binding: ViewDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.list_item, parent, false)
+                    RecyclerViewHolder(binding)
                 }
             }
         }
@@ -87,8 +91,12 @@ class SectionRecycleViewFragment: RecyclerFragment() {
             position: Int,
             section: Int
         ) {
-            viewHolder.getView<TextView>(R.id.title).text = "标题-$position"
-            viewHolder.getView<TextView>(R.id.subtitle).text = "副标题"
+            viewHolder.binding.apply {
+                setVariable(BR.title, "标题-$position")
+                setVariable(BR.subtitle, "副标题-$position")
+            }
+//            viewHolder.getView<TextView>(R.id.title).text = "标题-$position"
+//            viewHolder.getView<TextView>(R.id.subtitle).text = "副标题"
         }
 
         override fun onBindSectionHeaderViewHolder(viewHolder: RecyclerViewHolder, section: Int) {
@@ -100,7 +108,7 @@ class SectionRecycleViewFragment: RecyclerFragment() {
         }
 
         override fun onLoadMore() {
-            recyclerView?.postDelayed({
+            recyclerView.postDelayed({
                 numberOfSection ++
                 stopLoadMore(true)
             }, 2000)

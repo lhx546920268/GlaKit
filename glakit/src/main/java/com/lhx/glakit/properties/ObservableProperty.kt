@@ -4,9 +4,9 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
- * 属性代理，可监听值改变，只有值不同的时候才会回调
+ * 可监听值改变，只有值不同的时候才会回调
  */
-class ReadWritePropertyDelegate<T>(var value: T, val observer: ((oldValue: T, newValue: T) -> Unit)? = null):
+class ObservableProperty<T>(var value: T, val callback: Callback? = null):
     ReadWriteProperty<Any?, T> {
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {
@@ -18,9 +18,18 @@ class ReadWritePropertyDelegate<T>(var value: T, val observer: ((oldValue: T, ne
             val oldValue = this.value
             this.value = value
 
-            if(observer != null){
-                observer.invoke(oldValue, value)
+            if(callback != null){
+                callback.onPropertyValueChange(oldValue, value, property)
             }
         }
+    }
+
+    /**
+     * 值变化回调
+     */
+    interface Callback {
+
+        //值变化了
+        fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>)
     }
 }

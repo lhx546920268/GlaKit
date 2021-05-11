@@ -23,7 +23,7 @@ import com.lhx.glakit.utils.ViewUtils
  * 标签栏 activity
  */
 @Suppress("unused_parameter")
-abstract class TabBarActivity: BaseContainerActivity() {
+abstract class TabBarActivity : BaseContainerActivity() {
 
     //按钮数量
     private var count: Int = 0
@@ -32,73 +32,80 @@ abstract class TabBarActivity: BaseContainerActivity() {
 
     //当前选中的
     var checkedPosition: Int = Position.NO_POSITION
-    set(value) {
-        if(field != value){
-            if (shouldCheck(value)) {
+        set(value) {
+            if (field != value) {
+                if (shouldCheck(value)) {
 
-                var newValue = value
-                if (newValue < 0) {
-                    newValue = 0
-                } else if (field >= count) {
-                    newValue = count - 1
-                }
-
-                val fragment = getFragment(newValue)
-                if (fragment != null) {
-                    if (field >= 0 && field < tabBarItems.size) {
-                        tabBarItems[field].checked = false
+                    var newValue = value
+                    if (newValue < 0) {
+                        newValue = 0
+                    } else if (field >= count) {
+                        newValue = count - 1
                     }
 
-                    field = newValue
-                    tabBarItems[field].checked = true
-                    currentFragment = fragment
+                    val fragment = getFragment(newValue)
+                    if (fragment != null) {
+                        if (field >= 0 && field < tabBarItems.size) {
+                            tabBarItems[field].checked = false
+                        }
+
+                        field = newValue
+                        tabBarItems[field].checked = true
+                        currentFragment = fragment
+                    }
+                    onCheck(field)
                 }
-                onCheck(field)
             }
         }
-    }
 
     //背景视图
     private var backgroundView: View? = null
-    set(value) {
-        if(field !== value){
+        set(value) {
+            if (field !== value) {
 
-            if (field != null) {
-                ViewUtils.removeFromParent(field)
-            }
-            field = value
+                if (field != null) {
+                    ViewUtils.removeFromParent(field)
+                }
+                field = value
 
-            if (field != null) {
-                val relativeLayout = baseContainer?.contentView as RelativeLayout
-                val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
-                relativeLayout.addView(field, relativeLayout.indexOfChild(tabBar), params)
+                if (field != null) {
+                    val relativeLayout = baseContainer?.contentView as RelativeLayout
+                    val params = RelativeLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                    params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
+                    relativeLayout.addView(field, relativeLayout.indexOfChild(tabBar), params)
+                }
             }
         }
-    }
 
     //按钮
     protected var tabBarItems: MutableList<TabBarItem> = ArrayList()
 
     //当前fragment
     protected var currentFragment: BaseFragment? = null
-    set(value) {
-        if(value != null && !value.isAdded && value !== field){
-            val transaction = supportFragmentManager.beginTransaction()
-            if (field != null) {
-                transaction.detach(field!!)
+        set(value) {
+            if (value != null && !value.isAdded && value !== field) {
+                val transaction = supportFragmentManager.beginTransaction()
+                if (field != null) {
+                    transaction.detach(field!!)
+                }
+                if (value.isDetached) {
+                    transaction.attach(value)
+                } else {
+                    transaction.add(R.id.fragment_container, value)
+                }
+                transaction.commitAllowingStateLoss()
+                field = value
             }
-            if (value.isDetached) {
-                transaction.attach(value)
-            } else {
-                transaction.add(R.id.fragment_container, value)
-            }
-            transaction.commitAllowingStateLoss()
-            field = value
         }
-    }
 
-    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
+    override fun initialize(
+        inflater: LayoutInflater,
+        container: BaseContainer,
+        saveInstanceState: Bundle?
+    ) {
         setContainerContentView(R.layout.tab_bar_activity)
         initTabBar()
     }
@@ -114,7 +121,8 @@ abstract class TabBarActivity: BaseContainerActivity() {
         count = numberOfTabBarItems
         if (count > 0) {
             for (i in 0 until count) {
-                val item = LayoutInflater.from(this).inflate(R.layout.tab_bar_item, null) as TabBarItem
+                val item =
+                    LayoutInflater.from(this).inflate(R.layout.tab_bar_item, null) as TabBarItem
 
                 item.textView.apply {
                     text = getTitle(i)
@@ -176,7 +184,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
     private fun getIcon(position: Int): Drawable {
         val stateListDrawable = StateListDrawable()
         var drawable = ContextCompat.getDrawable(this, getNormalIconRes(position))
-        require(drawable != null){
+        require(drawable != null) {
             "NormalIconRes 无效"
         }
 
@@ -194,7 +202,7 @@ abstract class TabBarActivity: BaseContainerActivity() {
             }
         }
 
-        require(checkDrawable != null){
+        require(checkDrawable != null) {
             "TabBar 无法生成 选中的图标"
         }
 

@@ -104,7 +104,7 @@ abstract class BaseFragment : Fragment(), BasePage {
 
     //打开activity 不要动画
     fun closeAnimate() {
-        activity?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+//        activity?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     //</editor-fold>

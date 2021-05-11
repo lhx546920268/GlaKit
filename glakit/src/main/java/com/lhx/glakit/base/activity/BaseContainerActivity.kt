@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import com.lhx.glakit.api.HttpCancelable
-import com.lhx.glakit.base.activity.ActivityStack.finishActivities
+import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
@@ -63,7 +63,7 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
 
     //打开activity 不要动画
     fun closeAnimate() {
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     //<editor-fold desc="返回">
@@ -78,7 +78,7 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
      * @param resultCode [android.app.Activity.setResult]
      */
     fun backTo(toName: String, resultCode: Int = Int.MAX_VALUE) {
-        finishActivities(toName, resultCode)
+        finishActivities(toName, resultCode = resultCode)
     }
 
     //</editor-fold>

@@ -10,7 +10,7 @@ import android.view.View
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.api.HttpProcessor
-import com.lhx.glakit.base.activity.ActivityStack
+import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.loading.InteractionCallback
@@ -366,13 +366,13 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpPro
      * @param resultCode [android.app.Activity.setResult]
      */
     fun backTo(toName: String, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
-        ActivityStack.finishActivities(toName, include, resultCode)
+        ActivityLifeCycleManager.finishActivities(toName, include, resultCode)
     }
 
     /**
      * 返回到底部
      */
     fun backToRoot() {
-        ActivityStack.finishActivitiesToRoot()
+        ActivityLifeCycleManager.finishActivitiesToRoot()
     }
 }

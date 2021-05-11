@@ -6,17 +6,18 @@ import android.view.animation.LinearInterpolator
 import android.animation.ValueAnimator
 import android.graphics.*
 import android.graphics.drawable.Animatable
-import com.lhx.glakit.properties.ReadWritePropertyDelegate
+import com.lhx.glakit.properties.ObservableProperty
 import com.lhx.glakit.utils.ColorUtils
 import com.lhx.glakit.utils.MathUtils
 import kotlin.math.min
+import kotlin.reflect.KProperty
 
 
 /**
  * 加载菊花
  */
 @Suppress("unused_parameter")
-class LoadingDrawable : BaseDrawable(), Animatable {
+class LoadingDrawable : BaseDrawable(), Animatable, ObservableProperty.Callback {
 
     //是否在执行
     private var running: Boolean = false
@@ -25,16 +26,16 @@ class LoadingDrawable : BaseDrawable(), Animatable {
     private val valueAnimator: ValueAnimator
 
     //花瓣数量 从1开始
-    var petalsCount by ReadWritePropertyDelegate(13, this::observer)
+    var petalsCount by ObservableProperty(13, this)
 
     //花瓣大小 px
-    var petalsStrokeWidth by ReadWritePropertyDelegate(0, this::observer)
+    var petalsStrokeWidth by ObservableProperty(0, this)
 
     //颜色
-    var color by ReadWritePropertyDelegate(Color.WHITE, this::observer)
+    var color by ObservableProperty(Color.WHITE, this)
 
     //渐变数量
-    var fadeCount by ReadWritePropertyDelegate(5, this::observer)
+    var fadeCount by ObservableProperty(5, this)
 
     //当前开始位置
     private var start: Int = 0
@@ -43,7 +44,7 @@ class LoadingDrawable : BaseDrawable(), Animatable {
     private val petalsPath: Path
 
     //内圆比例 0 ~ 1.0
-    var innerCircleRatio by ReadWritePropertyDelegate( 3.0 / 5.0, this::observer)
+    var innerCircleRatio by ObservableProperty( 3.0 / 5.0, this)
 
     //监听动画改变
     private var mAnimatorUpdateListener: ValueAnimator.AnimatorUpdateListener =
@@ -77,10 +78,7 @@ class LoadingDrawable : BaseDrawable(), Animatable {
         petalsPath = Path()
     }
 
-    /**
-     * 监听值变化
-     */
-    private fun <T> observer(oldValue: T, newValue: T){
+    override fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>) {
         invalidateSelf()
     }
 

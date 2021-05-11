@@ -1,6 +1,8 @@
 package com.lhx.glakit
 
+import android.app.Application
 import android.view.View
+import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.loading.LoadingView
 import com.lhx.glakit.refresh.RefreshHeader
 
@@ -16,5 +18,10 @@ object GlaKitInitializer {
 
     //自定义下拉刷新头部 要实现 RefreshHeader
     var refreshHeaderClass: Class<out RefreshHeader>? = null
+
+    //初始化
+    fun init(application: Application){
+        application.registerActivityLifecycleCallbacks(ActivityLifeCycleManager)
+    }
 }
 

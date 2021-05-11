@@ -1,10 +1,7 @@
 package com.lhx.glakitDemo.dialog
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
-import com.alibaba.fastjson.JSONObject
-import com.lhx.glakit.api.HttpJSONTask
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.AlertUtils
@@ -53,28 +50,8 @@ class DialogFragment: BaseFragment() {
             }
 
             popup.setOnClickListener{
-                val task = HomeTask()
-                task.onSuccess = {
-                    val task = it as HomeTask
-                    
-                }
-//                ListPopupWindow(requireContext()).showAsDropDown(it)
+                ListPopupWindow(requireContext()).showAsDropDown(it)
             }
-        }
-    }
-
-    private class HomeTask: HttpJSONTask() {
-
-        override fun processJSON(json: JSONObject): Boolean {
-            Log.d("json", json.toString())
-            return true
-        }
-
-        override val currentURL: String
-            get() = "https://devtest.zegobird.com:11111/api/index"
-
-        override fun prepare() {
-
         }
     }
 }

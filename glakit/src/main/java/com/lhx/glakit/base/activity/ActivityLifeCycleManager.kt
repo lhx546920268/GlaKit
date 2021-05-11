@@ -1,30 +1,22 @@
 package com.lhx.glakit.base.activity
 
+import android.app.Activity
+import android.app.Application
+import android.os.Bundle
+import com.lhx.glakit.event.AppEvent
+
+import org.greenrobot.eventbus.EventBus
+
 /**
  * activity 堆栈
  */
-object ActivityStack {
+object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
 
-    //当前显示的activity
-    private val activities: ArrayList<BaseActivity> = ArrayList()
+    //当前的activity
+    private val activities: ArrayList<Activity> = ArrayList()
 
-    /**
-     * 添加activity
-     * @param activity 要添加的activity
-     */
-    fun addActivity(activity: BaseActivity) {
-        if (!activities.contains(activity)) {
-            activities.add(activity)
-        }
-    }
-
-    /**
-     * 删除activity
-     * @param activity 要删除的activity
-     */
-    fun removeActivity(activity: BaseActivity) {
-        activities.remove(activity)
-    }
+    //当前显示activity的数量
+    private var activityCount = 0
 
     /**
      * 获取对应名称的 activity
@@ -34,7 +26,7 @@ object ActivityStack {
     fun getActivity(name: String?): BaseActivity? {
         if (name != null) {
             for (activity in activities) {
-                if (name == activity.name) {
+                if (activity is BaseActivity && name == activity.name) {
                     return activity
                 }
             }
@@ -46,30 +38,18 @@ object ActivityStack {
      * 关闭所有activity到 root
      */
     fun finishActivitiesToRoot() { //要关闭的activity
-        val closeActivities: MutableSet<BaseActivity> = HashSet()
+        val closeActivities: MutableSet<Activity> = HashSet()
         for (i in 0 until activities.size) {
             val activity = activities[i]
             if (!activity.isTaskRoot) {
                 closeActivities.add(activity)
             }
         }
-        val iterator: Iterator<BaseActivity> = closeActivities.iterator()
+        val iterator: Iterator<Activity> = closeActivities.iterator()
         while (iterator.hasNext()) {
             val activity = iterator.next()
             activity.finish()
         }
-    }
-
-    fun finishActivities(toName: String) {
-        finishActivities(toName, Int.MAX_VALUE)
-    }
-
-    fun finishActivities(toName: String, resultCode: Int) {
-        finishActivities(toName, false, resultCode)
-    }
-
-    fun finishActivities(toName: String, include: Boolean) {
-        finishActivities(toName, include, Int.MAX_VALUE)
     }
 
     /**
@@ -78,24 +58,24 @@ object ActivityStack {
      * @param include 是否包含toName
      * @param resultCode [android.app.Activity.setResult]
      */
-    fun finishActivities(toName: String, include: Boolean, resultCode: Int) {
+    fun finishActivities(toName: String, include: Boolean = false, resultCode: Int = Int.MAX_VALUE) {
         var index = -1
         for (i in activities.size - 1 downTo 0) {
             val activity = activities[i]
-            if (toName == activity.name) {
+            if (activity is BaseActivity && toName == activity.name) {
                 index = i
                 break
             }
         }
         if (index != -1) { //要关闭的activity
-            val closeActivities: MutableSet<BaseActivity> = HashSet()
+            val closeActivities: MutableSet<Activity> = HashSet()
             if (!include) {
                 index++
             }
             for (i in index until activities.size) {
                 closeActivities.add(activities[i])
             }
-            val iterator: Iterator<BaseActivity> = closeActivities.iterator()
+            val iterator: Iterator<Activity> = closeActivities.iterator()
             while (iterator.hasNext()) {
                 val activity = iterator.next()
                 if (resultCode != Int.MAX_VALUE) {
@@ -110,9 +90,43 @@ object ActivityStack {
      * 销毁所有activity
      */
     fun finishAllActivities() {
-
         for (activity in activities) {
             activity.finish()
         }
+    }
+
+    override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        activities.add(activity)
+    }
+
+    override fun onActivityStarted(activity: Activity) {
+        if(activityCount == 0){
+            //app进入前台
+            EventBus.getDefault()
+                .post(AppEvent(this, AppEvent.Type.ENTER_FOREGROUND))
+        }
+        activityCount ++
+    }
+
+    override fun onActivityResumed(activity: Activity) {
+    }
+
+    override fun onActivityPaused(activity: Activity) {
+    }
+
+    override fun onActivityStopped(activity: Activity) {
+        activityCount --
+        if(activityCount == 0){
+            //app进入后台
+            EventBus.getDefault()
+                .post(AppEvent(this, AppEvent.Type.ENTER_BACKGROUND))
+        }
+    }
+
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+    }
+
+    override fun onActivityDestroyed(activity: Activity) {
+        activities.remove(activity)
     }
 }

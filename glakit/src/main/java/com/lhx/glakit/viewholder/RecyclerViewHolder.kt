@@ -3,6 +3,7 @@ package com.lhx.glakit.viewholder
 import android.util.SparseArray
 import android.view.View
 import androidx.annotation.IdRes
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 
@@ -11,6 +12,13 @@ import androidx.viewbinding.ViewBinding
  */
 @Suppress("unchecked_cast")
 class RecyclerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+    constructor(binding: ViewDataBinding): this(binding.root){
+        this.binding = binding
+    }
+
+    lateinit var binding: ViewDataBinding
+        private set
 
     //保存view的集合
     private var mViews: SparseArray<View>? = null

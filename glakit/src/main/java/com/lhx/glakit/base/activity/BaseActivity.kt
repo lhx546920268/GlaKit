@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.StrictMode
 import android.view.KeyEvent
 import android.view.View
 import android.view.Window
@@ -12,8 +11,6 @@ import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
-import com.lhx.glakit.base.activity.ActivityStack.addActivity
-import com.lhx.glakit.base.activity.ActivityStack.removeActivity
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.utils.AppUtils
 
@@ -80,9 +77,6 @@ open class BaseActivity: AppCompatActivity() {
         } else {
             name = javaClass.name
         }
-
-        //添加到堆栈中
-        addActivity(this)
     }
 
     override fun onResume() {
@@ -93,13 +87,6 @@ open class BaseActivity: AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         _visible = false
-    }
-
-    @CallSuper
-    override fun onDestroy() {
-        //从堆栈移除
-        removeActivity(this)
-        super.onDestroy()
     }
 
     //</editor-fold>

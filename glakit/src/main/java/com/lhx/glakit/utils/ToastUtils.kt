@@ -12,7 +12,7 @@ import com.lhx.glakit.toast.ToastManager
 object ToastUtils {
 
     fun showToast(view: View, text: CharSequence, @DrawableRes icon: Int = 0, gravity: Int = Gravity.BOTTOM) {
-        ToastManager.sharedManager.show(text, view)
+        ToastManager.show(text, view)
     }
 
     fun showToast(container: ToastContainer, text: CharSequence, @DrawableRes icon: Int = 0, gravity: Int = Gravity.BOTTOM) {

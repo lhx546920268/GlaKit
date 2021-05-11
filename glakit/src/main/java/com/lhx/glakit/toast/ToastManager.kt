@@ -12,17 +12,13 @@ import com.google.android.material.animation.AnimationUtils
 import com.lhx.glakit.R
 import com.lhx.glakit.utils.ViewUtils
 
-internal class ToastManager private constructor() {
+internal object ToastManager{
 
     private var currentToast: ToastContentLayout? = null
     private var currentAnimator: Animator? = null
     private val handler = Handler(Looper.getMainLooper())
     private val delayCallback = Runnable {
         dismiss(true)
-    }
-
-    companion object {
-        val sharedManager: ToastManager by lazy { ToastManager() }
     }
 
     fun show(text: CharSequence, inView: View){

@@ -7,39 +7,40 @@ import android.graphics.Shader
 import android.graphics.BitmapShader
 import android.graphics.BitmapFactory
 import android.graphics.Bitmap
-import com.lhx.glakit.properties.ReadWritePropertyDelegate
+import com.lhx.glakit.properties.ObservableProperty
 import kotlin.math.min
+import kotlin.reflect.KProperty
 
 
 /**
  * 圆角边框drawable
  */
 @Suppress("unused_parameter")
-class CornerBorderDrawable : BaseDrawable{
+class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
 
     //左上角圆角 px
-    var leftTopCornerRadius by ReadWritePropertyDelegate(0, this::observer)
+    var leftTopCornerRadius by ObservableProperty(0, this)
 
     //右上角圆角 px
-    var rightTopCornerRadius by ReadWritePropertyDelegate(0, this::observer)
+    var rightTopCornerRadius by ObservableProperty(0, this)
 
     //左下角圆角 px
-    var leftBottomCornerRadius by ReadWritePropertyDelegate(0, this::observer)
+    var leftBottomCornerRadius by ObservableProperty(0, this)
 
     //右下角圆角 px
-    var rightBottomCornerRadius by ReadWritePropertyDelegate(0, this::observer)
+    var rightBottomCornerRadius by ObservableProperty(0, this)
 
     //是否全圆
-    var shouldAbsoluteCircle by ReadWritePropertyDelegate(false, this::observer)
+    var shouldAbsoluteCircle by ObservableProperty(false, this)
 
     //边框线条厚度 px
-    var borderWidth by ReadWritePropertyDelegate(0, this::observer)
+    var borderWidth by ObservableProperty(0, this)
 
     //边框线条颜色
-    var borderColor by ReadWritePropertyDelegate(Color.TRANSPARENT, this::observer)
+    var borderColor by ObservableProperty(Color.TRANSPARENT, this)
 
     //背景填充颜色
-    var backgroundColor by ReadWritePropertyDelegate(Color.TRANSPARENT, this::observer)
+    var backgroundColor by ObservableProperty(Color.TRANSPARENT, this)
 
     //位图
     private var bitmap: Bitmap? = null
@@ -50,14 +51,9 @@ class CornerBorderDrawable : BaseDrawable{
     //位图画笔
     private var bitmapPaint: Paint? = null
 
-
     constructor() : super()
 
-
-    /**
-     * 监听值变化
-     */
-    private fun <T> observer(oldValue: T, newValue: T){
+    override fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>) {
         invalidateSelf()
     }
 
