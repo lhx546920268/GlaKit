@@ -15,12 +15,13 @@ import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakitDemo.R
 import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
+import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
 
 class HomeFragment: RecyclerFragment() {
 
-    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog")
+    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image")
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -73,6 +74,9 @@ class HomeFragment: RecyclerFragment() {
                 }
                 3-> {
                     startActivity(DialogFragment::class.java)
+                }
+                4-> {
+                    startActivity(ImageScaleFragment::class.java)
                 }
             }
         }

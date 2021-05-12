@@ -264,12 +264,12 @@ object FileUtils {
      * @return 临时文件
      */
     @Throws(IOException::class)
-    fun createTemporaryFile(context: Context, extension: String): File? {
+    fun createTemporaryFile(context: Context, extension: String): File {
         return createNewFileIfNotExist(getTemporaryFilePath(context, extension))
     }
 
     @Throws(IOException::class)
-    fun createNewFileIfNotExist(filePath: String): File? {
+    fun createNewFileIfNotExist(filePath: String): File {
         val file = File(filePath)
         createNewFileIfNotExist(file)
         return file

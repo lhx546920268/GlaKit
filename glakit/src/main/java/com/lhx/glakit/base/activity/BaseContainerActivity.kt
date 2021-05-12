@@ -63,7 +63,7 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
 
     //打开activity 不要动画
     fun closeAnimate() {
-//        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     //<editor-fold desc="返回">

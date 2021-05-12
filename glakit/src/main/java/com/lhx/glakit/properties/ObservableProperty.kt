@@ -6,7 +6,7 @@ import kotlin.reflect.KProperty
 /**
  * 可监听值改变，只有值不同的时候才会回调
  */
-class ObservableProperty<T>(var value: T, val callback: Callback? = null):
+class ObservableProperty<T>(var value: T, val callback: Callback?):
     ReadWriteProperty<Any?, T> {
 
     override fun getValue(thisRef: Any?, property: KProperty<*>): T {

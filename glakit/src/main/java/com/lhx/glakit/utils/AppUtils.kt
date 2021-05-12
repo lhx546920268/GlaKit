@@ -26,6 +26,24 @@ import java.util.*
 object AppUtils {
 
     /**
+     * 设备id
+     */
+    val deviceId: String by lazy {
+        "35${Build.BRAND.length % 10}" +
+                "${Build.CPU_ABI.length % 10}" +
+                "${Build.DEVICE.length % 10}" +
+                "${Build.DISPLAY.length % 10}" +
+                "${Build.HOST.length % 10}" +
+                "${Build.ID.length % 10}" +
+                "${Build.MANUFACTURER.length % 10}" +
+                "${Build.MODEL.length % 10}" +
+                "${Build.PRODUCT.length % 10}" +
+                "${Build.TAGS.length % 10}" +
+                "${Build.TYPE.length % 10}" +
+                "${Build.USER.length % 10}"
+    }
+
+    /**
      * 获取app版本号
      * @param context
      * @return

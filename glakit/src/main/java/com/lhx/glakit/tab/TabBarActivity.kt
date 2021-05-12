@@ -229,10 +229,10 @@ abstract class TabBarActivity : BaseContainerActivity() {
     }
 
     //选择某个tab
-    fun onCheck(position: Int) {}
+    open fun onCheck(position: Int) {}
 
     //某个标签是否可以点击
-    fun shouldCheck(position: Int): Boolean {
+    open fun shouldCheck(position: Int): Boolean {
         return true
     }
 

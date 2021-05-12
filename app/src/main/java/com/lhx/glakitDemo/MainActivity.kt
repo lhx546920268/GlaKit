@@ -2,32 +2,35 @@ package com.lhx.glakitDemo
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.databinding.Observable
-import androidx.databinding.ObservableField
+import android.util.Log
 import com.lhx.glakit.base.fragment.BaseFragment
+import com.lhx.glakit.properties.ObservableProperty
 import com.lhx.glakit.tab.TabBarActivity
 import com.lhx.glakitDemo.home.HomeFragment
+import com.lhx.glakitDemo.home.User
 import com.lhx.glakitDemo.me.MeFragment
+import kotlin.reflect.KProperty
 
 
 class MainActivity : TabBarActivity() {
 
-    val user: ObservableField<String> = ObservableField()
+    val user = User()
 
     val titles = arrayOf("首页", "我的")
     val icons = arrayOf(R.drawable.tab_home_n, R.drawable.tab_me_n)
     val checkedIcons = arrayOf(R.drawable.tab_home_s, R.drawable.tab_me_s)
 
     val fragments = arrayOf(HomeFragment(), MeFragment())
+    var count = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         application.registerActivityLifecycleCallbacks(LifeCycle)
-        user.addOnPropertyChangedCallback(object: Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
-
+        user.addObserver(this, arrayOf("title", "subtitle"), {oldValue, newValue, property ->
+            if (oldValue != newValue) {
+                Log.d("change", "${property.name} did change oldValue = $oldValue, newValue = $newValue")
             }
-        })
+        }, true)
     }
 
     override val numberOfTabBarItems: Int
@@ -53,5 +56,15 @@ class MainActivity : TabBarActivity() {
 
     override fun getCheckedIconRes(position: Int): Int {
         return checkedIcons[position]
+    }
+
+    override fun onCheck(position: Int) {
+        user.title = getTitle(position) as String
+        user.subtitle = getTitle(position) as String
+        count ++
+        if(count > 5){
+            user.notifyChange()
+            count = 0
+        }
     }
 }

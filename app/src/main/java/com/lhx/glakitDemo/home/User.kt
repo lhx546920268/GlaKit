@@ -1,7 +1,10 @@
 package com.lhx.glakitDemo.home
 
-class User {
+import com.lhx.glakit.properties.BaseObservable
+import com.lhx.glakit.properties.ObservableProperty
 
-    var title: String? = null
-    var subtitle: String? = null
+class User: BaseObservable() {
+
+    var title by ObservableProperty<String?>(null, this)
+    var subtitle by ObservableProperty<String?>(null, this)
 }
