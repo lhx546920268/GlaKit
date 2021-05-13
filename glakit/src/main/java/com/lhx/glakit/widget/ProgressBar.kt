@@ -10,6 +10,8 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.AlphaAnimation
+import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import androidx.annotation.FloatRange
@@ -25,13 +27,13 @@ class ProgressBar : View {
 
     //进度条颜色
     var progressColor: Int = Color.BLUE
-    set(value) {
-        if(value != field){
-            field = value
-            _paint.color = progressColor
-            invalidate()
+        set(value) {
+            if (value != field) {
+                field = value
+                _paint.color = progressColor
+                invalidate()
+            }
         }
-    }
 
     //当前进度 0 ~ 1.0f
     private var _currentProgress = 0f
@@ -45,10 +47,32 @@ class ProgressBar : View {
     //动画监听
     private val _animatorListenerAdapter: AnimatorListenerAdapter =
         object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                if (_targetProgress >= 1.0f) {
-                    visibility = INVISIBLE
+            var isCancelled = false
+            override fun onAnimationStart(animation: Animator?) {
+                isCancelled = false
+            }
+            override fun onAnimationEnd(animator: Animator) {
+                if (_targetProgress >= 1.0f && !isCancelled) {
+                    val animation = AlphaAnimation(1.0f, 0f)
+                    animation.duration = 200
+                    animation.setAnimationListener(object : Animation.AnimationListener{
+                        override fun onAnimationStart(animation: Animation?) {
+
+                        }
+
+                        override fun onAnimationEnd(animation: Animation?) {
+                            visibility = INVISIBLE
+                        }
+
+                        override fun onAnimationRepeat(animation: Animation?) {
+                        }
+                    })
+                    startAnimation(animation)
                 }
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+                isCancelled = true
             }
         }
 
@@ -62,7 +86,11 @@ class ProgressBar : View {
 
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr){
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    ) {
         visibility = INVISIBLE
         setWillNotDraw(false)
     }
@@ -86,6 +114,8 @@ class ProgressBar : View {
             if (_currentProgress > _targetProgress) {
                 _currentProgress = 0f
             }
+            clearAnimation()
+            alpha = 1.0f
             visibility = VISIBLE
             if (_targetProgress > _currentProgress) {
                 startAnimate()
@@ -103,10 +133,10 @@ class ProgressBar : View {
         stopAnimate()
         _animator = ValueAnimator.ofFloat(_currentProgress, _targetProgress)
         if (_targetProgress >= 0.95f) {
-            _animator!!.duration = (450 * (1.0f - _currentProgress)).toLong()
+            _animator!!.duration = (300 * (1.0f - _currentProgress)).toLong()
             _animator!!.interpolator = DecelerateInterpolator()
         } else {
-            _animator!!.duration = (8000 * (1.0f - _currentProgress)).toLong()
+            _animator!!.duration = (800 * (1.0f - _currentProgress)).toLong()
             _animator!!.interpolator = LinearInterpolator()
         }
         _animator!!.addUpdateListener(_animatorUpdateListener)
@@ -116,7 +146,7 @@ class ProgressBar : View {
 
     //停止动画
     private fun stopAnimate() {
-        if (_animator != null && _animator!!.isStarted) {
+        if (_animator != null) {
             _animator!!.cancel()
             _animator = null
         }

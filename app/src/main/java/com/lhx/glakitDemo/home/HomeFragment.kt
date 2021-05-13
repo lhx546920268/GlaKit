@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
+import com.lhx.glakit.base.fragment.WebFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.viewholder.RecyclerViewHolder
@@ -21,7 +22,7 @@ import com.lhx.glakitDemo.section.SectionRecycleViewFragment
 
 class HomeFragment: RecyclerFragment() {
 
-    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image")
+    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web")
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -41,7 +42,7 @@ class HomeFragment: RecyclerFragment() {
 
         override fun onCreateViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder {
             return RecyclerViewHolder(
-                LayoutInflater.from(context!!).inflate(
+                LayoutInflater.from(context).inflate(
                     R.layout.layout_item,
                     parent,
                     false
@@ -77,6 +78,11 @@ class HomeFragment: RecyclerFragment() {
                 }
                 4-> {
                     startActivity(ImageScaleFragment::class.java)
+                }
+                5-> {
+                    val bundle = Bundle()
+                    bundle.putString(WebFragment.WEB_URL, "https://www.baidu.com")
+                    startActivity(WebFragment::class.java, bundle)
                 }
             }
         }

@@ -12,11 +12,12 @@ import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.refresh.LoadMoreControl
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.viewholder.RecyclerViewHolder
+import java.lang.ref.WeakReference
 
 /**
  * Recycler 布局控制器
  */
-abstract class RecyclerViewAdapter(val recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
+abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
 
     companion object{
         const val LOAD_MORE_VIEW_TYPE = 9999 //加载更多视图类型
@@ -29,6 +30,10 @@ abstract class RecyclerViewAdapter(val recyclerView: RecyclerView) : RecyclerVie
 
         const val FOOTER_VIEW_TYPE = 9995 //底部视图类型
     }
+
+    private val recyclerViewWeakReference = WeakReference(recyclerView)
+    val recyclerView: RecyclerView
+        get() = recyclerViewWeakReference.get()!!
 
     val context: Context
         get() = recyclerView.context

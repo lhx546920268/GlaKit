@@ -1,9 +1,10 @@
 package com.lhx.glakit
 
 import android.app.Application
-import android.view.View
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.loading.LoadingView
+import com.lhx.glakit.loading.DefaultPageLoadingView
+import com.lhx.glakit.loading.PageLoadingView
 import com.lhx.glakit.refresh.RefreshHeader
 
 //该库 初始化器
@@ -13,8 +14,8 @@ object GlaKitInitializer {
     var HttpFirstPage = 1
 
     //页面加载类
-    var pageLoadingViewClass: Class<out View>? = null
-    var loadViewClass: Class<out LoadingView?>? = null
+    var defaultPageLoadingViewClass: Class<out PageLoadingView>? = null
+    var loadViewClass: Class<out LoadingView>? = null
 
     //自定义下拉刷新头部 要实现 RefreshHeader
     var refreshHeaderClass: Class<out RefreshHeader>? = null

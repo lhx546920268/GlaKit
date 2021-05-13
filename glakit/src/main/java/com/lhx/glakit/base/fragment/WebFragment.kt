@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
@@ -14,7 +15,7 @@ import androidx.annotation.LayoutRes
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.StringUtils
-import com.lhx.glakit.widget.GKWebView
+import com.lhx.glakit.widget.CustomWebView
 import com.lhx.glakit.widget.ProgressBar
 
 
@@ -60,7 +61,7 @@ open class WebFragment : BaseFragment() {
     //是否显示菊花 与进度条互斥
     protected var shouldDisplayIndicator = false
 
-    protected val webView: GKWebView by lazy { requireViewById(R.id.webView )}
+    protected val webView: CustomWebView by lazy { requireViewById(R.id.webView )}
     protected val progressBar: ProgressBar by lazy { requireViewById(R.id.progressBar) }
 
     //返回自定义的 layout res
@@ -83,6 +84,7 @@ open class WebFragment : BaseFragment() {
         shouldDisplayProgress = getBooleanFromBundle(WEB_DISPLAY_PROGRESS, true)
         shouldDisplayIndicator = getBooleanFromBundle(WEB_DISPLAY_INDICATOR, false)
 
+        configureWeb()
 
         if (shouldDisplayIndicator) {
             shouldDisplayProgress = false
@@ -92,7 +94,7 @@ open class WebFragment : BaseFragment() {
 
             //没有 scheme 的加上
             if (!TextUtils.isEmpty(url)) {
-                if (url!!.contains("//")) {
+                if (!url!!.contains("//")) {
                     url = "http://$url"
                 }
             }
@@ -109,7 +111,6 @@ open class WebFragment : BaseFragment() {
 
         originURL = toBeOpenedURL
         originTitle = title
-
 
         loadWebContent()
     }
@@ -223,6 +224,7 @@ open class WebFragment : BaseFragment() {
         }
 
         override fun onProgressChanged(view: WebView, newProgress: Int) {
+            Log.d("progress", newProgress.toString())
             if (shouldDisplayProgress) {
                 progressBar.setProgress(newProgress / 100.0f)
             }
@@ -234,6 +236,7 @@ open class WebFragment : BaseFragment() {
     }
 
     var mLoadURL = false
+    var hasError = false
 
     //
     protected var webViewClient: WebViewClient = object : WebViewClient() {
@@ -246,18 +249,36 @@ open class WebFragment : BaseFragment() {
                 setPageLoading(false)
                 shouldDisplayIndicator = false
             }
+            if(!hasError){
+                setPageLoadFail(false)
+            }
             onPageFinish(url)
         }
 
-        override fun onPageStarted(view: WebView, url: String, favicon: Bitmap) {
+        override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
+            hasError = false
             if (shouldDisplayIndicator) {
                 setPageLoading(true)
             }
         }
+
+        override fun onReceivedError(
+            view: WebView?,
+            errorCode: Int,
+            description: String?,
+            failingUrl: String?
+        ) {
+            hasError = true
+            setPageLoadFail(true)
+        }
+    }
+
+    override fun onReloadPage() {
+        webView.reload()
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        webView?.also {
+        webView.also {
             if (keyCode == KeyEvent.KEYCODE_BACK) {
                 if (it.canGoBack()) {
                     it.goBack()

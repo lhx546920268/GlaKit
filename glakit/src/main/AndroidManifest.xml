@@ -15,6 +15,10 @@
     <application>
         <activity android:name=".base.activity.BaseActivity"/>
         <activity android:name=".base.activity.BaseContainerActivity"/>
+        <activity android:name=".image.ImagePickerActivity"/>
+        <activity android:name=".image.ImagePickerCameraEmptyActivity"
+                  android:configChanges="orientation|keyboardHidden|screenSize"
+                  android:theme="@style/Picture.Theme.Translucent"/>
     </application>
 </manifest>
 

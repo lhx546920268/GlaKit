@@ -12,9 +12,7 @@ import com.lhx.glakit.GlaKitInitializer
 import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.OverlayArea
 import com.lhx.glakit.base.constant.PageStatus
-import com.lhx.glakit.loading.DefaultLoadingView
-import com.lhx.glakit.loading.InteractionCallback
-import com.lhx.glakit.loading.LoadingView
+import com.lhx.glakit.loading.*
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.utils.ViewUtils
@@ -33,14 +31,11 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     private var pageStatus = PageStatus.NORMAL
 
     //页面是否正在载入
-    private var pageLoadingView: View? = null
+    private var pageLoadingView: PageLoadingView? = null
 
     //显示菊花
     private var loadingView: LoadingView? = null
     private var loading = false
-
-    //页面是否载入失败
-    private var pageFailView: View? = null
 
     //显示空视图信息
     private var emptyView: View? = null
@@ -246,16 +241,19 @@ class BaseContainer: RelativeLayout, InteractionCallback {
                 val loadingText = if(StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
                 (loadingView as DefaultLoadingView).textView.text = loadingText
             }
+            addView(loadingView)
             val params = loadingView!!.layoutParams as LayoutParams
+            params.width = LayoutParams.MATCH_PARENT
+            params.height = LayoutParams.MATCH_PARENT
             params.alignWithParent = true
             params.addRule(BELOW, R.id.base_fragment_title_bar_id)
             params.addRule(ALIGN_PARENT_BOTTOM)
-            addView(loadingView)
         }
     }
 
     override fun hideLoading() {
         if(loading){
+            loading = false
             removeView(loadingView)
             loadingView = null
         }
@@ -295,7 +293,10 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             pageStatus = status
 
             when(pageStatus){
-                PageStatus.LOADING, PageStatus.FAIL -> {
+                PageStatus.LOADING -> {
+                    loadPageLoadingViewIfNeeded()
+                }
+                PageStatus.FAIL -> {
                     loadPageLoadingViewIfNeeded()
                     mOnEventCallback?.onShowPageLoadingView(pageLoadingView!!)
                 }
@@ -315,15 +316,15 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     //加载 pageLoading 如果需要
     private fun loadPageLoadingViewIfNeeded(){
         if((pageStatus == PageStatus.LOADING || pageStatus == PageStatus.FAIL) && pageLoadingView == null){
-            if (GlaKitInitializer.pageLoadingViewClass != null) {
+            if (GlaKitInitializer.defaultPageLoadingViewClass != null) {
                 pageLoadingView = try {
-                    GlaKitInitializer.pageLoadingViewClass!!.getConstructor(Context::class.java)
+                    GlaKitInitializer.defaultPageLoadingViewClass!!.getConstructor(Context::class.java)
                         .newInstance(context)
                 } catch (e: Exception) {
                     throw IllegalStateException("pageLoadingViewClass 无法通过context实例化")
                 }
             } else {
-                pageLoadingView = LayoutInflater.from(context).inflate(R.layout.page_loading_view, this, false)
+                pageLoadingView = LayoutInflater.from(context).inflate(R.layout.default_page_loading_view, this, false) as PageLoadingView
             }
             pageLoadingView!!.setOnClickListener(object : OnSingleClickListener(){
                 override fun onSingleClick(v: View) {
@@ -334,6 +335,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             })
             addView(pageLoadingView)
         }
+        pageLoadingView?.status = pageStatus
     }
 
     //加载空视图如果需要

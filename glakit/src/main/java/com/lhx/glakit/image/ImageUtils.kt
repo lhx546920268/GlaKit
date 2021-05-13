@@ -1,7 +1,8 @@
-package com.lhx.glakit.utils
+package com.lhx.glakit.image
 
 import android.content.Context
 import android.graphics.Bitmap
+import com.lhx.glakit.utils.FileUtils
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -71,6 +72,9 @@ object ImageUtils {
      */
     fun scaleDown(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         val size = fitSize(bitmap.width, bitmap.height, maxWidth, maxHeight)
+        if(size.width <= maxWidth && size.height <= maxHeight){
+            return bitmap
+        }
         return Bitmap.createScaledBitmap(bitmap, size.width, size.height, true)
     }
 

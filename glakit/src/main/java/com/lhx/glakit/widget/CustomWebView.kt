@@ -12,7 +12,7 @@ import androidx.viewpager.widget.ViewPager
  * web
  */
 @Suppress("ClickableViewAccessibility")
-open class GKWebView : WebView {
+open class CustomWebView : WebView {
 
     //滑动回调
     var onScrollChanged: ((offsetY: Int, contentHeight: Float) -> Unit)? = null
