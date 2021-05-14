@@ -189,4 +189,32 @@ open class BaseActivity: AppCompatActivity() {
         _fragment?.onRequestPermissionsResult(requestCode, permissions, grantResults)
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
+    //回调
+    private var callbackEntities: HashMap<Int, CallbackEntity>? = null
+
+    //添加一个回调 onActivityResult
+    fun addCallback(callback: (data: Intent) -> Unit, requestCode: Int, removeAfterUse: Boolean = true) {
+        if(callbackEntities == null){
+            callbackEntities = HashMap()
+        }
+        callbackEntities!![requestCode] = CallbackEntity(callback, removeAfterUse)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(resultCode == Activity.RESULT_OK && intent != null && !callbackEntities.isNullOrEmpty()){
+            val entity = callbackEntities!![requestCode]
+            if (entity != null) {
+                entity.callback(data!!)
+                if (entity.removeAfterUse) {
+                    callbackEntities!!.remove(requestCode)
+                }
+                return
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    //回调
+    private class CallbackEntity(val callback: (data: Intent) -> Unit, val removeAfterUse: Boolean)
 }

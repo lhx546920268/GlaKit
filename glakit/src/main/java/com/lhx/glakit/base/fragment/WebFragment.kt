@@ -1,17 +1,21 @@
 package com.lhx.glakit.base.fragment
 
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.*
 import androidx.annotation.CallSuper
-import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.StringUtils
@@ -38,6 +42,8 @@ open class WebFragment : BaseFragment() {
 
         const val WEB_DISPLAY_INDICATOR = "com.lhx.WEB_DISPLAY_INDICATOR" //是否显示菊花，默认不显示
 
+        //文件选择
+        private const val FILE_CHOOSER_REQUEST_CODE = 1101
     }
 
     //是否需要使用网页标题
@@ -61,30 +67,26 @@ open class WebFragment : BaseFragment() {
     //是否显示菊花 与进度条互斥
     protected var shouldDisplayIndicator = false
 
-    protected val webView: CustomWebView by lazy { requireViewById(R.id.webView )}
-    protected val progressBar: ProgressBar by lazy { requireViewById(R.id.progressBar) }
-
-    //返回自定义的 layout res
-    @LayoutRes
-    fun getContentRes(): Int {
-        return 0
+    protected val webView: CustomWebView by lazy {
+        CustomWebView(requireContext())
+    }
+    protected val progressBar: ProgressBar by lazy {
+        ProgressBar(requireContext())
     }
 
     @CallSuper
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
-        var res = getContentRes()
-        if (res <= 0) {
-            res = R.layout.web_fragment
-        }
-
-        setContainerContentView(res)
+        setContainerContentView(webView)
+        container.addView(progressBar)
+        progressBar.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+        progressBar.layoutParams.height = pxFromDip(2f)
 
         shouldUseWebTitle = getBooleanFromBundle(WEB_USE_WEB_TITLE, true)
         shouldDisplayProgress = getBooleanFromBundle(WEB_DISPLAY_PROGRESS, true)
         shouldDisplayIndicator = getBooleanFromBundle(WEB_DISPLAY_INDICATOR, false)
 
-        configureWeb()
+        webConfig()
 
         if (shouldDisplayIndicator) {
             shouldDisplayProgress = false
@@ -116,7 +118,7 @@ open class WebFragment : BaseFragment() {
     }
 
     //配置webView
-    private fun configureWeb(){
+    private fun webConfig(){
 
         progressBar.progressColor = getColorCompat(R.color.web_progress_color)
         webView.also {
@@ -213,6 +215,10 @@ open class WebFragment : BaseFragment() {
         }
     }
 
+    //上传文件回调
+    private var mUploadFileCallback: ValueCallback<Array<Uri>>? = null
+    private var mUploadMsg: ValueCallback<Uri>? = null
+
     //
     protected var webChromeClient: WebChromeClient = object : WebChromeClient() {
         override fun onReceivedTitle(view: WebView, title: String) {
@@ -224,18 +230,65 @@ open class WebFragment : BaseFragment() {
         }
 
         override fun onProgressChanged(view: WebView, newProgress: Int) {
-            Log.d("progress", newProgress.toString())
             if (shouldDisplayProgress) {
                 progressBar.setProgress(newProgress / 100.0f)
             }
         }
 
         override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
+            //定位权限
             callback.invoke(origin, true, false)
+        }
+
+        //4.0 - 5.0
+        fun openFileChooser(uploadMsg: ValueCallback<Uri>, acceptType: String, capture: String?) {
+            mUploadMsg = uploadMsg
+            openFileChooser(acceptType)
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+        override fun onShowFileChooser(
+            webView: WebView,
+            filePathCallback: ValueCallback<Array<Uri>>,
+            fileChooserParams: FileChooserParams
+        ): Boolean {
+
+            //上传文件
+            mUploadFileCallback = filePathCallback
+            var type: String? = null
+            val types = fileChooserParams.acceptTypes
+            if (!types.isNullOrEmpty()) {
+                val builder = StringBuilder()
+                for ((i, str) in types.withIndex()) {
+                    builder.append(str)
+                    if (i < types.size - 1) {
+                        builder.append(",")
+                    }
+                }
+                type = builder.toString()
+            }
+            openFileChooser(type)
+            return true
         }
     }
 
-    var mLoadURL = false
+    //打开文件选择器
+    private fun openFileChooser(mineType: String?) {
+        var type: String? = mineType
+        if (StringUtils.isEmpty(mineType)) {
+            type = "*/*"
+        }
+        try {
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+            intent.type = type
+            startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE)
+        } catch (e: ActivityNotFoundException) {
+            e.printStackTrace()
+        }
+    }
+
+    //是否加载出错了
     var hasError = false
 
     //
@@ -259,6 +312,9 @@ open class WebFragment : BaseFragment() {
             hasError = false
             if (shouldDisplayIndicator) {
                 setPageLoading(true)
+            }
+            if(shouldDisplayProgress){
+                progressBar.bringToFront()
             }
         }
 
@@ -287,6 +343,30 @@ open class WebFragment : BaseFragment() {
             }
         }
         return super.onKeyDown(keyCode, event)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                FILE_CHOOSER_REQUEST_CODE -> {
+
+                    //文件选择完成
+                    if (data != null) {
+                        val uri = data.data
+                        if (uri != null) {
+                            if (mUploadFileCallback != null) {
+                                mUploadFileCallback!!.onReceiveValue(arrayOf(uri))
+                            } else if (mUploadMsg != null) {
+                                mUploadMsg!!.onReceiveValue(uri)
+                            }
+                        }
+                        mUploadFileCallback = null
+                        mUploadMsg = null
+                    }
+                }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 
     //加载完成

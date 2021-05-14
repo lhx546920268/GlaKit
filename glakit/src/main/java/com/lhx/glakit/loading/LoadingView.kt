@@ -2,6 +2,7 @@ package com.lhx.glakit.loading
 
 import android.content.Context
 import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
@@ -34,7 +35,7 @@ abstract class LoadingView : FrameLayout{
         if (delay > 0) {
             contentView.visibility = View.INVISIBLE
             if (delayHandler == null) {
-                delayHandler = Handler()
+                delayHandler = Handler(Looper.getMainLooper())
                 delayRunnable = Runnable {
                     contentView.visibility = View.VISIBLE
                 }
