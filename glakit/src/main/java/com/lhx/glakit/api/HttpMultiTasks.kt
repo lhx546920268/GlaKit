@@ -1,6 +1,7 @@
 package com.lhx.glakit.api
 
 import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.utils.ThreadUtils
 
 /**
  * 多任务处理
@@ -56,20 +57,30 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
             "HttpMultiTasks is executing"
         }
 
-        _isExecuting = true
-        for(task in tasks){
-            task.start()
+        require(tasks.size > 0){
+            "HttpMultiTasks has no task"
+        }
+
+        synchronized(this) {
+            _isExecuting = true
+            for(task in tasks){
+                task.start()
+            }
         }
     }
 
     //取消所有请求
     fun cancelAllTasks() {
-        for(task in tasks){
-            task.cancel()
+        synchronized(this){
+            if (_isExecuting) {
+                for(task in tasks){
+                    task.cancel()
+                }
+                tasks.clear()
+                taskMap.clear()
+                _isExecuting = false
+            }
         }
-        tasks.clear()
-        taskMap.clear()
-        _isExecuting = false
     }
 
     override fun cancel() {
@@ -78,9 +89,7 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
 
     override
     var name: String? = null
-        get() {
-            return if (field == null) this.javaClass.name else field
-        }
+        get() = if (field == null) this.javaClass.name else field
 
     //获取某个请求
     fun taskForKey(key: String): HttpTask {
@@ -91,29 +100,45 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
         return task
     }
 
+    @Suppress("unchecked_cast")
+    fun <T: HttpTask> taskForKey(clazz: Class<T>): T {
+        val key = clazz.name
+        val task = taskMap[key]
+        require(task != null){
+            "taskForKey $key does not exist"
+        }
+        return task as T
+    }
+
     override fun onFailure(task: HttpTask) {}
 
     override fun onSuccess(task: HttpTask) {}
 
     override fun onComplete(task: HttpTask) {
-        tasks.remove(task)
-        val success = task.isApiSuccess || (!task.isNetworkError && onlyFlagNetworkError)
-        if(!success){
-            hasFail = true
-            if(shouldCancelAllTaskWhileOneFail){
-                for(tTask in tasks){
-                    tTask.cancel()
-                }
-                tasks.clear()
-            }
-        }
+        ThreadUtils.runOnMainThread {
+            if (!task.isCancelled) {
+                synchronized(this) {
+                    tasks.remove(task)
+                    val success = task.isApiSuccess || (!task.isNetworkError && onlyFlagNetworkError)
+                    if(!success){
+                        hasFail = true
+                        if(shouldCancelAllTaskWhileOneFail){
+                            for(tTask in tasks){
+                                tTask.cancel()
+                            }
+                            tasks.clear()
+                        }
+                    }
 
-        if(tasks.size == 0){
-            _isExecuting = false
-            for(completion in completions){
-                completion(this)
+                    if(tasks.size == 0){
+                        _isExecuting = false
+                        for(completion in completions){
+                            completion(this)
+                        }
+                        taskMap.clear()
+                    }
+                }
             }
-            taskMap.clear()
         }
     }
 }

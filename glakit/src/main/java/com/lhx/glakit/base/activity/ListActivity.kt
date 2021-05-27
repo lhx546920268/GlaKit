@@ -10,7 +10,7 @@ import com.lhx.glakit.base.widget.BaseContainer
 /**
  * 列表 listView
  */
-class ListActivity: RefreshableActivity() {
+open class ListActivity: RefreshableActivity() {
 
     val listView: ListView by lazy { findViewById(R.id.listView) }
 
@@ -31,5 +31,14 @@ class ListActivity: RefreshableActivity() {
 
     override fun notifyDataSetChanged() {
         (listView.adapter as BaseAdapter?)?.notifyDataSetChanged()
+    }
+
+    override fun startRefresh() {
+        if (smartRefreshLayout != null && !refreshing) {
+            if (listView.childCount > 0) {
+                listView.setSelection(0)
+            }
+            smartRefreshLayout!!.autoRefresh()
+        }
     }
 }

@@ -13,6 +13,7 @@ object AlertUtils {
         title: String? = null,
         subtitle: String? = null,
         icon: Drawable? = null,
+        cancelButtonTitle: String? = null,
         buttonTitles: Array<String>?,
         destructivePosition: Int? = null,
         onItemClick: ((position: Int) -> Unit)? = null
@@ -23,6 +24,7 @@ object AlertUtils {
             title,
             subtitle,
             icon,
+            cancelButtonTitle,
             buttonTitles,
             destructivePosition,
             onItemClick
@@ -33,6 +35,7 @@ object AlertUtils {
         title: String? = null,
         subtitle: String? = null,
         icon: Drawable? = null,
+        cancelButtonTitle: String? = null,
         buttonTitles: Array<String>?,
         destructivePosition: Int? = null,
         onItemClick: ((position: Int) -> Unit)? = null
@@ -43,6 +46,7 @@ object AlertUtils {
             title,
             subtitle,
             icon,
+            cancelButtonTitle,
             buttonTitles,
             destructivePosition,
             onItemClick
@@ -54,11 +58,12 @@ object AlertUtils {
         title: String? = null,
         subtitle: String? = null,
         icon: Drawable? = null,
+        cancelButtonTitle: String? = null,
         buttonTitles: Array<String>?,
         destructivePosition: Int? = null,
         onItemClick: ((position: Int) -> Unit)? = null
     ): AlertDialogFragment {
-        val fragment = AlertDialogFragment(style, title, subtitle, icon, buttonTitles)
+        val fragment = AlertDialogFragment(style, title, subtitle, icon, cancelButtonTitle, buttonTitles)
         fragment.onItemClick = onItemClick
         if (destructivePosition != -1) {
             fragment.adapter = object : AlertDialogFragment.AlertDialogAdapter {

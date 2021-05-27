@@ -13,7 +13,6 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
@@ -30,6 +29,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                           title: String? = null,
                           subtitle: String? = null,
                           icon: Drawable? = null,
+                          cancelButtonTitle: String? = null,
                           buttonTitles: Array<String>?): BaseDialogFragment(), View.OnClickListener{
 
     //弹窗样式
@@ -85,6 +85,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     private val topTransparentView: View by lazy { findViewById(R.id.topTransparentView) }
     private val topContainer: View by lazy { findViewById(R.id.topContainer) }
     private val cancelTextView: TextView by lazy { findViewById(R.id.cancelTextView) }
+    private var cancelButtonTitle: String? = null
 
     init {
 
@@ -93,10 +94,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
         _subtitle = subtitle
         _icon = icon
         _buttonTitles = buttonTitles
-    }
-
-    fun show(manager: FragmentManager) {
-        showNow(manager, null)
+        this.cancelButtonTitle = cancelButtonTitle
     }
 
     override fun onAttach(context: Context) {
@@ -128,8 +126,11 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     //初始化视图
     private fun initViews() {
 
-        if ((_buttonTitles == null || _buttonTitles!!.isEmpty()) && _style == AlertStyle.ALERT) {
-            _buttonTitles = arrayOf("确定")
+        if (_buttonTitles.isNullOrEmpty() && _style == AlertStyle.ALERT) {
+            if (cancelButtonTitle == null) {
+                cancelButtonTitle = getString(R.string.cancel)
+            }
+            _buttonTitles = arrayOf(cancelButtonTitle!!)
         }
 
         if (_icon != null) {
@@ -159,17 +160,22 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
         //actionSheet 样式不一样
         if (_style == AlertStyle.ACTION_SHEET) {
-            cancelTextView.apply {
-                setOnClickListener(this@AlertDialogFragment)
-                textSize = props.buttonTextSize
-                setTextColor(props.buttonTextColor)
-                setPadding(
-                    props.buttonLeftRightPadding, props.buttonTopBottomPadding,
-                    props.buttonLeftRightPadding, props.buttonTopBottomPadding
-                )
+            if (cancelButtonTitle != null) {
+                cancelTextView.apply {
+                    setOnClickListener(this@AlertDialogFragment)
+                    textSize = props.buttonTextSize
+                    setTextColor(props.buttonTextColor)
+                    setPadding(
+                        props.buttonLeftRightPadding, props.buttonTopBottomPadding,
+                        props.buttonLeftRightPadding, props.buttonTopBottomPadding
+                    )
+                }
+                setBackgroundSelector(cancelTextView)
+            } else {
+                cancelTextView.visibility = View.GONE
             }
+
             setBackground(topContainer)
-            setBackgroundSelector(cancelTextView)
             topTransparentView.setOnClickListener(this)
             val has = hasTopContent()
 
@@ -213,8 +219,8 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
                 AlertStyle.ACTION_SHEET -> {
                     window.decorView.setPadding(props.dialogPadding, props.dialogPadding, props.dialogPadding, props.dialogPadding)
                     window.setWindowAnimations(R.style.action_sheet_animate)
-                    isCancelable = true
-                    dialog?.setCanceledOnTouchOutside(true)
+                    isCancelable = cancelButtonTitle != null
+                    dialog?.setCanceledOnTouchOutside(cancelButtonTitle != null)
                 }
                 AlertStyle.ALERT -> {
                     window.decorView.setPadding(0, props.dialogPadding, 0, props.dialogPadding)
@@ -356,15 +362,17 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
     override fun onClick(v: View?) {
         if (v == cancelTextView || v == topTransparentView) {
-            dismiss()
+            if (cancelButtonTitle != null) {
+                dismiss()
+            }
         }
     }
 
     //获取内容视图宽度
     private fun getContentViewWidth(): Int {
-        when (_style) {
-            AlertStyle.ALERT -> return SizeUtils.pxFormDip(280f, requireContext())
-            AlertStyle.ACTION_SHEET -> return SizeUtils.getWindowWidth(requireContext())
+        return when (_style) {
+            AlertStyle.ALERT -> SizeUtils.pxFormDip(280f, requireContext())
+            AlertStyle.ACTION_SHEET -> SizeUtils.getWindowWidth(requireContext())
         }
     }
 

@@ -30,6 +30,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
 }
 
 dependencies {
@@ -47,6 +51,8 @@ dependencies {
 
     implementation "androidx.preference:preference-ktx:1.1.1"
     api 'androidx.recyclerview:recyclerview:1.2.0'
+
+    api 'androidx.multidex:multidex:2.0.1'
 
     //通知
     api 'org.greenrobot:eventbus:3.1.1'

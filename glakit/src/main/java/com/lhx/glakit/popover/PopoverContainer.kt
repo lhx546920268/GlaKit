@@ -2,7 +2,6 @@ package com.lhx.glakit.popover
 
 import android.content.Context
 import android.graphics.Color
-import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +9,6 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.ScaleAnimation
-import android.widget.FrameLayout
 import androidx.core.view.ViewCompat
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.utils.ViewUtils
@@ -90,32 +88,6 @@ open class PopoverContainer : ViewGroup {
         super.setPadding(0, 0, 0, 0)
     }
 
-    //找到合适的父视图
-    private fun findSuitableParent(target: View): ViewGroup? {
-        var view: View? = target
-        var fallback: ViewGroup? = null
-        do {
-            if (view is FrameLayout) {
-                fallback = if (view.getId() == android.R.id.content) {
-                    // If we've hit the decor content view, then we didn't find a CoL in the
-                    // hierarchy, so use it.
-                    return view
-                } else {
-                    // It's not the content view but we'll use it as our fallback
-                    view
-                }
-            }
-            if (view != null) {
-                // Else, we will loop and crawl up the view hierarchy and try to find a parent
-                val parent = view.parent
-                view = if (parent is View) parent else null
-            }
-        } while (view != null)
-
-        // If we reach here then we didn't find a CoL or a suitable content view so we'll fallback
-        return fallback
-    }
-
     //显示
     open fun show(clickedView: View?, animate: Boolean) {
         _clickedView = clickedView
@@ -126,7 +98,7 @@ open class PopoverContainer : ViewGroup {
 
             //如果没有父视图，添加
             if(parent == null){
-                val parent = findSuitableParent(it)
+                val parent = ViewUtils.findSuitableParent(it)
                 if(parent != null){
                     parent.addView(this)
                 }

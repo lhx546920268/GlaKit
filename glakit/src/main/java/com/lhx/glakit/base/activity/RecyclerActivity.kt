@@ -9,7 +9,7 @@ import com.lhx.glakit.base.widget.BaseContainer
 /**
  * RecyclerView
  */
-class RecyclerActivity: RefreshableActivity(){
+open class RecyclerActivity: RefreshableActivity(){
 
     val recyclerView: RecyclerView by lazy { findViewById(R.id.recyclerView) }
 
@@ -30,4 +30,14 @@ class RecyclerActivity: RefreshableActivity(){
     override fun notifyDataSetChanged() {
         recyclerView.adapter?.notifyDataSetChanged()
     }
+
+    override fun startRefresh() {
+        if (smartRefreshLayout != null && !refreshing) {
+            if (recyclerView.childCount > 0) {
+                recyclerView.scrollToPosition(0)
+            }
+            smartRefreshLayout!!.autoRefresh()
+        }
+    }
+
 }

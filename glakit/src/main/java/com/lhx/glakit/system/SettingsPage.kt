@@ -12,6 +12,10 @@ import java.util.*
 
 /**
  * 系统设置页面
+ * 需要在清单文件添加
+ *     <queries>
+        <package android:name=""/>
+        </queries>
  */
 object SettingsPage {
 
@@ -58,13 +62,13 @@ object SettingsPage {
         }
     }
 
-    private fun google(context: Context): Intent? {
+    private fun google(context: Context): Intent {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
         intent.data = Uri.fromParts("package", context.packageName, null)
         return intent
     }
 
-    private fun huawei(context: Context): Intent? {
+    private fun huawei(context: Context): Intent {
         val intent = Intent()
         intent.component = ComponentName("com.huawei.systemmanager", "com.huawei.permissionmanager.ui.MainActivity")
         if (hasIntent(context, intent)) return intent
@@ -76,7 +80,7 @@ object SettingsPage {
         return intent
     }
 
-    private fun xiaomi(context: Context): Intent? {
+    private fun xiaomi(context: Context): Intent {
         val intent = Intent("miui.intent.action.APP_PERM_EDITOR")
 
         intent.putExtra("extra_pkgname", context.packageName)
@@ -92,7 +96,7 @@ object SettingsPage {
         return intent
     }
 
-    private fun oppo(context: Context): Intent? {
+    private fun oppo(context: Context): Intent {
         val intent = Intent()
         intent.putExtra("packageName", context.packageName)
 
@@ -108,7 +112,7 @@ object SettingsPage {
         return intent
     }
 
-    private fun vivo(context: Context): Intent? {
+    private fun vivo(context: Context): Intent {
         val intent = Intent()
 
         intent.setClassName("com.iqoo.secure", "com.iqoo.secure.ui.phoneoptimize.FloatWindowManager")
@@ -119,7 +123,7 @@ object SettingsPage {
         return intent
     }
 
-    private fun meizu(context: Context): Intent? {
+    private fun meizu(context: Context): Intent {
         val intent = Intent("com.meizu.safe.security.SHOW_APPSEC")
         intent.putExtra("packageName", context.packageName)
         intent.component = ComponentName("com.meizu.safe", "com.meizu.safe.security.AppSecActivity")

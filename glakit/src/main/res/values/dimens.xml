@@ -13,6 +13,9 @@
     <!--导航栏标题字体大小-->
     <dimen name="title_bar_text_size">17sp</dimen>
 
+    <!--导航栏是否需要粗体-->
+    <bool name="title_bar_text_style_bold">false</bool>
+
     <!--导航栏左右按钮字体大小-->
     <dimen name="title_bar_item_text_size">14sp</dimen>
 

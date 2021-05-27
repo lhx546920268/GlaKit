@@ -3,8 +3,7 @@ package com.lhx.glakit.timer
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-
-
+import android.util.Log
 
 
 /**
@@ -12,8 +11,8 @@ import android.os.SystemClock
  */
 abstract class CountDownTimer(){
 
-     companion object{
-        
+    companion object{
+
         //没有倒计时长度限制
         const val COUNT_DOWN_INFINITE = Long.MAX_VALUE
 
@@ -21,7 +20,7 @@ abstract class CountDownTimer(){
         private const val COUNT_DOWN_MSG_WHAT = 1
     }
 
-    
+
     //倒计时总时间长度（毫秒），如果为 COUNT_DOWN_INFINITE 则 没有限制，倒计时不会停止 必须自己手动停止
     private var _millisToCountDown: Long = 0
 
@@ -37,9 +36,9 @@ abstract class CountDownTimer(){
     //是否正在倒计时
     private var _executing = false
     val isExecuting: Boolean
-    get(){
-        return _executing
-    }
+        get(){
+            return _executing
+        }
 
     //
     private val _handler = Handler(Looper.getMainLooper()){
@@ -55,18 +54,16 @@ abstract class CountDownTimer(){
 
                 //倒计时剩余时间
                 val millisLeft = _millisToStop - SystemClock.elapsedRealtime()
-                when(true){
-                    _millisInterval <= 0 -> {
-                        //没时间了，倒计时停止
-                        finish()
-                    }
-                    millisLeft < _millisInterval -> {
-                        //剩余的时间已经不够触发一次倒计时间隔了
-                        continueTimer(millisLeft)
-                    }
-                    else -> {
-                        triggerTick(millisLeft)
-                    }
+                Log.d("millisLeft", millisLeft.toString())
+                if (millisLeft <= 0) {
+                    //没时间了，倒计时停止
+                    finish()
+                } else if (millisLeft < _millisInterval) {
+                    //剩余的时间已经不够触发一次倒计时间隔了
+                    onTick(millisLeft)
+                    continueTimer(millisLeft)
+                } else {
+                    triggerTick(millisLeft)
                 }
             }
         }

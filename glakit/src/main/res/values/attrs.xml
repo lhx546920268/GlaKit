@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!--清除按钮-->
-    <declare-styleable name="ClearableEditText">
-        <attr name="clear_icon" format="reference"/>
-    </declare-styleable>
-
     <!--角标填充也是-->
     <declare-styleable name="BadgeValueTextView">
         <attr name="badge_fill_color" format="color"/>
@@ -20,8 +15,9 @@
             <enum name="left" value="1"/>
             <enum name="center" value="2"/>
         </attr>
-        <attr name="horizontal_Space" format="dimension"/>
-        <attr name="vertical_Space" format="dimension"/>
+        <attr name="horizontalSpace" format="dimension"/>
+        <attr name="verticalSpace" format="dimension"/>
+        <attr name="inset" format="dimension"/>
         <attr name="isFull" format="boolean"/>
     </declare-styleable>
 
@@ -57,6 +53,12 @@
             <enum name="line" value="0"/>
             <enum name="rect" value="1"/>
         </attr>
+    </declare-styleable>
+
+    <declare-styleable name="customText">
+        <attr name="hintTextSize" format="dimension"/>
+        <attr name="hintBold" format="boolean"/>
+        <attr name="clearIcon" format="reference"/>
     </declare-styleable>
 
 </resources>

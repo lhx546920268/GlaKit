@@ -1,4 +1,4 @@
-package com.lhx.glakit.base.fragment
+package com.lhx.glakit.web
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -14,14 +14,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
+import android.widget.RelativeLayout
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import com.lhx.glakit.R
+import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.StringUtils
-import com.lhx.glakit.widget.CustomWebView
 import com.lhx.glakit.widget.ProgressBar
 
+/**
+ * 网页配置
+ */
+object WebConfig {
+    const val URL = "url" //要打开的链接
+
+    const val HTML_STRING = "html" //要加载的html
+
+    const val TITLE = "title" //默认显示的标题
+
+    const val USE_WEB_TITLE = "useWebTitle" //是否使用网页标题 默认使用
+
+    const val DISPLAY_PROGRESS = "display_progress" //是否显示进度条 默认显示
+
+    const val DISPLAY_INDICATOR = "display_indicator" //是否显示菊花，默认不显示
+
+    const val HIDE_BAR = "hideBar" //是否隐藏导航栏 默认不隐藏
+
+    const val GO_BACK_ENABLED = "goBackEnabled" //是否可以返回上一级网页，默认可以
+}
 
 /**
  * 网页
@@ -30,17 +51,6 @@ import com.lhx.glakit.widget.ProgressBar
 open class WebFragment : BaseFragment() {
 
     companion object{
-        const val WEB_URL = "com.lhx.WEB_URL" //要打开的链接
-
-        const val WEB_HTML_STRING = "com.lhx.WEB_HTML_STRING" //要加载的html
-
-        const val WEB_TITLE = "com.lhx.WEB_TITLE" //默认显示的标题
-
-        const val WEB_USE_WEB_TITLE = "com.lhx.WEB_USE_WEB_TITLE" //是否使用web标题
-
-        const val WEB_DISPLAY_PROGRESS = "com.lhx.WEB_DISPLAY_PROGRESS" //是否显示进度条 默认显示
-
-        const val WEB_DISPLAY_INDICATOR = "com.lhx.WEB_DISPLAY_INDICATOR" //是否显示菊花，默认不显示
 
         //文件选择
         private const val FILE_CHOOSER_REQUEST_CODE = 1101
@@ -67,6 +77,12 @@ open class WebFragment : BaseFragment() {
     //是否显示菊花 与进度条互斥
     protected var shouldDisplayIndicator = false
 
+    //是否隐藏导航栏
+    protected var hideTitleBar = false
+
+    //是否可以返回
+    protected var goBackEnabled = true
+
     protected val webView: CustomWebView by lazy {
         CustomWebView(requireContext())
     }
@@ -74,17 +90,25 @@ open class WebFragment : BaseFragment() {
         ProgressBar(requireContext())
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        hideTitleBar = getBooleanFromBundle(WebConfig.HIDE_BAR, false)
+        super.onCreate(savedInstanceState)
+    }
+
     @CallSuper
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
         setContainerContentView(webView)
         container.addView(progressBar)
-        progressBar.layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
-        progressBar.layoutParams.height = pxFromDip(2f)
+        val params = progressBar.layoutParams as RelativeLayout.LayoutParams
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT
+        params.height = pxFromDip(2f)
+        params.topMargin = if (showTitleBar()) getDimenIntValue(R.dimen.title_bar_height) else 0
 
-        shouldUseWebTitle = getBooleanFromBundle(WEB_USE_WEB_TITLE, true)
-        shouldDisplayProgress = getBooleanFromBundle(WEB_DISPLAY_PROGRESS, true)
-        shouldDisplayIndicator = getBooleanFromBundle(WEB_DISPLAY_INDICATOR, false)
+        shouldUseWebTitle = getBooleanFromBundle(WebConfig.USE_WEB_TITLE, true)
+        shouldDisplayProgress = getBooleanFromBundle(WebConfig.DISPLAY_PROGRESS, true)
+        shouldDisplayIndicator = getBooleanFromBundle(WebConfig.DISPLAY_INDICATOR, false)
+        goBackEnabled = getBooleanFromBundle(WebConfig.GO_BACK_ENABLED, true)
 
         webConfig()
 
@@ -92,7 +116,7 @@ open class WebFragment : BaseFragment() {
             shouldDisplayProgress = false
         }
         if (StringUtils.isEmpty(toBeOpenedURL)) {
-            var url = getStringFromBundle(WEB_URL)
+            var url = getStringFromBundle(WebConfig.URL)
 
             //没有 scheme 的加上
             if (!TextUtils.isEmpty(url)) {
@@ -103,10 +127,10 @@ open class WebFragment : BaseFragment() {
             toBeOpenedURL = url
         }
         if (StringUtils.isEmpty(htmlString)) {
-            htmlString = getStringFromBundle(WEB_HTML_STRING)
+            htmlString = getStringFromBundle(WebConfig.HTML_STRING)
         }
 
-        val title = getStringFromBundle(WEB_TITLE)
+        val title = getStringFromBundle(WebConfig.TITLE)
         if (!TextUtils.isEmpty(title)) {
             setBarTitle(title)
         }
@@ -115,6 +139,10 @@ open class WebFragment : BaseFragment() {
         originTitle = title
 
         loadWebContent()
+    }
+
+    override fun showTitleBar(): Boolean {
+        return !hideTitleBar
     }
 
     //配置webView
@@ -131,7 +159,7 @@ open class WebFragment : BaseFragment() {
                 settings.userAgentString = "${settings.userAgentString} $userAgent"
             }
 
-            settings.useWideViewPort = true // 设置此属性，可任意比例缩放,将图片调整到适合webview的大小
+            settings.useWideViewPort = true // 设置此属性，可任意比例缩放,将图片调整到适合webView的大小
 
             // 便页面支持缩放：
             settings.javaScriptEnabled = true
@@ -207,7 +235,7 @@ open class WebFragment : BaseFragment() {
     //调用js
     fun evaluateJavascript(js: String?) {
         if (StringUtils.isEmpty(js)) return
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             webView.evaluateJavascript(js!!, null)
         } else {
@@ -238,6 +266,15 @@ open class WebFragment : BaseFragment() {
         override fun onGeolocationPermissionsShowPrompt(origin: String, callback: GeolocationPermissions.Callback) {
             //定位权限
             callback.invoke(origin, true, false)
+        }
+
+        override fun onJsAlert(
+            view: WebView?,
+            url: String?,
+            message: String?,
+            result: JsResult?
+        ): Boolean {
+            return super.onJsAlert(view, url, message, result)
         }
 
         //4.0 - 5.0
@@ -293,6 +330,7 @@ open class WebFragment : BaseFragment() {
 
     //
     protected var webViewClient: WebViewClient = object : WebViewClient() {
+
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             return shouldOpenURL(url)
         }
@@ -324,8 +362,19 @@ open class WebFragment : BaseFragment() {
             description: String?,
             failingUrl: String?
         ) {
-            hasError = true
-            setPageLoadFail(true)
+            when (errorCode) {
+                ERROR_HOST_LOOKUP,
+                ERROR_AUTHENTICATION,
+                ERROR_PROXY_AUTHENTICATION,
+                ERROR_CONNECT,
+                ERROR_IO,
+                ERROR_TIMEOUT,
+                ERROR_FAILED_SSL_HANDSHAKE,
+                ERROR_BAD_URL -> {
+                    hasError = true
+                    setPageLoadFail(true)
+                }
+            }
         }
     }
 
@@ -333,14 +382,18 @@ open class WebFragment : BaseFragment() {
         webView.reload()
     }
 
+    override fun onBack() {
+        if (!hideTitleBar && goBackEnabled && webView.canGoBack()) {
+            webView.goBack()
+            return
+        }
+        super.onBack()
+    }
+
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        webView.also {
-            if (keyCode == KeyEvent.KEYCODE_BACK) {
-                if (it.canGoBack()) {
-                    it.goBack()
-                    return true
-                }
-            }
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            onBack()
+            return true
         }
         return super.onKeyDown(keyCode, event)
     }
@@ -374,7 +427,7 @@ open class WebFragment : BaseFragment() {
 
     //当前url是否可以打开
     fun shouldOpenURL(url: String): Boolean {
-        
+
         return if (!StringUtils.isEmpty(url)) {
             url.startsWith("http://") || url.startsWith("https://")
         } else true

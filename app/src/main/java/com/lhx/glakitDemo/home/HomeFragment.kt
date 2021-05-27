@@ -1,6 +1,7 @@
 package com.lhx.glakitDemo.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,10 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
-import com.lhx.glakit.base.fragment.WebFragment
+import com.lhx.glakit.web.WebFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.viewholder.RecyclerViewHolder
+import com.lhx.glakit.web.WebConfig
 import com.lhx.glakitDemo.R
 import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
@@ -81,13 +83,13 @@ class HomeFragment: RecyclerFragment() {
                 }
                 5-> {
                     val bundle = Bundle()
-                    bundle.putString(WebFragment.WEB_URL, "https://www.baidu.com")
+                    bundle.putString(WebConfig.WEB_URL, "https://www.baidu.com")
                     startActivity(WebFragment::class.java, bundle)
                 }
             }
         }
 
         override val toastContainer: View
-            get() = recyclerView!!
+            get() = recyclerView
     }
 }

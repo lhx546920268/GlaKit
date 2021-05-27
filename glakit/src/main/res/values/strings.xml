@@ -22,4 +22,8 @@
     <string name="title_bar_back_title">返回</string>
 
     <string name="cancel">取消</string>
+    <string name="location_permission_tip">没有定位权限</string>
+    <string name="location_fail">定位失败</string>
+    <string name="go_to_setting">去设置</string>
+    <string name="location_service_tip">定位服务没打开</string>
 </resources>

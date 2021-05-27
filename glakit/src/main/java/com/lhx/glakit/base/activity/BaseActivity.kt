@@ -11,19 +11,28 @@ import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
+import com.lhx.glakit.api.HttpCancelable
+import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.utils.AppUtils
 
 /**
+ * startActivityForResult 回调
+ */
+typealias StartActivityForResultCallback = (data: Intent?) -> Unit
+
+/**
  * 基础activity
  */
-open class BaseActivity: AppCompatActivity() {
+open class BaseActivity : AppCompatActivity(), HttpProcessor {
 
     //activity 名称 为fragment的类名 或者 activity类名
     var name: String? = null
 
     //当前显示的Fragment
     private var _fragment: BaseFragment? = null
+    protected val fragment: BaseFragment?
+        get() = _fragment
 
     //是否可见
     private var _visible = false
@@ -34,7 +43,9 @@ open class BaseActivity: AppCompatActivity() {
      * 内容视图 需要设置id为 current_content
      */
     protected val currentContentView: View?
-        get() = if(_fragment?.baseContainer != null) _fragment!!.baseContainer!!.contentView else findViewById(R.id.current_content)
+        get() = if (_fragment?.baseContainer != null) _fragment!!.baseContainer!!.contentView else findViewById(
+            R.id.current_content
+        )
 
     //<editor-fold desc="父类方法">
 
@@ -44,10 +55,12 @@ open class BaseActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         //状态栏
-        AppUtils.setStatusBarStyle(
-            window, ContextCompat.getColor(this, R.color.status_bar_background_color),
-            resources.getBoolean(R.bool.status_bar_is_light)
-        )
+        if (shouldSetStatusBarStyle) {
+            AppUtils.setStatusBarStyle(
+                window, ContextCompat.getColor(this, R.color.status_bar_background_color),
+                resources.getBoolean(R.bool.status_bar_is_light)
+            )
+        }
 
         val layoutRes = getContentViewRes()
         if (layoutRes != 0) {
@@ -77,6 +90,7 @@ open class BaseActivity: AppCompatActivity() {
         } else {
             name = javaClass.name
         }
+        lifecycle.addObserver(this)
     }
 
     override fun onResume() {
@@ -89,9 +103,17 @@ open class BaseActivity: AppCompatActivity() {
         _visible = false
     }
 
+    //语言国际化
+//    override fun attachBaseContext(newBase: Context) {
+//        super.attachBaseContext(BaseContextWrapper.wrap(newBase, ""))
+//    }
+
     //</editor-fold>
 
     //<editor-fold desc="内容">
+
+    //是否需要设置状态栏样式
+    open val shouldSetStatusBarStyle = true
 
     //获取视图内容，如果为0，则忽略 可以包含 fragment_container
     @LayoutRes
@@ -106,7 +128,11 @@ open class BaseActivity: AppCompatActivity() {
      * @param enter           进场动画
      * @param exit            出场动画
      */
-    fun setFragment(currentFragment: BaseFragment, @AnimRes enter: Int = 0, @AnimRes exit: Int = 0) {
+    fun setFragment(
+        currentFragment: BaseFragment,
+        @AnimRes enter: Int = 0,
+        @AnimRes exit: Int = 0
+    ) {
         _fragment = currentFragment
         val transaction = supportFragmentManager.beginTransaction()
         if (enter != 0 && exit != 0) {
@@ -128,13 +154,16 @@ open class BaseActivity: AppCompatActivity() {
         transaction.commitAllowingStateLoss()
     }
 
-    companion object{
+    companion object {
 
         //activity里面fragment的类名
         const val FRAGMENT_STRING = "fragmentString"
 
         //获取 fragment对应的 intent
-        fun getIntentWithFragment(context: Context, fragmentClass: Class<out BaseFragment?>): Intent {
+        fun getIntentWithFragment(
+            context: Context,
+            fragmentClass: Class<out BaseFragment?>
+        ): Intent {
             val intent = Intent(context, BaseActivity::class.java)
             intent.putExtra(FRAGMENT_STRING, fragmentClass.name)
             return intent
@@ -145,9 +174,22 @@ open class BaseActivity: AppCompatActivity() {
 
 
     //启动一个activity
-    fun startActivity(activityClass: Class<out Activity?>?): Intent {
+    fun startActivity(activityClass: Class<out Activity>): Intent {
         val intent = Intent(this, activityClass)
         startActivity(intent)
+        return intent
+    }
+
+    fun startActivityForResult(
+        activityClass: Class<out Activity>,
+        requestCode: Int,
+        callback: StartActivityForResultCallback? = null
+    ): Intent {
+        if (callback != null) {
+            addCallback(callback, requestCode)
+        }
+        val intent = Intent(this, activityClass)
+        startActivityForResult(intent, requestCode)
         return intent
     }
 
@@ -159,6 +201,11 @@ open class BaseActivity: AppCompatActivity() {
                 overridePendingTransition(R.anim.anim_no, exit)
             }
         }
+    }
+
+    fun finish(resultCode: Int) {
+        setResult(resultCode)
+        finish()
     }
 
     @CallSuper
@@ -185,7 +232,11 @@ open class BaseActivity: AppCompatActivity() {
     }
 
     //获取授权
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
+    ) {
         _fragment?.onRequestPermissionsResult(requestCode, permissions, grantResults)
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -194,18 +245,22 @@ open class BaseActivity: AppCompatActivity() {
     private var callbackEntities: HashMap<Int, CallbackEntity>? = null
 
     //添加一个回调 onActivityResult
-    fun addCallback(callback: (data: Intent) -> Unit, requestCode: Int, removeAfterUse: Boolean = true) {
-        if(callbackEntities == null){
+    fun addCallback(
+        callback: StartActivityForResultCallback,
+        requestCode: Int,
+        removeAfterUse: Boolean = true
+    ) {
+        if (callbackEntities == null) {
             callbackEntities = HashMap()
         }
         callbackEntities!![requestCode] = CallbackEntity(callback, removeAfterUse)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(resultCode == Activity.RESULT_OK && intent != null && !callbackEntities.isNullOrEmpty()){
+        if (resultCode == Activity.RESULT_OK && !callbackEntities.isNullOrEmpty()) {
             val entity = callbackEntities!![requestCode]
             if (entity != null) {
-                entity.callback(data!!)
+                entity.callback(data)
                 if (entity.removeAfterUse) {
                     callbackEntities!!.remove(requestCode)
                 }
@@ -216,5 +271,16 @@ open class BaseActivity: AppCompatActivity() {
     }
 
     //回调
-    private class CallbackEntity(val callback: (data: Intent) -> Unit, val removeAfterUse: Boolean)
+    private class CallbackEntity(
+        val callback: StartActivityForResultCallback,
+        val removeAfterUse: Boolean
+    )
+
+    //http可取消的任务
+    private var _currentTasks: HashSet<HttpCancelable>? = null
+    override var currentTasks: HashSet<HttpCancelable>?
+        get() = _currentTasks
+        set(value) {
+            _currentTasks = value
+        }
 }

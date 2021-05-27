@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
-import android.hardware.Camera
 import android.util.Log
 import androidx.fragment.app.Fragment
 import com.google.zxing.Result
@@ -28,7 +27,7 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
     }
 
     //相机
-    private var _camera: Camera? = null
+    private var _camera: android.hardware.Camera? = null
 
     //自动聚焦回调
     private val autoFocusCallback: CameraAutoFocusCallback by lazy{
@@ -98,7 +97,7 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
     }
 
     //获取当前预览大小
-    fun getPreviewSize(): Camera.Size? {
+    fun getPreviewSize(): android.hardware.Camera.Size? {
         return if (_camera != null) {
             _camera!!.parameters.previewSize
         } else null
@@ -123,7 +122,7 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
         val permissions = neededPermissions()
         if (EasyPermissions.hasPermissions(fragment.requireContext(), *permissions)) {
             if (_camera == null) {
-                _camera = Camera.open()
+                _camera = android.hardware.Camera.open()
             }
             if (_camera == null) {
                 AlertUtils.alert(title = "摄像头不可用", buttonTitles = arrayOf("确定")).show(fragment.childFragmentManager)
@@ -237,7 +236,8 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
             }
             if (support) {
                 val parameters = _camera!!.parameters
-                parameters.flashMode = (if (open) Camera.Parameters.FLASH_MODE_TORCH else Camera.Parameters.FLASH_MODE_AUTO)
+                parameters.flashMode = if (open) android.hardware.Camera.Parameters.FLASH_MODE_TORCH
+                                            else android.hardware.Camera.Parameters.FLASH_MODE_AUTO
                 _camera!!.parameters = parameters
                 return null
             }
@@ -262,12 +262,15 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
         }
         if (alert && !_alert) {
             _alert = true
-            val alertDialogFragment = AlertUtils.alert("扫一扫需要您的相机权限才能使用","取消", null, arrayOf("去打开"))
+            val alertDialogFragment = AlertUtils.alert(
+                title = "扫一扫需要您的相机权限才能使用",
+                subtitle = "取消",
+                buttonTitles = arrayOf("去打开"))
 
             alertDialogFragment.onItemClick = {
                 _alert = false
                 if (it == 1) {
-                    AppUtils.openAppSettings(fragment.requireContext())
+                    AppUtils.openAppSettings()
                 }
             }
             alertDialogFragment.show(fragment.childFragmentManager)
@@ -290,7 +293,7 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
                 landScapeHeight = width
             }
 
-            var optimalSize: Camera.Size? = null
+            var optimalSize: android.hardware.Camera.Size? = null
 
             //如果存在相等的尺寸 直接设置
             for (size in sizes) {

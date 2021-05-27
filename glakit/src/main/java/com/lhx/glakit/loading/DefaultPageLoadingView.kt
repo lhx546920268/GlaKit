@@ -10,6 +10,7 @@ import android.widget.TextView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.drawable.LoadingDrawable
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
 
 //页面加载视图
@@ -95,6 +96,11 @@ class DefaultPageLoadingView: PageLoadingView {
         if (pageFailView == null) {
             pageFailView =
                 LayoutInflater.from(context).inflate(R.layout.page_fail_view, this, false)
+            pageFailView!!.setOnSingleListener {
+                if (reloadCallback != null) {
+                    reloadCallback!!()
+                }
+            }
             addView(pageFailView)
         }
     }

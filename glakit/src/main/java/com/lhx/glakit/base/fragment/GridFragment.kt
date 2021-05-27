@@ -32,4 +32,13 @@ open class GridFragment : RefreshableFragment() {
     override fun notifyDataSetChanged() {
         (gridView.adapter as BaseAdapter?)?.notifyDataSetChanged()
     }
+
+    override fun startRefresh() {
+        if (smartRefreshLayout != null && !refreshing) {
+            if (gridView.childCount > 0) {
+                gridView.setSelection(0)
+            }
+            smartRefreshLayout!!.autoRefresh()
+        }
+    }
 }

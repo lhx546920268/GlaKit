@@ -39,10 +39,10 @@ object SizeUtils {
      * @return sp值
      */
     fun pxFromSp(spValue: Float, context: Context): Int {
-        if (spValue == 0f)
-            return 0
-        val fontScale = context.resources.displayMetrics.scaledDensity
-        return (spValue * fontScale + 0.5f).toInt()
+        return if (spValue == 0f) 0 else TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP, spValue, context.resources.displayMetrics
+        ).toInt()
+
     }
 
     /**

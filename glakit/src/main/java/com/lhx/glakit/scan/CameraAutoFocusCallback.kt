@@ -1,6 +1,5 @@
 package com.lhx.glakit.scan
 
-import android.hardware.Camera
 import android.os.Handler
 
 
@@ -8,7 +7,7 @@ import android.os.Handler
  * 相机自动聚焦 循环延迟调用 让相机聚焦
  */
 @Suppress("deprecation")
-class CameraAutoFocusCallback : Camera.AutoFocusCallback {
+class CameraAutoFocusCallback : android.hardware.Camera.AutoFocusCallback {
 
     //自动聚焦间隔
     private val mAutoFocusInterval: Long = 15000
@@ -16,7 +15,7 @@ class CameraAutoFocusCallback : Camera.AutoFocusCallback {
     //延迟
     private var _handler: Handler? = null
 
-    override fun onAutoFocus(success: Boolean, camera: Camera?) {
+    override fun onAutoFocus(success: Boolean, camera: android.hardware.Camera?) {
         if (_handler != null) {
             _handler!!.sendEmptyMessageDelayed(CameraHandler.MESSAGE_AUTO_FOCUS, mAutoFocusInterval)
         }

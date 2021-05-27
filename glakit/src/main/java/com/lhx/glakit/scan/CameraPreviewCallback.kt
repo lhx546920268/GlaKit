@@ -1,13 +1,12 @@
 package com.lhx.glakit.scan
 
-import android.hardware.Camera
 import android.os.Handler
 
 /**
  * 相机预览回调
  */
 @Suppress("deprecation")
-class CameraPreviewCallback(val handler: Handler, val cameraManager: CameraManager) : Camera.PreviewCallback {
+class CameraPreviewCallback(val handler: Handler, val cameraManager: CameraManager) : android.hardware.Camera.PreviewCallback {
 
     //解码线程
     private var _decoder: ScanDecoder? = null
@@ -32,7 +31,7 @@ class CameraPreviewCallback(val handler: Handler, val cameraManager: CameraManag
         }
     }
 
-    override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
+    override fun onPreviewFrame(data: ByteArray?, camera: android.hardware.Camera?) {
         if (!cameraManager.isAutoFocusing()) {
             cameraManager.autoFocus()
         }

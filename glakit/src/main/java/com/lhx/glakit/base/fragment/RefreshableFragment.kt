@@ -53,7 +53,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshablePage {
         }
 
     //是否需要显示回到顶部按钮
-    val shouldDisplayBackToTop = false
+    open val shouldDisplayBackToTop = false
 
     //</editor-fold>
 

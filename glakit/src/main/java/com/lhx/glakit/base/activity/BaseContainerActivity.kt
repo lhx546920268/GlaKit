@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.interf.BasePage
@@ -49,6 +48,9 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
             _container = BaseContainer(this)
             _container?.run{
                 setShowTitleBar(showTitleBar())
+                if (showBackItem()) {
+                    setShowBackButton(true)
+                }
                 mOnEventCallback = this@BaseContainerActivity
             }
             setContentView(_container)
@@ -104,12 +106,4 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
     }
 
     //</editor-fold>
-
-    //http可取消的任务
-    private var _currentTasks: HashSet<HttpCancelable>? = null
-    override var currentTasks: HashSet<HttpCancelable>?
-        get() = _currentTasks
-        set(value) {
-            _currentTasks = value
-        }
 }

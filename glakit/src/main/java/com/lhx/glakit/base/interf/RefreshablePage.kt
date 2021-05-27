@@ -120,11 +120,7 @@ interface RefreshablePage: BasePage, RefreshHeader.RefreshOnScrollHandler, OnRef
     }
 
     //手动刷新
-    fun autoRefresh() {
-        if (smartRefreshLayout != null && !refreshing) {
-            smartRefreshLayout!!.autoRefresh()
-        }
-    }
+    fun startRefresh()
 
     override fun onScroll(isDragging: Boolean, percent: Float, offset: Int) {
 

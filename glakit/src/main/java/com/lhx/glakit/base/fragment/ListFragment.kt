@@ -32,4 +32,13 @@ open class ListFragment : RefreshableFragment() {
     override fun notifyDataSetChanged() {
         (listView.adapter as BaseAdapter?)?.notifyDataSetChanged()
     }
+
+    override fun startRefresh() {
+        if (smartRefreshLayout != null && !refreshing) {
+            if (listView.childCount > 0) {
+                listView.setSelection(0)
+            }
+            smartRefreshLayout!!.autoRefresh()
+        }
+    }
 }

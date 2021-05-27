@@ -41,7 +41,7 @@ object DateUtils {
      * @param targetFormat 目标格式
      * @return 格式化的时间
      */
-    fun formatTime(time: String?, targetFormat: String): String? {
+    fun formatTime(time: String?, targetFormat: String): String {
         if(StringUtils.isEmpty(time))
             return ""
         return try {
@@ -59,7 +59,7 @@ object DateUtils {
      * @param targetFormat 目标格式
      * @return 格式化的时间
      */
-    fun formatTime(time: String?, timeFormat: String, targetFormat: String): String? {
+    fun formatTime(time: String?, timeFormat: String, targetFormat: String): String {
         return formatDate(parseTime(time, timeFormat), targetFormat)
     }
 
@@ -69,7 +69,7 @@ object DateUtils {
      * @param targetFormat 目标格式
      * @return 格式化的时间
      */
-    fun formatTime(timestamp: Long, targetFormat: String): String? {
+    fun formatTime(timestamp: Long, targetFormat: String): String {
         return formatDate(Date(getMicroTimestamp(timestamp)), targetFormat)
     }
 
@@ -79,7 +79,7 @@ object DateUtils {
      * @param targetFormat 目标格式
      * @return 格式化的时间
      */
-    fun formatDate(date: Date?, targetFormat: String): String? {
+    fun formatDate(date: Date?, targetFormat: String): String {
         if(date == null)
             return ""
         return when(targetFormat){
@@ -114,7 +114,7 @@ object DateUtils {
      * 获取当前时间
      * @param format 时间格式
      */
-    fun getCurrentTime(format: String): String? {
+    fun getCurrentTime(format: String): String {
         return formatDate(Date(), format)
     }
 
@@ -155,7 +155,7 @@ object DateUtils {
      * @param type 返回的类型 [.Year]
      * @return
      */
-    fun formatMs(ms: Long, type: Int): String? {
+    fun formatMs(ms: Long, type: Int): String {
         val seconds = ms / 1000
         if (type == SECONDS) {
             return seconds.toString()
@@ -187,7 +187,7 @@ object DateUtils {
      * @param seconds 要格式化的秒
      * @return 00:00:00
      */
-    fun formatSeconds(seconds: Int): String? {
+    fun formatSeconds(seconds: Int): String {
         val result = seconds / 60
         val second = seconds % 60
         val minute = result % 60

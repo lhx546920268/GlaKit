@@ -2,11 +2,15 @@ package com.lhx.glakit.dialog
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import com.lhx.glakit.R
+import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.base.interf.VoidCallback
 
 /**
@@ -64,6 +68,19 @@ abstract class BaseDialogFragment: DialogFragment() {
             for (onDismissHandler in onDismissHandlers) {
                 onDismissHandler()
             }
+        }
+    }
+
+    fun show(manager: FragmentManager) {
+        showNow(manager, null)
+    }
+
+    fun show() {
+        val fragmentActivity = ActivityLifeCycleManager.currentActivity
+        if (fragmentActivity is FragmentActivity) {
+            show(fragmentActivity.supportFragmentManager)
+        } else {
+            Log.d("AlertDialogFragment", "AlertDialogFragment show currentActivity is not a FragmentActivity")
         }
     }
 

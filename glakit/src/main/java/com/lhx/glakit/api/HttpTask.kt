@@ -1,10 +1,14 @@
 package com.lhx.glakit.api
 
 import androidx.annotation.CallSuper
+import com.alibaba.fastjson.JSONObject
 import com.lhx.glakit.base.interf.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
 
@@ -52,14 +56,28 @@ abstract class HttpTask: Callback, HttpCancelable {
         POST,
     }
 
+    //内容类型
+    enum class ContentType {
+
+        URL_ENCODED,
+        MULTI_PART_FORM_DATA,
+        JSON,
+    }
+
     //请求URL
     abstract val currentURL: String
 
     //请求参数
-    protected val requestBody: RequestBody? = null
+    abstract fun getParameters(): HashMap<String, Any>?
+
+    //请求头
+    open val headers: HashMap<String, String>? = null
 
     //请求方法
     protected val httpMethod = HttpMethod.GET
+
+    //类型
+    open val contentType = ContentType.JSON
 
     //请求名称 用来识别是哪个请求，返回值一定不是空的
     override
@@ -95,6 +113,55 @@ abstract class HttpTask: Callback, HttpCancelable {
     //失败
     var onFailure: ValueCallback<HttpTask>? = null
 
+    //请求参数
+    private fun getRequestBody(): RequestBody? {
+        val params = getParameters()
+        if (params.isNullOrEmpty()) return null
+
+        return when (contentType) {
+            ContentType.URL_ENCODED -> {
+                val builder = FormBody.Builder()
+
+                params.forEach {
+                    builder.add(it.key, it.value.toString())
+                }
+                builder.build()
+            }
+            ContentType.MULTI_PART_FORM_DATA -> {
+                val builder = MultipartBody.Builder()
+                params.forEach {
+                    builder.addFormDataPart(it.key, it.value.toString())
+                }
+                builder.build()
+            }
+            ContentType.JSON -> {
+                val json = JSONObject.toJSONString(params)
+                json.toRequestBody("application/json;charset=utf-8".toMediaType())
+            }
+        }
+    }
+
+    //生成get请求参数
+    private fun generateGetParams(): String? {
+
+        val params = getParameters()
+        if (!params.isNullOrEmpty()) {
+            val builder = StringBuilder()
+            var i = 0
+            for ((key, value) in params) {
+                if (i > 0) {
+                    builder.append("&")
+                }
+                builder.append(key)
+                builder.append("=")
+                builder.append(URLEncoder.encode(value.toString(), "UTF-8"))
+                i ++
+            }
+            return builder.toString()
+        }
+        return null
+    }
+
     //开始
     @Synchronized
     fun start() {
@@ -103,17 +170,29 @@ abstract class HttpTask: Callback, HttpCancelable {
             prepare()
             status = Status.EXECUTING
             onStart()
-            val builder = Request.Builder().url(currentURL)
+            val builder: Request.Builder
             when (httpMethod) {
                 HttpMethod.GET -> {
+                    var url = currentURL
+                    val params = generateGetParams()
+                    if (!params.isNullOrEmpty()) {
+                        url = "$url?$params"
+                    }
+                    builder = Request.Builder().url(url)
                     builder.get()
                 }
                 HttpMethod.POST -> {
-                    require(requestBody != null) {
-                        "POST requestBody can not be null"
+                    builder = Request.Builder().url(currentURL)
+                    val body = getRequestBody()
+                    require(body != null) {
+                        "${javaClass.name} post must has params"
                     }
-                    builder.post(requestBody)
+                    builder.post(body)
                 }
+            }
+
+            headers?.forEach {
+                builder.addHeader(it.key, it.value)
             }
 
             val client =
@@ -136,6 +215,9 @@ abstract class HttpTask: Callback, HttpCancelable {
 
     override val isExecuting: Boolean
         get() = status == Status.EXECUTING
+
+    val isCancelled: Boolean
+        get() = status == Status.CANCELLED
 
     //<editor-fold desc="okHttp 请求回调">
 
@@ -181,7 +263,7 @@ abstract class HttpTask: Callback, HttpCancelable {
     @Synchronized
     private fun processFailResult() {
         ThreadUtils.runOnMainThread{
-            if(status != Status.CANCELLED){
+            if(status == Status.EXECUTING){
                 status = Status.FAILURE
                 onFailure()
                 if(onFailure != null){
@@ -204,7 +286,7 @@ abstract class HttpTask: Callback, HttpCancelable {
         callback?.onSuccess(this) //异步解析
 
         synchronized(this){
-            if(status != Status.CANCELLED){
+            if(status == Status.EXECUTING){
                 status = Status.SUCCESSFUL
                 if(onSuccess != null){
                     onSuccess!!(this)

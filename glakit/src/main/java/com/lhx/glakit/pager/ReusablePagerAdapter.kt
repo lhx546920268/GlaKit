@@ -239,7 +239,7 @@ abstract class ReusablePagerAdapter(
      * @param object [.destroyItem]
      */
 
-    fun destroyItemForRealPosition(
+    open fun destroyItemForRealPosition(
         convertView: View?,
         position: Int,
         viewType: Int,
@@ -252,7 +252,7 @@ abstract class ReusablePagerAdapter(
      * @param position 视图位置
      * @return view类型
      */
-    fun getViewType(position: Int): Int {
+    open fun getViewType(position: Int): Int {
         return 0
     }
 
@@ -262,7 +262,7 @@ abstract class ReusablePagerAdapter(
      * @param subviewPosition 子视图在当前页的位置
      * @return subview类型
      */
-    fun getSubviewType(position: Int, subviewPosition: Int): Int {
+    open fun getSubviewType(position: Int, subviewPosition: Int): Int {
         return 0
     }
 
@@ -271,7 +271,7 @@ abstract class ReusablePagerAdapter(
      * @param position 当前页
      * @return 子视图数量
      */
-    fun numberOfSubviewInPage(position: Int): Int {
+    open fun numberOfSubviewInPage(position: Int): Int {
         return 0
     }
 
@@ -283,7 +283,7 @@ abstract class ReusablePagerAdapter(
      * @param subviewType 子视图类型
      * @return 子视图
      */
-    fun getSubview(
+    open fun getSubview(
         convertView: View?,
         position: Int,
         subviewPosition: Int,

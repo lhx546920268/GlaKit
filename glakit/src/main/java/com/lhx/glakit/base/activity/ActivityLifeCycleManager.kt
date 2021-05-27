@@ -2,7 +2,9 @@ package com.lhx.glakit.base.activity
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import com.lhx.glakit.app.BaseApplication
 import com.lhx.glakit.event.AppEvent
 
 import org.greenrobot.eventbus.EventBus
@@ -12,11 +14,32 @@ import org.greenrobot.eventbus.EventBus
  */
 object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
 
+
     //当前的activity
-    private val activities: ArrayList<Activity> = ArrayList()
+    val activities: ArrayList<Activity> = ArrayList()
+
+    //当前创建activity数量
+    val count: Int
+        get() = activities.size
 
     //当前显示activity的数量
     private var activityCount = 0
+
+    val currentActivity: Activity
+        get() = activities.last()
+
+    val currentContext: Context
+        get() = if (activities.isNotEmpty()) currentActivity else BaseApplication.sharedApplication
+
+    //前一个
+    val beforeContext: Context
+        get() {
+            return if (activities.size >= 2) {
+                activities[activities.size - 2]
+            } else {
+                if (activities.isNotEmpty()) currentActivity else BaseApplication.sharedApplication
+            }
+        }
 
     /**
      * 获取对应名称的 activity

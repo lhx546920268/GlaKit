@@ -26,8 +26,8 @@ class DialogFragment: BaseFragment() {
                     "标题",
                     "副标题",
                     getDrawableCompat(R.mipmap.ic_launcher_round),
-                    arrayOf("取消", "确定"),
-                    0
+                    buttonTitles = arrayOf("取消", "确定"),
+                    destructivePosition = 0
                 ) { position ->
                     ToastUtils.showToast(it, "点击第 $position 个")
                 }.show(childFragmentManager)
@@ -38,8 +38,8 @@ class DialogFragment: BaseFragment() {
                     "标题",
                     "副标题",
                     getDrawableCompat(R.mipmap.ic_launcher_round),
-                    arrayOf("删除"),
-                    0
+                    buttonTitles = arrayOf("删除"),
+                    destructivePosition = 0
                 ){position ->
                     ToastUtils.showToast(it, "点击第 $position 个")
                 }.show(childFragmentManager)

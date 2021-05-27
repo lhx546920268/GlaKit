@@ -19,7 +19,7 @@ import kotlin.math.min
 
 
 //标题栏
-class TitleBar: ViewGroup {
+class TitleBar : ViewGroup {
 
     //标题
     private var titleTextView: TextView? = null
@@ -36,24 +36,80 @@ class TitleBar: ViewGroup {
     ///标题视图
     private var titleView: View? = null
 
-    constructor(context: Context?) : this(context, null)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context, attrs, defStyleAttr) {
+    //标题颜色
+    var titleColor = ContextCompat.getColor(context, R.color.title_bar_title_color)
+        set(value) {
+            if (value != field) {
+                field = value
+                titleTextView?.setTextColor(titleColor)
+            }
+        }
+
+    //着色
+    var tintColor = ContextCompat.getColor(context, R.color.title_bar_tint_color)
+        set(value) {
+            if (value != field) {
+                field = value
+                var textView = leftItem
+                if (textView is TextView) {
+                    val drawables = textView.compoundDrawables
+                    val drawable = drawables[0]
+                    if (drawable != null) {
+                        textView.setCompoundDrawables(
+                            DrawableUtils.getTintDrawable(
+                                drawable,
+                                field
+                            ), null, null, null
+                        )
+                    }
+                    textView.setTextColor(field)
+                }
+
+                textView = rightItem
+                if (textView is TextView) {
+                    val drawables = textView.compoundDrawables
+                    val drawable = drawables[2]
+                    if (drawable != null) {
+                        textView.setCompoundDrawables(
+                            null,
+                            null,
+                            DrawableUtils.getTintDrawable(drawable, field),
+                            null
+                        )
+                    }
+                    textView.setTextColor(field)
+                }
+            }
+        }
+
+    constructor(context: Context) : this(context, null)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context, attrs, defStyleAttr
+    ) {
 
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.title_bar_background_color))
         shadow = View(context)
-        shadow.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.title_bar_shadow_color))
+        shadow.setBackgroundColor(
+            ContextCompat.getColor(
+                getContext(),
+                R.color.title_bar_shadow_color
+            )
+        )
         addView(shadow)
     }
 
     //设置标题
     fun setTitle(title: CharSequence?) {
 
-        if(titleTextView == null){
+        if (titleTextView == null) {
             val textView = TextView(this.context)
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_bar_text_size))
-            textView.setTextColor(ContextCompat.getColor(context, R.color.title_bar_title_color))
+            textView.setTextSize(
+                TypedValue.COMPLEX_UNIT_PX,
+                resources.getDimension(R.dimen.title_bar_text_size)
+            )
+            textView.paint.isFakeBoldText = context.resources.getBoolean(R.bool.title_bar_text_style_bold)
+            textView.setTextColor(titleColor)
             textView.setLines(1)
             textView.setBackgroundColor(Color.TRANSPARENT)
             textView.gravity = Gravity.CENTER
@@ -69,7 +125,7 @@ class TitleBar: ViewGroup {
     }
 
     fun getTitle(): CharSequence? {
-        if(titleTextView != null){
+        if (titleTextView != null) {
             return titleTextView!!.text
         }
 
@@ -86,7 +142,7 @@ class TitleBar: ViewGroup {
     //设置标题视图
     fun setTitleView(titleView: View?) {
 
-        if(this.titleView != null)
+        if (this.titleView != null)
             removeView(this.titleView)
 
         this.titleView = titleView
@@ -109,7 +165,7 @@ class TitleBar: ViewGroup {
             var title: String? = null
             if (icon != 0) {
                 drawable = ContextCompat.getDrawable(context, icon)
-                drawable = DrawableUtils.getTintDrawable(drawable!!, ContextCompat.getColor(context, R.color.title_bar_tint_color))
+                drawable = DrawableUtils.getTintDrawable(drawable!!, titleColor)
             }
             if (drawable == null) {
                 title = context.getString(R.string.title_bar_back_title)
@@ -170,12 +226,13 @@ class TitleBar: ViewGroup {
      * 设置标题栏按钮
      *
      * @param title 标题
-     * @param drawable 图标,显示在标题上面
+     * @param icon 图标,显示在标题上面
      * @param isLeft 位置, 是否在左边
      * @return 新创建的按钮
      */
-    fun setItem(title: String?, drawable: Drawable?, isLeft: Boolean): TextView {
+    fun setItem(title: String?, icon: Drawable?, isLeft: Boolean): TextView {
 
+        var drawable = icon
         val textView = TextView(this.context)
 
         if (!TextUtils.isEmpty(title)) {
@@ -183,20 +240,27 @@ class TitleBar: ViewGroup {
         }
 
         val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
-        textView.setPadding(margin,0, margin, 0)
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_bar_item_text_size))
+        textView.setPadding(margin, 0, margin, 0)
+        textView.setTextSize(
+            TypedValue.COMPLEX_UNIT_PX,
+            resources.getDimension(R.dimen.title_bar_item_text_size)
+        )
         textView.setBackgroundColor(Color.TRANSPARENT)
-        textView.setTextColor(ContextCompat.getColor(context, R.color.title_bar_tint_color))
+        textView.setTextColor(tintColor)
         textView.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT)
+
+        if (drawable != null) {
+            drawable = DrawableUtils.getTintDrawable(drawable, tintColor)
+        }
         drawable?.setBounds(0, 0, drawable.minimumWidth, drawable.minimumHeight)
 
-        if(isLeft){
+        if (isLeft) {
             textView.gravity = Gravity.START or Gravity.CENTER_VERTICAL
             if (drawable != null) {
                 textView.setCompoundDrawables(drawable, null, null, null)
             }
             setLeftItem(textView)
-        }else{
+        } else {
             textView.gravity = Gravity.END or Gravity.CENTER_VERTICAL
             if (drawable != null) {
                 textView.setCompoundDrawables(null, null, drawable, null)
@@ -223,24 +287,27 @@ class TitleBar: ViewGroup {
 
         var leftWidth = 0
 
-        if(leftItem != null){
+        if (leftItem != null) {
             leftWidth = leftItem!!.measuredWidth
-            leftItem!!.layout(left, top,left + leftWidth, top + height)
+            leftItem!!.layout(left, top, left + leftWidth, top + height)
         }
 
         var rightWidth = 0
 
-        if(rightItem != null){
+        if (rightItem != null) {
             rightWidth = rightItem!!.measuredWidth
             rightItem!!.layout(left + width - rightWidth, top, left + width, top + height)
         }
 
-        if(titleView != null){
+        if (titleView != null) {
             var titleWidth = titleView!!.measuredWidth
             val titleHeight = min(height, titleView!!.measuredHeight)
 
-            val margin = max(max(leftWidth, rightWidth), resources.getDimensionPixelSize(R.dimen.title_bar_margin))
-            if(titleWidth > width - margin * 2){
+            val margin = max(
+                max(leftWidth, rightWidth),
+                resources.getDimensionPixelSize(R.dimen.title_bar_margin)
+            )
+            if (titleWidth > width - margin * 2) {
                 titleWidth = max(0, width - margin * 2)
             }
 

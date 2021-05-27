@@ -52,7 +52,7 @@ abstract class RefreshableActivity: BaseContainerActivity(), RefreshablePage {
         }
 
     //是否需要显示回到顶部按钮
-    val shouldDisplayBackToTop = false
+    open val shouldDisplayBackToTop = false
 
     //返回自定义的 layout res
     @LayoutRes

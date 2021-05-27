@@ -13,6 +13,7 @@ import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.base.widget.TitleBar
 import com.lhx.glakit.loading.InteractionCallback
 import com.lhx.glakit.utils.SizeUtils
 import java.io.Serializable
@@ -43,12 +44,16 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpPro
     val baseContainer: BaseContainer?
 
     /**
+     * 标题栏
+     */
+    val titleBar: TitleBar?
+        get() = baseContainer?.titleBar
+
+    /**
      * 是否已初始化
      */
     val isInit: Boolean
-        get() {
-            return baseContainer != null
-        }
+        get() = baseContainer != null
 
     //<editor-fold desc="Getter">
 
@@ -234,8 +239,8 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpPro
         baseContainer?.hideLoading()
     }
 
-    override fun showToast(text: CharSequence, icon: Int) {
-        baseContainer?.showToast(text, icon)
+    override fun showToast(text: CharSequence) {
+        baseContainer?.showToast(text)
     }
 
     //</editor-fold>
@@ -346,6 +351,10 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpPro
     }
 
     //设置标题
+    fun setBarTitle(@StringRes title: Int) {
+        baseContainer?.setTitle(attachedContext?.getString(title))
+    }
+
     fun setBarTitle(title: CharSequence?) {
         baseContainer?.setTitle(title)
     }

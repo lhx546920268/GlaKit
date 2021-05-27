@@ -3,8 +3,6 @@ package com.lhx.glakit.utils
 import android.graphics.Color.parseColor
 import androidx.annotation.ColorInt
 
-
-
 //颜色工具类
 object ColorUtils {
 
@@ -48,8 +46,15 @@ object ColorUtils {
         return parseColor(colorString)
     }
 
+    /**
+     * 把颜色转成16进制字符串
+     */
+    fun colorToHex(color: Int): String {
+        return String.format("#%06X", (0xFFFFFF and color))
+    }
+
     //小数转16进制字符串
-    fun hexFromFloat(value: Float): String {
+    private fun hexFromFloat(value: Float): String {
         var tValue = value
         if (value < 0) {
             tValue = 0f

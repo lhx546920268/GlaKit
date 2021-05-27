@@ -2,12 +2,12 @@ package com.lhx.glakit.utils
 
 import android.content.ContentResolver
 import android.content.Context
-import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
 import android.os.Environment.MEDIA_MOUNTED
 import android.provider.MediaStore
 import android.text.TextUtils
+import android.util.Base64
 import android.webkit.MimeTypeMap
 import java.io.*
 
@@ -37,7 +37,7 @@ object FileUtils {
         }
 
 
-        val appFolder = "${cacheFolder}${File.separator}${AppUtils.getAppPackageName(context)}${File.separator}"
+        val appFolder = "${cacheFolder}${File.separator}${AppUtils.appPackageName}${File.separator}"
         val file = File(appFolder)
         if (!file.exists()) {
             file.mkdirs()
@@ -98,7 +98,7 @@ object FileUtils {
      * @param mimeType 文件的mimeType
      * @return 文件拓展名
      */
-    fun getFileExtensionFromMimeType(mimeType: String): String? {
+    fun getFileExtensionFromMimeType(mimeType: String): String {
         val map = MimeTypeMap.getSingleton()
         var extension = map.getExtensionFromMimeType(mimeType)
         if (extension == null) {
@@ -119,7 +119,7 @@ object FileUtils {
      * @param replace 如果已存在拓展名，是否替换
      * @return 新的文件路径
      */
-    fun appendFileExtension(filePath: String, extension: String, replace: Boolean): String? {
+    fun appendFileExtension(filePath: String, extension: String, replace: Boolean): String {
         if (!TextUtils.isEmpty(extension)) {
             val index = filePath.lastIndexOf(File.separator)
 
@@ -387,4 +387,25 @@ object FileUtils {
             deleteFile(file)
         }
     }
+
+    /**
+     * 生成base64字符串
+     */
+    fun getBase64(path: String): String {
+        var uploadBuffer = ""
+        try {
+            val fis = FileInputStream(path)
+            val baos = ByteArrayOutputStream()
+            val buffer = ByteArray(1024)
+            var count: Int
+            while (fis.read(buffer).also { count = it } >= 0) {
+                baos.write(buffer, 0, count)
+            }
+            uploadBuffer = String(Base64.encode(baos.toByteArray(), Base64.NO_WRAP)) //进行Base64
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return uploadBuffer
+    }
+
 }

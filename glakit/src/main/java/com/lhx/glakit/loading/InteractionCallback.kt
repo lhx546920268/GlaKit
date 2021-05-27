@@ -14,5 +14,5 @@ interface InteractionCallback {
     fun hideLoading()
 
     //提示文字信息
-    fun showToast(text: CharSequence, @DrawableRes icon: Int = 0)
+    fun showToast(text: CharSequence)
 }

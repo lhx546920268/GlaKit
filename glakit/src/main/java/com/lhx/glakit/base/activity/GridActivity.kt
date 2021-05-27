@@ -10,7 +10,7 @@ import com.lhx.glakit.base.widget.BaseContainer
 /**
  * 网格视图
  */
-class GridActivity: RefreshableActivity() {
+open class GridActivity: RefreshableActivity() {
 
     val gridView: GridView by lazy { findViewById(R.id.gridView) }
 
@@ -30,5 +30,14 @@ class GridActivity: RefreshableActivity() {
 
     override fun notifyDataSetChanged() {
         (gridView.adapter as BaseAdapter?)?.notifyDataSetChanged()
+    }
+
+    override fun startRefresh() {
+        if (smartRefreshLayout != null && !refreshing) {
+            if (gridView.childCount > 0) {
+                gridView.setSelection(0)
+            }
+            smartRefreshLayout!!.autoRefresh()
+        }
     }
 }

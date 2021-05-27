@@ -1,8 +1,6 @@
 package com.lhx.glakit.pager
 
 import android.content.Context
-import android.view.View
-import android.view.View.OnAttachStateChangeListener
 import android.widget.Scroller
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -12,7 +10,7 @@ import com.lhx.glakit.timer.CountDownTimer
 /**
  * 循环轮播器 view可复用
  */
-abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(viewPager), OnPageChangeListener {
+abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(viewPager) {
 
     //需要移动到的位置
     private var _targetPosition = -1
@@ -233,21 +231,32 @@ abstract class CyclePagerAdapter(viewPager: ViewPager) : ReusablePagerAdapter(vi
                 }
             }
         })
-
-        viewPager.addOnAttachStateChangeListener(object : OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View?) {
-                startAutoPlayTimer()
-                if (_detachedFromWindow) { //ViewPager 会在 AttachedToWindow 需要重新布局，会导致第一次smoothScroll没有动画
-                    viewPager.requestLayout()
-                    _detachedFromWindow = false
-                }
-            }
-
-            override fun onViewDetachedFromWindow(v: View?) {
-                _detachedFromWindow = true
-                stopAutoPlayTimer()
-            }
-        })
         setScroller()
     }
+
+    /**
+     * 使用回调无效，要用在对应的类中 监听
+     * override fun onWindowVisibilityChanged(visibility: Int) {
+     * super.onWindowVisibilityChanged(visibility)
+     *   if (visibility == VISIBLE) {
+     *    adapter.onViewAttachedToWindow()
+     *    } else {
+     * adapter.onViewDetachedFromWindow()
+     *     }
+     *   }
+     *
+     */
+    fun onViewAttachedToWindow() {
+        startAutoPlayTimer()
+        if (_detachedFromWindow) { //ViewPager 会在 AttachedToWindow 需要重新布局，会导致第一次smoothScroll没有动画
+            viewPager.requestLayout()
+            _detachedFromWindow = false
+        }
+    }
+
+    fun onViewDetachedFromWindow() {
+        _detachedFromWindow = true
+        stopAutoPlayTimer()
+    }
+
 }

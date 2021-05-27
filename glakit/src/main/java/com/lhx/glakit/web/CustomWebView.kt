@@ -1,4 +1,4 @@
-package com.lhx.glakit.widget
+package com.lhx.glakit.web
 
 import android.content.Context
 import android.text.TextUtils
@@ -26,8 +26,9 @@ open class CustomWebView : WebView {
     //是否需要获取viewPager
     private var _shouldGetViewPager = true
 
-    constructor(context: Context) : this(context, null)
-    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    //每个构造方法必须调用super，否则会出现不可预料的问题，比如键盘弹不出来
+    constructor(context: Context) : super(context)
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context,
         attrs,

@@ -30,4 +30,13 @@ open class RecyclerFragment : RefreshableFragment() {
     override fun notifyDataSetChanged() {
         recyclerView.adapter?.notifyDataSetChanged()
     }
+
+    override fun startRefresh() {
+        if (smartRefreshLayout != null && !refreshing) {
+            if (recyclerView.childCount > 0) {
+                recyclerView.scrollToPosition(0)
+            }
+            smartRefreshLayout!!.autoRefresh()
+        }
+    }
 }

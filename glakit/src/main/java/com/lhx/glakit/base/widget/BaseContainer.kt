@@ -18,14 +18,15 @@ import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.utils.ViewUtils
 
 //基础视图容器
-class BaseContainer: RelativeLayout, InteractionCallback {
+class BaseContainer : RelativeLayout, InteractionCallback {
 
     //内容视图
     var contentView: View? = null
-    private set
+        private set
 
     //标题栏
-    private var titleBar: TitleBar? = null
+    var titleBar: TitleBar? = null
+        private set
 
     //页面状态
     private var pageStatus = PageStatus.NORMAL
@@ -42,20 +43,20 @@ class BaseContainer: RelativeLayout, InteractionCallback {
 
     //添加固定在底部的视图
     var bottomView: View? = null
-    private set
+        private set
 
     //添加固定在顶部的视图
     var topView: View? = null
-    private set
+        private set
 
     //顶部视图是否悬浮
     private var topViewFloat = false
-    set(value){
-        if(value != field){
-            field = value
-            layoutChildren()
+        set(value) {
+            if (value != field) {
+                field = value
+                layoutChildren()
+            }
         }
-    }
 
     //事件回调
     var mOnEventCallback: OnEventCallback? = null
@@ -71,7 +72,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
         context,
         attrs,
         defStyleAttr
-    ){
+    ) {
         setBackgroundColor(Color.WHITE)
     }
 
@@ -113,10 +114,6 @@ class BaseContainer: RelativeLayout, InteractionCallback {
         return titleBar?.getTitle()
     }
 
-    fun getTitleBar(): TitleBar? {
-        return titleBar
-    }
-
     //显示返回按钮
     fun setShowBackButton(show: Boolean) {
         if (titleBar != null) {
@@ -139,14 +136,14 @@ class BaseContainer: RelativeLayout, InteractionCallback {
         setContentView(LayoutInflater.from(context).inflate(layoutResId, null, false))
     }
 
-    fun setContentView(view: View?){
-        if(contentView != view){
-            if(contentView != null){
+    fun setContentView(view: View?) {
+        if (contentView != view) {
+            if (contentView != null) {
                 removeView(contentView)
             }
 
             contentView = view
-            if(contentView != null){
+            if (contentView != null) {
                 contentView!!.apply {
                     id = R.id.base_fragment_content_id
                     val params = if (layoutParams is LayoutParams) {
@@ -185,7 +182,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             }
         }
 
-        if(pageLoadingView != null){
+        if (pageLoadingView != null) {
 
             val params = pageLoadingView!!.layoutParams as LayoutParams
 
@@ -202,7 +199,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             }
         }
 
-        if(emptyView != null){
+        if (emptyView != null) {
 
             val params = emptyView!!.layoutParams as LayoutParams
 
@@ -229,16 +226,20 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             loading = true
             if (GlaKitInitializer.loadViewClass != null) {
                 try {
-                    loadingView = GlaKitInitializer.loadViewClass!!.getConstructor(Context::class.java).newInstance(context)
+                    loadingView =
+                        GlaKitInitializer.loadViewClass!!.getConstructor(Context::class.java)
+                            .newInstance(context)
                 } catch (e: Exception) {
                     throw IllegalStateException("loadViewClass 无法通过context实例化")
                 }
             } else {
-                loadingView = LayoutInflater.from(context).inflate(R.layout.default_loading_view, this, false) as LoadingView?
+                loadingView = LayoutInflater.from(context)
+                    .inflate(R.layout.default_loading_view, this, false) as LoadingView?
             }
             loadingView!!.delay = delay
             if (loadingView is DefaultLoadingView) {
-                val loadingText = if(StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
+                val loadingText =
+                    if (StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
                 (loadingView as DefaultLoadingView).textView.text = loadingText
             }
             addView(loadingView)
@@ -252,32 +253,32 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     }
 
     override fun hideLoading() {
-        if(loading){
+        if (loading) {
             loading = false
             removeView(loadingView)
             loadingView = null
         }
     }
 
-    override fun showToast(text: CharSequence, icon: Int) {
-        ToastUtils.showToast(this, text, icon)
+    override fun showToast(text: CharSequence) {
+        ToastUtils.showToast(this, text)
     }
 
     //</editor-fold>
 
     //<editor-fold desc="Loading">
 
-    fun setPageStatus(status: PageStatus){
-        if(status != pageStatus){
-            when(pageStatus){
+    fun setPageStatus(status: PageStatus) {
+        if (status != pageStatus) {
+            when (pageStatus) {
                 PageStatus.LOADING -> {
-                    if(status != PageStatus.FAIL){
+                    if (status != PageStatus.FAIL) {
                         removeView(pageLoadingView)
                         pageLoadingView = null
                     }
                 }
                 PageStatus.FAIL -> {
-                    if(status != PageStatus.LOADING){
+                    if (status != PageStatus.LOADING) {
                         removeView(pageLoadingView)
                         pageLoadingView = null
                     }
@@ -292,7 +293,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
             }
             pageStatus = status
 
-            when(pageStatus){
+            when (pageStatus) {
                 PageStatus.LOADING -> {
                     loadPageLoadingViewIfNeeded()
                 }
@@ -314,8 +315,8 @@ class BaseContainer: RelativeLayout, InteractionCallback {
     }
 
     //加载 pageLoading 如果需要
-    private fun loadPageLoadingViewIfNeeded(){
-        if((pageStatus == PageStatus.LOADING || pageStatus == PageStatus.FAIL) && pageLoadingView == null){
+    private fun loadPageLoadingViewIfNeeded() {
+        if ((pageStatus == PageStatus.LOADING || pageStatus == PageStatus.FAIL) && pageLoadingView == null) {
             if (GlaKitInitializer.defaultPageLoadingViewClass != null) {
                 pageLoadingView = try {
                     GlaKitInitializer.defaultPageLoadingViewClass!!.getConstructor(Context::class.java)
@@ -324,23 +325,22 @@ class BaseContainer: RelativeLayout, InteractionCallback {
                     throw IllegalStateException("pageLoadingViewClass 无法通过context实例化")
                 }
             } else {
-                pageLoadingView = LayoutInflater.from(context).inflate(R.layout.default_page_loading_view, this, false) as PageLoadingView
+                pageLoadingView = LayoutInflater.from(context)
+                    .inflate(R.layout.default_page_loading_view, this, false) as PageLoadingView
             }
-            pageLoadingView!!.setOnClickListener(object : OnSingleClickListener(){
-                override fun onSingleClick(v: View) {
-                    if(pageStatus == PageStatus.FAIL){
-                        mOnEventCallback?.onReloadPage()
-                    }
+            pageLoadingView!!.reloadCallback = {
+                if(pageStatus == PageStatus.FAIL){
+                    mOnEventCallback?.onReloadPage()
                 }
-            })
+            }
             addView(pageLoadingView)
         }
         pageLoadingView?.status = pageStatus
     }
 
     //加载空视图如果需要
-    private fun loadEmptyViewIfNeeded(){
-        if(pageStatus == PageStatus.EMPTY && emptyView == null){
+    private fun loadEmptyViewIfNeeded() {
+        if (pageStatus == PageStatus.EMPTY && emptyView == null) {
             emptyView = LayoutInflater.from(context).inflate(R.layout.page_empty_view, this, false)
             emptyView!!.isClickable = true
             addView(emptyView)
@@ -371,7 +371,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
                 removeView(bottomView)
             }
             bottomView = view
-            if (bottomView != null){
+            if (bottomView != null) {
                 bottomView?.apply {
                     val params = if (layoutParams is LayoutParams) {
                         layoutParams as LayoutParams
@@ -404,7 +404,7 @@ class BaseContainer: RelativeLayout, InteractionCallback {
                 removeView(topView)
             }
             topView = view
-            if(topView != null){
+            if (topView != null) {
                 topView!!.apply {
                     val params = if (layoutParams is LayoutParams) {
                         layoutParams as LayoutParams
