@@ -89,10 +89,10 @@ abstract class TabBarActivity : BaseContainerActivity() {
             if (value != null && !value.isAdded && value !== field) {
                 val transaction = supportFragmentManager.beginTransaction()
                 if (field != null) {
-                    transaction.detach(field!!)
+                    transaction.hide(field!!)
                 }
-                if (value.isDetached) {
-                    transaction.attach(value)
+                if (value.isHidden) {
+                    transaction.show(value)
                 } else {
                     transaction.add(R.id.fragment_container, value)
                 }
@@ -122,7 +122,7 @@ abstract class TabBarActivity : BaseContainerActivity() {
         if (count > 0) {
             for (i in 0 until count) {
                 val item =
-                    LayoutInflater.from(this).inflate(R.layout.tab_bar_item, null) as TabBarItem
+                    LayoutInflater.from(this).inflate(R.layout.tab_bar_item, tabBar, false) as TabBarItem
 
                 item.textView.apply {
                     text = getTitle(i)

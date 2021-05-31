@@ -15,6 +15,15 @@ open class BaseApplication: MultiDexApplication() {
             private set
     }
 
+    init {
+        //禁止app闪退后恢复，必须放在这里，否则会覆盖掉sdk的crash收集
+        Thread.setDefaultUncaughtExceptionHandler { _, _ -> //闪退后不让恢复
+            ActivityLifeCycleManager.finishAllActivities()
+            android.os.Process.killProcess(android.os.Process.myPid())
+            exitProcess(1)
+        }
+    }
+
     override fun onCreate() {
         super.onCreate()
 
@@ -22,13 +31,6 @@ open class BaseApplication: MultiDexApplication() {
 
         //初始化activity声明周期管理
         registerActivityLifecycleCallbacks(ActivityLifeCycleManager)
-
-        //禁止app闪退后恢复
-        Thread.setDefaultUncaughtExceptionHandler { _, _ -> //闪退后不让恢复
-            ActivityLifeCycleManager.finishAllActivities()
-            android.os.Process.killProcess(android.os.Process.myPid())
-            exitProcess(1)
-        }
     }
 
     //低内存处理

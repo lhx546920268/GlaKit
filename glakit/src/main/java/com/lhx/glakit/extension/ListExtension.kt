@@ -14,3 +14,7 @@ fun <T> List<T>.getSafely(index: Int): T? {
 fun <T> List<T>.lastSafely(): T? {
     return if (isNotEmpty()) last() else null
 }
+
+fun <T> List<T>.firstSafely(): T? {
+    return if (isNotEmpty()) first() else null
+}
