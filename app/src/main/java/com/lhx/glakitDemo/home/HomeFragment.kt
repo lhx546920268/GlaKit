@@ -1,18 +1,23 @@
 package com.lhx.glakitDemo.home
 
+import android.Manifest
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
+import com.lhx.glakit.base.interf.PermissionRequester
 import com.lhx.glakit.web.WebFragment
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.helper.PermissionHelper
 import com.lhx.glakit.toast.ToastContainer
+import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakit.web.WebConfig
 import com.lhx.glakitDemo.R
@@ -22,9 +27,11 @@ import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
 
-class HomeFragment: RecyclerFragment() {
+class HomeFragment: RecyclerFragment(), PermissionRequester {
 
-    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web")
+    override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+
+    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission")
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -67,7 +74,9 @@ class HomeFragment: RecyclerFragment() {
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {
             when(positionInSection) {
                 0 -> {
-                    startActivity(CornerDrawableFragment::class.java)
+                    startActivityForResult(CornerDrawableFragment::class.java) {
+                        Log.d("fragment", "back callback")
+                    }
                 }
                 1-> {
                     startActivity(SectionRecycleViewFragment::class.java)
@@ -83,8 +92,20 @@ class HomeFragment: RecyclerFragment() {
                 }
                 5-> {
                     val bundle = Bundle()
-                    bundle.putString(WebConfig.WEB_URL, "https://www.baidu.com")
+                    bundle.putString(WebConfig.URL, "https://www.baidu.com")
                     startActivity(WebFragment::class.java, bundle)
+                }
+                6 -> {
+                   PermissionHelper.requestPermissionsIfNeeded(
+                       this@HomeFragment,
+                       arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
+                   ) {
+                       if (it) {
+                           ToastUtils.show("授权成功")
+                       } else {
+                           ToastUtils.show("授权拒绝")
+                       }
+                   }
                 }
             }
         }

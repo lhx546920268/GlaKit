@@ -2,7 +2,6 @@ package com.lhx.glakit.base.activity
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
@@ -46,7 +45,7 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
         super.onCreate(savedInstanceState)
         if (_container == null) {
             _container = BaseContainer(this)
-            _container?.run{
+            _container?.run {
                 setShowTitleBar(showTitleBar())
                 if (showBackItem()) {
                     setShowBackButton(true)
@@ -88,21 +87,27 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
     //<editor-fold desc="Fragment">
 
     //启动一个带activity的fragment
-    fun startFragment(fragmentClass: Class<out BaseFragment>, bundle: Bundle? = null) {
-        startFragmentForResult(fragmentClass, 0, bundle)
+    fun startFragment(fragmentClass: Class<out BaseFragment>, extras: Bundle? = null) {
+        val intent = getIntentWithFragment(this, fragmentClass)
+        if (extras != null) {
+            extras.remove(FRAGMENT_STRING)
+            intent.putExtras(extras)
+        }
+        startActivity(intent)
     }
 
-    fun startFragmentForResult(fragmentClass: Class<out BaseFragment>, requestCode: Int = 0, bundle: Bundle? = null) {
-        val intent: Intent = getIntentWithFragment(this, fragmentClass)
-        if (bundle != null) {
-            bundle.remove(FRAGMENT_STRING)
-            intent.putExtras(bundle)
+    fun startFragmentForResult(
+        fragmentClass: Class<out BaseFragment>,
+        extras: Bundle? = null,
+        callback: ResultCallback
+    ) {
+        val intent = getIntentWithFragment(this, fragmentClass)
+        if (extras != null) {
+            extras.remove(FRAGMENT_STRING)
+            intent.putExtras(extras)
         }
-        if (requestCode != 0) {
-            startActivityForResult(intent, requestCode)
-        } else {
-            startActivity(intent)
-        }
+        resultCallback = callback
+        activityLauncher.launch(intent)
     }
 
     //</editor-fold>

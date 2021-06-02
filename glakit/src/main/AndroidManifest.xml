@@ -31,10 +31,6 @@
                   android:configChanges="orientation|keyboardHidden|screenSize"
                   android:theme="@style/Picture.Theme.Translucent"/>
     </application>
-
-    <queries>
-        <package android:name=""/>
-    </queries>
 </manifest>
 
 

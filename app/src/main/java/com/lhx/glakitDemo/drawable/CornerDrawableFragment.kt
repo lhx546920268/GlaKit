@@ -1,7 +1,6 @@
 package com.lhx.glakitDemo.drawable
 
 import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater

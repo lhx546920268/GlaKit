@@ -12,7 +12,6 @@ import com.luck.picture.lib.*
 import com.luck.picture.lib.config.PictureConfig
 import com.luck.picture.lib.config.PictureMimeType
 import com.luck.picture.lib.config.PictureSelectionConfig
-import com.luck.picture.lib.engine.CacheResourcesEngine
 import com.luck.picture.lib.engine.ImageEngine
 import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.listener.OnCustomCameraInterfaceListener
@@ -115,27 +114,6 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
     fun imageEngine(engine: ImageEngine): ImagePickerModel {
         if (PictureSelectionConfig.imageEngine !== engine) {
             PictureSelectionConfig.imageEngine = engine
-        }
-        return this
-    }
-
-    /**
-     * Only for Android version Q
-     *
-     *
-     * 已废弃，没有存在的意义了，之前主要是为了解决在华为10系统上一直loading问题
-     *
-     *
-     * @param cacheResourcesEngine Image Cache
-     * @return
-     */
-    @Deprecated("")
-    fun loadCacheResourcesCallback(cacheResourcesEngine: CacheResourcesEngine): ImagePickerModel {
-        if (SdkVersionUtils.checkedAndroid_Q()) {
-            if (PictureSelectionConfig.cacheResourcesEngine !== cacheResourcesEngine) {
-                PictureSelectionConfig.cacheResourcesEngine =
-                    WeakReference(cacheResourcesEngine).get()
-            }
         }
         return this
     }

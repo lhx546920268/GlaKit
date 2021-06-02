@@ -8,13 +8,15 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.AnimRes
 import androidx.annotation.IdRes
-import androidx.annotation.Nullable
 import androidx.fragment.app.Fragment
 import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.activity.BaseActivity
+import com.lhx.glakit.base.activity.ResultCallback
 import com.lhx.glakit.base.interf.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 
@@ -38,7 +40,7 @@ abstract class BaseFragment : Fragment(), BasePage {
      * 获取 activity 或者 fragment 绑定的bundle
      */
     override val attachedBundle: Bundle?
-        get() = if(arguments != null) arguments else activity?.intent?.extras
+        get() = if (arguments != null) arguments else activity?.intent?.extras
 
     /**
      * 获取context
@@ -52,19 +54,26 @@ abstract class BaseFragment : Fragment(), BasePage {
     override val attachedActivity: Activity?
         get() = activity
 
-    //是否需要处理 onActivityResult
-    var shouldProcessActivityResult = false
+    /**
+     * activity 启动器
+     */
+    private lateinit var activityLauncher: ActivityResultLauncher<Intent>
 
-    override fun onActivityCreated(@Nullable savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        if (showBackItem()) {
-            setShowBackButton(true)
-        }
-    }
+    /**
+     * 当前回调
+     */
+    private var resultCallback: ResultCallback? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(this)
+        activityLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (resultCallback != null && it.resultCode == Activity.RESULT_OK) {
+                    resultCallback!!(it.data)
+                }
+                resultCallback = null
+            }
     }
 
     override fun onCreateView(
@@ -80,6 +89,13 @@ abstract class BaseFragment : Fragment(), BasePage {
             initialize(inflater, _container!!, savedInstanceState)
         }
         return _container
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (showBackItem()) {
+            setShowBackButton(true)
+        }
     }
 
     //<editor-fold desc="动画">
@@ -134,25 +150,27 @@ abstract class BaseFragment : Fragment(), BasePage {
     //<editor-fold desc="启动Activity">
 
     //启动一个带activity的fragment
-    fun startActivity(fragmentClass: Class<out BaseFragment>, bundle: Bundle? = null) {
-        startActivityForResult(fragmentClass, 0, bundle)
+    fun startActivity(fragmentClass: Class<out BaseFragment>, extras: Bundle? = null) {
+        val intent = BaseActivity.getIntentWithFragment(requireContext(), fragmentClass)
+        if (extras != null) {
+            extras.remove(BaseActivity.FRAGMENT_STRING)
+            intent.putExtras(extras)
+        }
+        startActivity(intent)
     }
-    
+
     fun startActivityForResult(
         fragmentClass: Class<out BaseFragment>,
-        requestCode: Int,
-        bundle: Bundle? = null
+        extras: Bundle? = null,
+        callback: ResultCallback
     ) {
         val intent = BaseActivity.getIntentWithFragment(requireContext(), fragmentClass)
-        if (bundle != null) {
-            bundle.remove(BaseActivity.FRAGMENT_STRING)
-            intent.putExtras(bundle)
+        if (extras != null) {
+            extras.remove(BaseActivity.FRAGMENT_STRING)
+            intent.putExtras(extras)
         }
-        if (requestCode != 0) {
-            startActivityForResult(intent, requestCode)
-        } else {
-            startActivity(intent)
-        }
+        resultCallback = callback
+        activityLauncher.launch(intent)
     }
 
     //</editor-fold>

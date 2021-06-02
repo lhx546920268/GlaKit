@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
@@ -245,6 +246,24 @@ object AppUtils {
     }
 
     //打开app设置详情
+    fun openAppSettings(@StringRes title: Int) {
+        openAppSettings(context.getString(title))
+    }
+
+    fun openAppSettings(title: String) {
+        AlertUtils.alert(
+            title = title,
+            buttonTitles = arrayOf(
+                context.getString(R.string.cancel),
+                context.getString(R.string.go_to_setting)
+            ),
+            onItemClick = {
+                if (it == 1) {
+                    openAppSettings()
+                }
+            })
+    }
+
     fun openAppSettings() {
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)

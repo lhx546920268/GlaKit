@@ -8,15 +8,14 @@ import android.view.View
 import android.widget.FrameLayout
 import com.lhx.glakit.R
 import com.lhx.glakit.base.fragment.BaseFragment
+import com.lhx.glakit.base.interf.PermissionRequester
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.utils.ViewUtils
-import pub.devrel.easypermissions.EasyPermissions
-
 
 /**
  * 扫一扫
  */
-abstract class ScanFragment: BaseFragment(), TextureView.SurfaceTextureListener, CameraManager.CameraManagerListener {
+abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.SurfaceTextureListener, CameraManager.Callback {
 
     //相机管理
     private lateinit var cameraManager: CameraManager
@@ -58,11 +57,6 @@ abstract class ScanFragment: BaseFragment(), TextureView.SurfaceTextureListener,
         cameraManager.onDestroy()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, cameraManager)
-    }
-
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
         cameraManager.setPreviewSize(width, height)
         cameraManager.setSurfaceTexture(surface)
@@ -101,7 +95,7 @@ abstract class ScanFragment: BaseFragment(), TextureView.SurfaceTextureListener,
     }
 
     //没有权限 返回true 说明自己提示权限信息
-    override fun onPermissionsDenied(permissions: List<String>): Boolean {
+    override fun onPermissionsDenied(permissions: Array<String>): Boolean {
         return false
     }
 

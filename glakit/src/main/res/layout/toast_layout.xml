@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+<com.lhx.glakit.toast.ToastContentLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <TextView
+    <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:id="@+id/text"/>
+        android:paddingHorizontal="25dp"
+        android:paddingVertical="15dp"
+        android:id="@+id/container"
+        android:layout_marginBottom="40dp"
+        android:layout_gravity="bottom|center_horizontal">
 
-</FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:id="@+id/text"/>
+
+    </FrameLayout>
+
+</com.lhx.glakit.toast.ToastContentLayout>

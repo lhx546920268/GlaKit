@@ -85,6 +85,9 @@ class LoadMoreFooter : FrameLayout {
                 loadingDrawable.stop()
                 textView.text = context.getString(R.string.load_more_fail)
             }
+            else -> {
+
+            }
         }
     }
 }

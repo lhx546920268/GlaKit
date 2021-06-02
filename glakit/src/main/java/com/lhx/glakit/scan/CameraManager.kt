@@ -6,25 +6,18 @@ import android.content.res.Configuration
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.util.Log
-import androidx.fragment.app.Fragment
 import com.google.zxing.Result
+import com.lhx.glakit.helper.PermissionHelper
 import com.lhx.glakit.utils.AlertUtils
 import com.lhx.glakit.utils.AppUtils
-import pub.devrel.easypermissions.EasyPermissions
 import java.io.IOException
 import kotlin.math.abs
-
 
 /**
  * 相机管理
  */
 @Suppress("deprecation")
-class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallbacks {
-
-    companion object{
-        //权限
-        const val CAMERA_PERMISSION_REQUEST_CODE = 1005
-    }
+class CameraManager(val fragment: ScanFragment) {
 
     //相机
     private var _camera: android.hardware.Camera? = null
@@ -57,7 +50,7 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
     private var mSurfaceTexture: SurfaceTexture? = null
 
     //回调
-    var cameraManagerListener: CameraManagerListener? = null
+    var cameraManagerListener: Callback? = null
 
     //扫码框
     private var mScanRect: Rect? = null
@@ -65,9 +58,6 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
     //相机是否已创建
     var isCameraInit = false
     private set
-
-    //是否已提示弹窗
-    private var _alert = false
 
     fun getScanRect(): Rect? {
         if (mScanRect == null && _camera != null) {
@@ -119,38 +109,49 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
 
     //打开相机
     fun openCamera() {
-        val permissions = neededPermissions()
-        if (EasyPermissions.hasPermissions(fragment.requireContext(), *permissions)) {
-            if (_camera == null) {
-                _camera = android.hardware.Camera.open()
-            }
-            if (_camera == null) {
-                AlertUtils.alert(title = "摄像头不可用", buttonTitles = arrayOf("确定")).show(fragment.childFragmentManager)
+        PermissionHelper.requestPermissionsIfNeeded(fragment, neededPermissions()) {
+            if (it) {
+                openCameraAfterGranted()
             } else {
-                try {
-                    _camera!!.apply {
-                        setPreviewTexture(mSurfaceTexture)
-                        setOptimalPreviewSize(surfaceWidth, surfaceHeight)
-                        setDisplayOrientation(90)
-                        setPreviewCallback(previewCallback)
-                        startPreview()
-                    }
-                    
-                    mPreviewing = true
-                    startDecode()
-                    if (cameraManagerListener != null) {
-                        cameraManagerListener!!.onCameraStart()
-                    }
-                    isCameraInit = true
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                    Log.d("ScanFragment", "相机预览失败")
-                } catch (e: RuntimeException) {
-                    e.printStackTrace()
+                var alert = true
+                if (cameraManagerListener != null) {
+                    alert = !cameraManagerListener!!.onPermissionsDenied(neededPermissions())
+                }
+                if (alert) {
+                    AppUtils.openAppSettings("扫一扫需要您的相机权限才能使用")
                 }
             }
+        }
+    }
+
+    private fun openCameraAfterGranted() {
+        if (_camera == null) {
+            _camera = android.hardware.Camera.open()
+        }
+        if (_camera == null) {
+            AlertUtils.alert(title = "摄像头不可用", buttonTitles = arrayOf("确定")).show(fragment.childFragmentManager)
         } else {
-            EasyPermissions.requestPermissions(fragment, "需要打开相机扫描", CAMERA_PERMISSION_REQUEST_CODE, *permissions)
+            try {
+                _camera!!.apply {
+                    setPreviewTexture(mSurfaceTexture)
+                    setOptimalPreviewSize(surfaceWidth, surfaceHeight)
+                    setDisplayOrientation(90)
+                    setPreviewCallback(previewCallback)
+                    startPreview()
+                }
+
+                mPreviewing = true
+                startDecode()
+                if (cameraManagerListener != null) {
+                    cameraManagerListener!!.onCameraStart()
+                }
+                isCameraInit = true
+            } catch (e: IOException) {
+                e.printStackTrace()
+                Log.d("ScanFragment", "相机预览失败")
+            } catch (e: RuntimeException) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -251,35 +252,6 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
         return arrayOf(Manifest.permission.CAMERA)
     }
 
-    override fun onPermissionsGranted(requestCode: Int, perms: List<String>) {
-        openCamera()
-    }
-
-    override fun onPermissionsDenied(requestCode: Int, perms: List<String>) {
-        var alert = true
-        if (cameraManagerListener != null) {
-            alert = !cameraManagerListener!!.onPermissionsDenied(perms)
-        }
-        if (alert && !_alert) {
-            _alert = true
-            val alertDialogFragment = AlertUtils.alert(
-                title = "扫一扫需要您的相机权限才能使用",
-                subtitle = "取消",
-                buttonTitles = arrayOf("去打开"))
-
-            alertDialogFragment.onItemClick = {
-                _alert = false
-                if (it == 1) {
-                    AppUtils.openAppSettings()
-                }
-            }
-            alertDialogFragment.show(fragment.childFragmentManager)
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-    }
-
     //设置最优预览尺寸
     private fun setOptimalPreviewSize(width: Int, height: Int) {
         if (_camera != null) {
@@ -340,10 +312,10 @@ class CameraManager(val fragment: Fragment) : EasyPermissions.PermissionCallback
     }
 
     //回调
-    interface CameraManagerListener {
+    interface Callback {
         
         //没有权限 返回true 说明自己提示权限信息
-        fun onPermissionsDenied(permissions: List<String>): Boolean
+        fun onPermissionsDenied(permissions: Array<String>): Boolean
 
         //获取扫描框位置 width、height预览surface的宽高
         fun getScanRect(width: Int, height: Int): Rect

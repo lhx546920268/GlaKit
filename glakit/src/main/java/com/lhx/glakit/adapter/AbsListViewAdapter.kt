@@ -170,7 +170,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
             }
         }
 
-        return view!!.apply {
+        return view.apply {
             setTag(R.id.list_view_type_tag_key, type)
             setTag(R.id.list_view_item_position_tag_key, position)
             if (getTag(R.id.list_view_item_onclick_tag_key) == null) {

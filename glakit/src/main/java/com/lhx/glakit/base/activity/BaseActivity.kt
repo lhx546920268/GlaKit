@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.View
 import android.view.Window
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -17,9 +19,9 @@ import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.utils.AppUtils
 
 /**
- * startActivityForResult 回调
+ * 回调 activity result
  */
-typealias StartActivityForResultCallback = (data: Intent?) -> Unit
+typealias ResultCallback = (data: Intent?) -> Unit
 
 /**
  * 基础activity
@@ -46,6 +48,17 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         get() = if (_fragment?.baseContainer != null) _fragment!!.baseContainer!!.contentView else findViewById(
             R.id.current_content
         )
+
+    /**
+     * activity 启动器
+     */
+    protected lateinit var activityLauncher: ActivityResultLauncher<Intent>
+        private set
+
+    /**
+     * 当前回调
+     */
+    protected var resultCallback: ResultCallback? = null
 
     //<editor-fold desc="父类方法">
 
@@ -90,7 +103,15 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         } else {
             name = javaClass.name
         }
+
         lifecycle.addObserver(this)
+        activityLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                if (resultCallback != null && it.resultCode == Activity.RESULT_OK) {
+                    resultCallback!!(it.data)
+                }
+                resultCallback = null
+            }
     }
 
     override fun onResume() {
@@ -174,23 +195,25 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
 
 
     //启动一个activity
-    fun startActivity(activityClass: Class<out Activity>): Intent {
+    fun startActivity(activityClass: Class<out Activity>, extras: Bundle? = null) {
         val intent = Intent(this, activityClass)
+        if (extras != null) {
+            intent.putExtras(extras)
+        }
         startActivity(intent)
-        return intent
     }
 
     fun startActivityForResult(
         activityClass: Class<out Activity>,
-        requestCode: Int,
-        callback: StartActivityForResultCallback? = null
-    ): Intent {
-        if (callback != null) {
-            addCallback(callback, requestCode)
-        }
+        callback: ResultCallback,
+        extras: Bundle? = null
+    ) {
         val intent = Intent(this, activityClass)
-        startActivityForResult(intent, requestCode)
-        return intent
+        if (extras != null) {
+            intent.putExtras(extras)
+        }
+        resultCallback = callback
+        activityLauncher.launch(intent)
     }
 
     override fun finish() {
@@ -231,22 +254,20 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         _fragment?.onWindowFocusChanged(hasFocus)
     }
 
-    //获取授权
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String?>,
-        grantResults: IntArray
-    ) {
-        _fragment?.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
+    //http可取消的任务
+    private var _currentTasks: HashSet<HttpCancelable>? = null
+    override var currentTasks: HashSet<HttpCancelable>?
+        get() = _currentTasks
+        set(value) {
+            _currentTasks = value
+        }
 
     //回调
     private var callbackEntities: HashMap<Int, CallbackEntity>? = null
 
     //添加一个回调 onActivityResult
     fun addCallback(
-        callback: StartActivityForResultCallback,
+        callback: ResultCallback,
         requestCode: Int,
         removeAfterUse: Boolean = true
     ) {
@@ -256,6 +277,7 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         callbackEntities!![requestCode] = CallbackEntity(callback, removeAfterUse)
     }
 
+    @Suppress("deprecation")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && !callbackEntities.isNullOrEmpty()) {
             val entity = callbackEntities!![requestCode]
@@ -272,15 +294,7 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
 
     //回调
     private class CallbackEntity(
-        val callback: StartActivityForResultCallback,
+        val callback: ResultCallback,
         val removeAfterUse: Boolean
     )
-
-    //http可取消的任务
-    private var _currentTasks: HashSet<HttpCancelable>? = null
-    override var currentTasks: HashSet<HttpCancelable>?
-        get() = _currentTasks
-        set(value) {
-            _currentTasks = value
-        }
 }

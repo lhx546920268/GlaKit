@@ -19,9 +19,9 @@ import com.lhx.glakit.utils.SizeUtils
 import java.io.Serializable
 
 /**
- * 基础页面接口
+ * 关联的
  */
-interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpProcessor {
+interface BaseAttached {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
@@ -37,6 +37,12 @@ interface BasePage : BaseContainer.OnEventCallback, InteractionCallback, HttpPro
      * 关联的activity
      */
     val attachedActivity: Activity?
+}
+
+/**
+ * 基础页面接口
+ */
+interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCallback, HttpProcessor {
 
     /**
      * 基础容器

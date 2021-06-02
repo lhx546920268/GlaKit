@@ -89,10 +89,10 @@ abstract class TabBarActivity : BaseContainerActivity() {
             if (value != null && !value.isAdded && value !== field) {
                 val transaction = supportFragmentManager.beginTransaction()
                 if (field != null) {
-                    transaction.hide(field!!)
+                    transaction.detach(field!!)
                 }
-                if (value.isHidden) {
-                    transaction.show(value)
+                if (value.isDetached) {
+                    transaction.attach(value)
                 } else {
                     transaction.add(R.id.fragment_container, value)
                 }
