@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.TextureView
 import android.view.View
 import android.widget.FrameLayout
+import androidx.activity.result.ActivityResultLauncher
 import com.lhx.glakit.R
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.interf.PermissionRequester
@@ -24,6 +25,8 @@ abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.Su
     private var _pausing = false
 
     private lateinit var textureView: TextureView
+
+    override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
     final override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         setContainerContentView(R.layout.scan_fragment)

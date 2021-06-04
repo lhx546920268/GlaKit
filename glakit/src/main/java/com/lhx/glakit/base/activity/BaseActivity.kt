@@ -205,8 +205,8 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
 
     fun startActivityForResult(
         activityClass: Class<out Activity>,
-        callback: ResultCallback,
-        extras: Bundle? = null
+        extras: Bundle? = null,
+        callback: ResultCallback
     ) {
         val intent = Intent(this, activityClass)
         if (extras != null) {
