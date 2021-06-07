@@ -72,7 +72,9 @@ abstract class BaseDialogFragment: DialogFragment() {
     }
 
     fun show(manager: FragmentManager) {
-        showNow(manager, null)
+        val transaction = manager.beginTransaction()
+        transaction.add(this, tag)
+        transaction.commitNowAllowingStateLoss()
     }
 
     fun show() {
@@ -82,6 +84,10 @@ abstract class BaseDialogFragment: DialogFragment() {
         } else {
             Log.d("AlertDialogFragment", "AlertDialogFragment show currentActivity is not a FragmentActivity")
         }
+    }
+
+    override fun dismiss() {
+        dismissAllowingStateLoss()
     }
 
     //获取内容视图

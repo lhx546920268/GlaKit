@@ -124,14 +124,14 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
     //<editor-fold desc="Bundle">
 
     ///获取bundle内容
-    fun <T : Parcelable?> getParcelableArrayListFromBundle(key: String?): ArrayList<T>? {
+    fun <T : Parcelable> getParcelableArrayListFromBundle(key: String?): ArrayList<T>? {
         if(attachedBundle != null){
             return attachedBundle!!.getParcelableArrayList(key)
         }
         return null
     }
 
-    fun <T : Parcelable?> getParcelableFromBundle(key: String?): T? {
+    fun <T : Parcelable> getParcelableFromBundle(key: String?): T? {
         if(attachedBundle != null){
             return attachedBundle!!.getParcelable<T>(key)
         }

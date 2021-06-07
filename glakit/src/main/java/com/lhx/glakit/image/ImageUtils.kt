@@ -72,7 +72,7 @@ object ImageUtils {
      */
     fun scaleDown(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
         val size = fitSize(bitmap.width, bitmap.height, maxWidth, maxHeight)
-        if(size.width <= maxWidth && size.height <= maxHeight){
+        if(size.width >= bitmap.width || size.height >= bitmap.height){
             return bitmap
         }
         return Bitmap.createScaledBitmap(bitmap, size.width, size.height, true)
