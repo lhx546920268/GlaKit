@@ -34,7 +34,7 @@ import java.util.*
  * @describe：ImagePickerModel
  */
 @Suppress("deprecation")
-class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean = false) {
+class ImagePickerModel(val pickerConfig: ImagePickerConfig, chooseMode: Int, camera: Boolean = false) {
     private val selectionConfig = PictureSelectionConfig.getCleanInstance()
 
     init {
@@ -705,22 +705,15 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
 
     /**
      * @param isCompress Whether to open compress
-     * @return Use {link .isCompress()}
+     * @return
      */
-    @Deprecated("")
     fun compress(isCompress: Boolean): ImagePickerModel {
         selectionConfig!!.isCompress = isCompress
         return this
     }
 
-    /**
-     * @param isCompress Whether to open compress
-     * @return
-     */
-    fun isCompress(isCompress: Boolean): ImagePickerModel {
-        selectionConfig!!.isCompress = isCompress
-        return this
-    }
+    val isCompress: Boolean
+        get() = selectionConfig!!.isCompress
 
     /**
      * @param compressQuality Image compressed output quality
@@ -1328,7 +1321,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
      */
     fun forResult(requestCode: Int) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            val activity = picker.getActivity()
+            val activity = pickerConfig.getActivity()
             if (activity == null || selectionConfig == null) {
                 return
             }
@@ -1345,7 +1338,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
                 )
             }
             selectionConfig.isCallbackMode = false
-            val fragment = picker.getFragment()
+            val fragment = pickerConfig.getFragment()
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode)
             } else {
@@ -1371,7 +1364,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
     @Deprecated("")
     fun forResult(requestCode: Int, enterAnim: Int, exitAnim: Int) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            val activity = picker.getActivity() ?: return
+            val activity = pickerConfig.getActivity() ?: return
             val intent = Intent(
                 activity,
                 if (selectionConfig != null && selectionConfig.camera)
@@ -1381,7 +1374,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
                 else ImagePickerActivity::class.java
             )
             selectionConfig.isCallbackMode = false
-            val fragment = picker.getFragment()
+            val fragment = pickerConfig.getFragment()
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode)
             } else {
@@ -1398,7 +1391,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
      */
     fun forResult(listener: OnResultCallbackListener<LocalMedia>) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            val activity = picker.getActivity()
+            val activity = pickerConfig.getActivity()
             if (activity == null || selectionConfig == null) {
                 return
             }
@@ -1417,7 +1410,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
                     }
                 )
             }
-            val fragment = picker.getFragment()
+            val fragment = pickerConfig.getFragment()
             if (fragment != null) {
                 fragment.startActivity(intent)
             } else {
@@ -1438,7 +1431,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
      */
     fun forResult(requestCode: Int, listener: OnResultCallbackListener<LocalMedia>) {
         if (!DoubleUtils.isFastDoubleClick()) {
-            val activity = picker.getActivity()
+            val activity = pickerConfig.getActivity()
             if (activity == null || selectionConfig == null) {
                 return
             }
@@ -1457,7 +1450,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
                     }
                 )
             }
-            val fragment = picker.getFragment()
+            val fragment = pickerConfig.getFragment()
             if (fragment != null) {
                 fragment.startActivityForResult(intent, requestCode)
             } else {
@@ -1478,7 +1471,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
      * @param medias
      */
     fun openExternalPreview(position: Int, medias: List<LocalMedia?>?) {
-        picker.externalPicturePreview(
+        pickerConfig.externalPicturePreview(
             position,
             medias,
             PictureSelectionConfig.windowAnimationStyle.activityPreviewEnterAnimation
@@ -1494,7 +1487,7 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
      */
     @Deprecated("", ReplaceWith("openExternalPreview(position, medias)"))
     fun openExternalPreview(position: Int, directory_path: String?, medias: List<LocalMedia?>?) {
-        picker.externalPicturePreview(
+        pickerConfig.externalPicturePreview(
             position, directory_path, medias,
             PictureSelectionConfig.windowAnimationStyle.activityPreviewEnterAnimation
         )
@@ -1506,6 +1499,6 @@ class ImagePickerModel(val picker: ImagePicker, chooseMode: Int, camera: Boolean
      * @param path
      */
     fun externalPictureVideo(path: String?) {
-        picker.externalPictureVideo(path)
+        pickerConfig.externalPictureVideo(path)
     }
 }
