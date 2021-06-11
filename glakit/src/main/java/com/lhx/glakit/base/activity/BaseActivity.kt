@@ -231,18 +231,6 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         finish()
     }
 
-    @CallSuper
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return if (keyCode == KeyEvent.KEYCODE_BACK && isTaskRoot) {
-            moveTaskToBack(true)
-            true
-        } else {
-            if (_fragment != null && _fragment!!.onKeyDown(keyCode, event)) {
-                true
-            } else super.onKeyDown(keyCode, event)
-        }
-    }
-
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
         return if (_fragment != null && _fragment!!.dispatchKeyEvent(event)) {
             true

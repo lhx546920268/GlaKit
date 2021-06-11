@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -390,12 +389,8 @@ open class WebFragment : BaseFragment() {
         super.onBack()
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            onBack()
-            return true
-        }
-        return super.onKeyDown(keyCode, event)
+    override fun back() {
+        onBack()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

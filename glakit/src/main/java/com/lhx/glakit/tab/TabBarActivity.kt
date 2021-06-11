@@ -173,13 +173,6 @@ abstract class TabBarActivity : BaseContainerActivity() {
         }
     }
 
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        return if (currentFragment != null && currentFragment!!.onKeyDown(keyCode, event)) {
-            true
-        } else super.onKeyDown(keyCode, event)
-    }
-
-
     //获取图标
     private fun getIcon(position: Int): Drawable {
         val stateListDrawable = StateListDrawable()

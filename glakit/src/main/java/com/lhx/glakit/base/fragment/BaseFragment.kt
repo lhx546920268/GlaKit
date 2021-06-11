@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.AnimRes
@@ -98,6 +99,29 @@ abstract class BaseFragment : Fragment(), BasePage {
         }
     }
 
+    //返回键
+    private var onBackPressedCallback: OnBackPressedCallback? = null
+
+    override fun onStart() {
+        super.onStart()
+        if (showBackItem()) {
+            if (onBackPressedCallback == null) {
+                onBackPressedCallback = object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        back()
+                    }
+                }
+                requireActivity().onBackPressedDispatcher.addCallback(onBackPressedCallback!!)
+            }
+            onBackPressedCallback!!.isEnabled = true
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        onBackPressedCallback?.isEnabled = false
+    }
+
     //<editor-fold desc="动画">
 
     //获取开场动画
@@ -128,7 +152,7 @@ abstract class BaseFragment : Fragment(), BasePage {
     //<editor-fold desc="返回">
 
     //返回
-    fun back() {
+    open fun back() {
         requireActivity().finish()
     }
 
@@ -183,18 +207,6 @@ abstract class BaseFragment : Fragment(), BasePage {
     fun <T : View> requireViewById(@IdRes id: Int): T {
         return findViewById(id)
             ?: throw IllegalArgumentException("ID does not reference a View inside this View")
-    }
-
-    //点击物理键
-    open fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        val activity: Activity? = activity
-        if (activity != null) {
-            if (keyCode == KeyEvent.KEYCODE_BACK && !requireActivity().isTaskRoot) {
-                back()
-                return true
-            }
-        }
-        return false
     }
 
     //分发点击物理键事件

@@ -70,5 +70,5 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
 
     //相册
-    api 'io.github.lucksiege:pictureselector:v2.7.0-rc02'
+    api 'io.github.lucksiege:pictureselector:v2.7.3-rc02'
 }

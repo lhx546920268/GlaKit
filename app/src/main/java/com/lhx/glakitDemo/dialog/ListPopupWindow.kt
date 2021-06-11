@@ -19,17 +19,15 @@ class ListPopupWindow(context: Context): BasePopupWindow(context) {
     private val recyclerView: RecyclerView by lazy {
         val view = RecyclerView(context)
         view.layoutManager = LinearLayoutManager(context)
-        view.setBackgroundColor(Color.RED)
+        view.setBackgroundColor(Color.WHITE)
         view.adapter = Adapter(view)
         view
     }
 
     init {
         animationStyle = AnimationStyle.TRANSLATE
+        setPopupContentView(recyclerView)
     }
-
-    override val popupContentView: View
-        get() = recyclerView
 
     override fun configLayoutParams(view: View, params: FrameLayout.LayoutParams) {
 

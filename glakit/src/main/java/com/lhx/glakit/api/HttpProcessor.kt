@@ -57,7 +57,10 @@ interface HttpProcessor: LifecycleObserver, HttpTask.Callback {
     }
 
     override fun onComplete(task: HttpTask) {
-        currentTasks?.remove(task)
+        //遍历时取消不删除
+        if (!task.isCancelled) {
+            currentTasks?.remove(task)
+        }
     }
 
     override fun onFailure(task: HttpTask) {

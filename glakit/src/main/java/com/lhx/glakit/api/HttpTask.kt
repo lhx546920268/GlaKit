@@ -6,7 +6,9 @@ import com.lhx.glakit.base.interf.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
@@ -113,6 +115,9 @@ abstract class HttpTask: Callback, HttpCancelable {
     //失败
     var onFailure: ValueCallback<HttpTask>? = null
 
+    //进度 只有上传文件才有，不保证在主线程
+    var onProgressChange: ValueCallback<Float>? = null
+
     //请求参数
     private fun getRequestBody(): RequestBody? {
         val params = getParameters()
@@ -128,9 +133,19 @@ abstract class HttpTask: Callback, HttpCancelable {
                 builder.build()
             }
             ContentType.MULTI_PART_FORM_DATA -> {
-                val builder = MultipartBody.Builder()
+                val builder = ObservableMultipartBody.Builder(progressCallback = onProgressChange)
                 params.forEach {
-                    builder.addFormDataPart(it.key, it.value.toString())
+                    when(it.value) {
+                        is File -> {
+                            val file = it.value as File
+                            builder.addFormDataPart(it.key, file.name, file.asRequestBody())
+                        }
+                        is FileItem -> {
+                            val item = it.value as FileItem
+                            builder.addFormDataPart(it.key, item.name, item.bytes.toRequestBody())
+                        }
+                        else -> builder.addFormDataPart(it.key, it.value.toString())
+                    }
                 }
                 builder.build()
             }

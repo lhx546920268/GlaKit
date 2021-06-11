@@ -22,7 +22,25 @@ class TetrisLayoutManager: RecyclerView.LayoutManager() {
         return true
     }
 
+    override fun isAutoMeasureEnabled(): Boolean {
+        return true
+    }
+
+    override fun scrollVerticallyBy(
+        dy: Int,
+        recycler: RecyclerView.Recycler?,
+        state: RecyclerView.State?
+    ): Int {
+        if (childCount == 0 || dy == 0) {
+            return 0
+        }
+
+        return 0
+    }
+
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
+
+
         println("childCount ${state.itemCount}")
         for (index in 0 until state.itemCount) {
             val child = recycler.getViewForPosition(index)
@@ -33,6 +51,8 @@ class TetrisLayoutManager: RecyclerView.LayoutManager() {
                 orientationHelper.getDecoratedMeasurementInOther(child))
         }
     }
+
+
 
     override fun onLayoutCompleted(state: RecyclerView.State?) {
 

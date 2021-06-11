@@ -3,6 +3,8 @@ package com.lhx.glakit.base.activity
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.OnBackPressedCallback
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.interf.BasePage
@@ -60,6 +62,29 @@ abstract class BaseContainerActivity : BaseActivity(), BasePage {
 
     override fun getContentViewRes(): Int {
         return 0
+    }
+
+    //返回键
+    private var onBackPressedCallback: OnBackPressedCallback? = null
+
+    override fun onStart() {
+        super.onStart()
+        if (showBackItem()) {
+            if (onBackPressedCallback == null) {
+                onBackPressedCallback = object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        finish()
+                    }
+                }
+                onBackPressedDispatcher.addCallback(onBackPressedCallback!!)
+            }
+            onBackPressedCallback!!.isEnabled = true
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        onBackPressedCallback?.isEnabled = false
     }
 
     //打开activity 不要动画

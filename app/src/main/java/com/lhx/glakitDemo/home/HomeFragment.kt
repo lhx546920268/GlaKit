@@ -1,7 +1,9 @@
 package com.lhx.glakitDemo.home
 
 import android.Manifest
+import android.content.Context
 import android.os.Bundle
+import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -16,6 +18,7 @@ import com.lhx.glakit.base.interf.PermissionRequester
 import com.lhx.glakit.web.WebFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.helper.PermissionHelper
+import com.lhx.glakit.layout.TetrisLayoutManager
 import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.viewholder.RecyclerViewHolder
@@ -26,6 +29,38 @@ import com.lhx.glakitDemo.drawable.CornerDrawableFragment
 import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
+
+class MyLayout: LinearLayoutManager {
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, orientation: Int, reverseLayout: Boolean) : super(
+        context,
+        orientation,
+        reverseLayout
+    )
+
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes)
+
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+        super.onLayoutChildren(recycler, state)
+
+        Log.d("onLayoutChildren", "xx")
+    }
+
+    override fun scrollVerticallyBy(
+        dy: Int,
+        recycler: RecyclerView.Recycler,
+        state: RecyclerView.State
+    ): Int {
+        val result = super.scrollVerticallyBy(dy, recycler, state)
+        Log.d("scrollVerticallyBy", "$childCount, ${state.itemCount}")
+        return result
+    }
+}
 
 class HomeFragment: RecyclerFragment(), PermissionRequester {
 
@@ -41,7 +76,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         super.initialize(inflater, container, saveInstanceState)
 
         setBarTitle("首页")
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.layoutManager = MyLayout(requireContext())
         recyclerView.adapter = Adapter(recyclerView)
     }
 
@@ -60,7 +95,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         }
 
         override fun numberOfItems(section: Int): Int {
-            return items.size
+            return items.size * 10
         }
 
         override fun onBindItemViewHolder(
@@ -68,11 +103,11 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
             position: Int,
             section: Int
         ) {
-            viewHolder.getView<TextView>(R.id.textView).text = items[position]
+            viewHolder.getView<TextView>(R.id.textView).text = items[position % items.size]
         }
 
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {
-            when(positionInSection) {
+            when(positionInSection % items.size) {
                 0 -> {
                     startActivityForResult(CornerDrawableFragment::class.java) {
                         Log.d("fragment", "back callback")

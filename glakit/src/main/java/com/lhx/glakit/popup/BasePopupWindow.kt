@@ -16,10 +16,14 @@ import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.FrameLayout
 import android.widget.PopupWindow
+import androidx.activity.OnBackPressedCallback
+import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.interf.VoidCallback
+import com.lhx.glakit.utils.ViewUtils
 
 /**
  * 基础弹窗
@@ -38,6 +42,14 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         CUSTOM,
     }
 
+    //触发消失的操作
+    enum class DismissAction {
+        OUTSIDE, //点击外部
+        BACK_PRESSED, //返回键
+        BACKGROUND, //点击背景
+        API, //直接调用api
+    }
+
     //动画方式
     var animationStyle = AnimationStyle.TRANSLATE
 
@@ -47,6 +59,9 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     //弹窗消失回调
     private val onDismissHandlers: HashSet<VoidCallback> by lazy { HashSet() }
 
+    //将要消失回调 返回是否需要消失
+    var willDismissHandler: ((action: DismissAction) -> Boolean)? = null
+
     //是否是自己设置消失回调
     private var setByThis = false
 
@@ -54,14 +69,14 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     protected val container: BasePopupWindowContainer by lazy {BasePopupWindowContainer(context)}
 
     //内容
-    protected lateinit var _contentView: View
+    protected var _contentView: View? = null
 
     //背景
     protected val backgroundView: View by lazy {
         val view = View(context)
         view.setBackgroundColor(ContextCompat.getColor(context, R.color.dialog_background))
         view.setOnClickListener {
-            dismiss(true)
+            dismiss(true, DismissAction.BACKGROUND)
         }
         view.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
         view
@@ -102,7 +117,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         setOnDismissListener(this)
         setByThis = false
 
-        isFocusable = true
+        isFocusable = false
         isTouchable = true
         isOutsideTouchable = true
 
@@ -110,7 +125,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
             if (event.action == MotionEvent.ACTION_OUTSIDE && !this@BasePopupWindow.isFocusable) {
                 //如果焦点不在popupWindow上，且点击了外面，不再往下dispatch事件：
                 if(cancelable){
-                    dismiss(true)
+                    dismiss(true, DismissAction.OUTSIDE)
                 }
                 cancelable
             } else false
@@ -118,13 +133,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         }
 
         setAnimationStyle(R.anim.anim_no_duration)
-        container.addView(backgroundView)
-
-        _contentView = popupContentView
-
-        val params = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
-        configLayoutParams(_contentView, params)
-        container.addView(_contentView, params)
+        container.addView(backgroundView, 0)
 
         contentView = container
 
@@ -144,6 +153,18 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         }else{
             onShow()
         }
+
+        if (context is AppCompatActivity) {
+            val activity = context
+            activity.onBackPressedDispatcher.addCallback(onBackPressedCallback)
+        }
+    }
+
+    //返回键
+    private val onBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            dismiss(true, DismissAction.BACK_PRESSED)
+        }
     }
 
     //动画显示弹窗，默认有动画
@@ -153,12 +174,15 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     }
 
     override fun showAsDropDown(anchor: View) {
+        require(_contentView != null) {
+            "必须先调用 setPopupContentView"
+        }
         initialize()
         //安卓7.0 以上 会占全屏
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val rect = Rect()
             anchor.getGlobalVisibleRect(rect)
-            val h: Int = anchor.resources.displayMetrics.heightPixels - rect.bottom
+            val h = anchor.resources.displayMetrics.heightPixels - rect.bottom
             height = h
         }
         super.showAsDropDown(anchor)
@@ -172,14 +196,16 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
             container.visibility = View.VISIBLE
             when(animationStyle){
                 AnimationStyle.SCALE -> {
-                    val params = _contentView.layoutParams
-                    val animation = ValueAnimator.ofInt(0, _contentView.measuredHeight)
-                    animation.duration = 250
-                    animation.addUpdateListener {
-                        params.height = it.animatedValue as Int
-                        _contentView.requestLayout()
+                    _contentView?.apply {
+                        val params = layoutParams
+                        val animation = ValueAnimator.ofInt(0, measuredHeight)
+                        animation.duration = 250
+                        animation.addUpdateListener {
+                            params.height = it.animatedValue as Int
+                            requestLayout()
+                        }
+                        animation.start()
                     }
-                    animation.start()
                 }
                 AnimationStyle.TRANSLATE -> {
                     val animation = TranslateAnimation(
@@ -188,7 +214,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
                         Animation.RELATIVE_TO_SELF, -1f,
                         Animation.RELATIVE_TO_SELF, 0f)
                     animation.duration = 250
-                    _contentView.startAnimation(animation)
+                    _contentView?.startAnimation(animation)
                 }
                 AnimationStyle.CUSTOM -> executeCustomAnimation(true)
             }
@@ -210,8 +236,14 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         }
     }
 
-    fun dismiss(animate: Boolean) {
+    fun dismiss(animate: Boolean, action: DismissAction = DismissAction.API) {
         if(animate){
+            val dismiss = willDismissHandler?.let {
+                it(action)
+            } ?: true
+
+            if (!dismiss)
+                return
             executeDismissAnimation()
         }else{
             super.dismiss()
@@ -223,7 +255,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         if(setByThis){
             super.dismiss()
         }else{
-            dismiss(true)
+            dismiss(true, DismissAction.API)
         }
     }
 
@@ -231,14 +263,16 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     private fun executeDismissAnimation(){
         when(animationStyle){
             AnimationStyle.SCALE -> {
-                val params = _contentView.layoutParams
-                val animation = ValueAnimator.ofInt(_contentView.measuredHeight, 0)
-                animation.duration = 250
-                animation.addUpdateListener {
-                    params.height = it.animatedValue as Int
-                    _contentView.requestLayout()
+                _contentView?.apply {
+                    val params = layoutParams
+                    val animation = ValueAnimator.ofInt(measuredHeight, 0)
+                    animation.duration = 250
+                    animation.addUpdateListener {
+                        params.height = it.animatedValue as Int
+                        requestLayout()
+                    }
+                    animation.start()
                 }
-                animation.start()
             }
             AnimationStyle.TRANSLATE -> {
                 val animation = TranslateAnimation(
@@ -247,7 +281,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
                     Animation.RELATIVE_TO_SELF, 0f,
                     Animation.RELATIVE_TO_SELF, -1f)
                 animation.duration = 250
-                _contentView.startAnimation(animation)
+                _contentView?.startAnimation(animation)
             }
             AnimationStyle.CUSTOM -> executeCustomAnimation(false)
         }
@@ -259,7 +293,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
             }
 
             override fun onAnimationEnd(animation: Animation?) {
-                dismiss(false)
+                dismiss(false, DismissAction.API)
             }
 
             override fun onAnimationRepeat(animation: Animation?) {
@@ -275,11 +309,13 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
                 onDismissHandler()
             }
         }
+        onBackPressedCallback.isEnabled = false
     }
 
     //弹窗已显示，动画完成后调用
+    @CallSuper
     protected fun onShow() {
-
+        onBackPressedCallback.isEnabled = true
     }
 
     //获取子视图
@@ -293,7 +329,13 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     }
 
     //获取内容视图
-    abstract val popupContentView: View
+    fun setPopupContentView(view: View) {
+        ViewUtils.removeFromParent(_contentView)
+        _contentView = view
+        val params = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT)
+        configLayoutParams(view, params)
+        container.addView(_contentView, params)
+    }
 
     //配置内容视图
     abstract fun configLayoutParams(view: View, params: FrameLayout.LayoutParams)
