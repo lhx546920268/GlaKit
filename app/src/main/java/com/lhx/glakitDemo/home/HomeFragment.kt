@@ -10,12 +10,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.interf.PermissionRequester
-import com.lhx.glakit.web.WebFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.helper.PermissionHelper
 import com.lhx.glakit.layout.TetrisLayoutManager
@@ -23,6 +24,7 @@ import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakit.web.WebConfig
+import com.lhx.glakit.web.WebFragment
 import com.lhx.glakitDemo.R
 import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
@@ -46,9 +48,55 @@ class MyLayout: LinearLayoutManager {
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+        println("onLayoutChildren before $childCount")
         super.onLayoutChildren(recycler, state)
 
-        Log.d("onLayoutChildren", "xx")
+        Log.d("onLayoutChildren", "$childCount")
+    }
+
+    override fun measureChildWithMargins(child: View, widthUsed: Int, heightUsed: Int) {
+        println("measureChildWithMargins")
+        super.measureChildWithMargins(child, widthUsed, heightUsed)
+    }
+
+    override fun addView(child: View?, index: Int) {
+        println("addView $index")
+        super.addView(child, index)
+    }
+
+    override fun removeViewAt(index: Int) {
+        println("removeViewAt $index")
+        super.removeViewAt(index)
+    }
+
+    override fun removeView(child: View?) {
+        println("removeView $child")
+        super.removeView(child)
+    }
+
+    override fun removeAllViews() {
+        println("removeAllViews")
+        super.removeAllViews()
+    }
+
+    override fun onItemsRemoved(recyclerView: RecyclerView, positionStart: Int, itemCount: Int) {
+        println("onItemsRemoved")
+        super.onItemsRemoved(recyclerView, positionStart, itemCount)
+    }
+
+    override fun removeAndRecycleAllViews(recycler: RecyclerView.Recycler) {
+        println("removeAndRecycleAllViews")
+        super.removeAndRecycleAllViews(recycler)
+    }
+
+    override fun removeAndRecycleViewAt(index: Int, recycler: RecyclerView.Recycler) {
+        println("removeAndRecycleViewAt $index")
+        super.removeAndRecycleViewAt(index, recycler)
+    }
+
+    override fun removeAndRecycleView(child: View, recycler: RecyclerView.Recycler) {
+        println("removeAndRecycleViewAt $child")
+        super.removeAndRecycleView(child, recycler)
     }
 
     override fun scrollVerticallyBy(
@@ -57,8 +105,67 @@ class MyLayout: LinearLayoutManager {
         state: RecyclerView.State
     ): Int {
         val result = super.scrollVerticallyBy(dy, recycler, state)
-        Log.d("scrollVerticallyBy", "$childCount, ${state.itemCount}")
+        Log.d("scrollVerticallyBy", "$childCount, ${getChildAt(0)?.top}")
         return result
+    }
+
+    override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
+        super.calculateExtraLayoutSpace(state, extraLayoutSpace)
+        println("calculateExtraLayoutSpace start ${extraLayoutSpace[0]}, end ${extraLayoutSpace[1]}")
+    }
+}
+
+class Grid: GridLayoutManager {
+
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes)
+
+    constructor(context: Context?, spanCount: Int) : super(context, spanCount)
+    constructor(
+        context: Context?,
+        spanCount: Int,
+        orientation: Int,
+        reverseLayout: Boolean
+    ) : super(context, spanCount, orientation, reverseLayout)
+
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+        super.onLayoutChildren(recycler, state)
+    }
+
+    override fun scrollVerticallyBy(
+        dy: Int,
+        recycler: RecyclerView.Recycler?,
+        state: RecyclerView.State?
+    ): Int {
+        return super.scrollVerticallyBy(dy, recycler, state)
+    }
+}
+
+class Stage: StaggeredGridLayoutManager {
+
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes)
+
+    constructor(spanCount: Int, orientation: Int) : super(spanCount, orientation)
+
+    override fun onLayoutChildren(recycler: RecyclerView.Recycler?, state: RecyclerView.State?) {
+        super.onLayoutChildren(recycler, state)
+    }
+
+    override fun scrollVerticallyBy(
+        dy: Int,
+        recycler: RecyclerView.Recycler?,
+        state: RecyclerView.State?
+    ): Int {
+        return super.scrollVerticallyBy(dy, recycler, state)
     }
 }
 
@@ -75,9 +182,11 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
     ) {
         super.initialize(inflater, container, saveInstanceState)
 
+
         setBarTitle("首页")
-        recyclerView.layoutManager = MyLayout(requireContext())
+        recyclerView.layoutManager = MyLayout(requireContext()) //TetrisLayoutManager()
         recyclerView.adapter = Adapter(recyclerView)
+        recyclerView.scrollToPosition(20)
     }
 
     private inner class Adapter(recyclerView: RecyclerView): RecyclerViewAdapter(
@@ -107,42 +216,43 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         }
 
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {
-            when(positionInSection % items.size) {
-                0 -> {
-                    startActivityForResult(CornerDrawableFragment::class.java) {
-                        Log.d("fragment", "back callback")
-                    }
-                }
-                1-> {
-                    startActivity(SectionRecycleViewFragment::class.java)
-                }
-                2-> {
-                    startActivity(SectionListFragment::class.java)
-                }
-                3-> {
-                    startActivity(DialogFragment::class.java)
-                }
-                4-> {
-                    startActivity(ImageScaleFragment::class.java)
-                }
-                5-> {
-                    val bundle = Bundle()
-                    bundle.putString(WebConfig.URL, "https://www.baidu.com")
-                    startActivity(WebFragment::class.java, bundle)
-                }
-                6 -> {
-                   PermissionHelper.requestPermissionsIfNeeded(
-                       this@HomeFragment,
-                       arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
-                   ) {
-                       if (it) {
-                           ToastUtils.show("授权成功")
-                       } else {
-                           ToastUtils.show("授权拒绝")
-                       }
-                   }
-                }
-            }
+            notifyDataSetChanged()
+//            when(positionInSection % items.size) {
+//                0 -> {
+//                    startActivityForResult(CornerDrawableFragment::class.java) {
+//                        Log.d("fragment", "back callback")
+//                    }
+//                }
+//                1-> {
+//                    startActivity(SectionRecycleViewFragment::class.java)
+//                }
+//                2-> {
+//                    startActivity(SectionListFragment::class.java)
+//                }
+//                3-> {
+//                    startActivity(DialogFragment::class.java)
+//                }
+//                4-> {
+//                    startActivity(ImageScaleFragment::class.java)
+//                }
+//                5-> {
+//                    val bundle = Bundle()
+//                    bundle.putString(WebConfig.URL, "https://www.baidu.com")
+//                    startActivity(WebFragment::class.java, bundle)
+//                }
+//                6 -> {
+//                   PermissionHelper.requestPermissionsIfNeeded(
+//                       this@HomeFragment,
+//                       arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
+//                   ) {
+//                       if (it) {
+//                           ToastUtils.show("授权成功")
+//                       } else {
+//                           ToastUtils.show("授权拒绝")
+//                       }
+//                   }
+//                }
+//            }
         }
 
         override val toastContainer: View
