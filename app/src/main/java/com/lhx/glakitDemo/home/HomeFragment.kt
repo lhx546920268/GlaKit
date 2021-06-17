@@ -3,6 +3,7 @@ package com.lhx.glakitDemo.home
 import android.Manifest
 import android.content.Context
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -53,51 +54,51 @@ class MyLayout: LinearLayoutManager {
 
         Log.d("onLayoutChildren", "$childCount")
     }
-
-    override fun measureChildWithMargins(child: View, widthUsed: Int, heightUsed: Int) {
-        println("measureChildWithMargins")
-        super.measureChildWithMargins(child, widthUsed, heightUsed)
-    }
-
-    override fun addView(child: View?, index: Int) {
-        println("addView $index")
-        super.addView(child, index)
-    }
-
-    override fun removeViewAt(index: Int) {
-        println("removeViewAt $index")
-        super.removeViewAt(index)
-    }
-
-    override fun removeView(child: View?) {
-        println("removeView $child")
-        super.removeView(child)
-    }
-
-    override fun removeAllViews() {
-        println("removeAllViews")
-        super.removeAllViews()
-    }
-
-    override fun onItemsRemoved(recyclerView: RecyclerView, positionStart: Int, itemCount: Int) {
-        println("onItemsRemoved")
-        super.onItemsRemoved(recyclerView, positionStart, itemCount)
-    }
-
-    override fun removeAndRecycleAllViews(recycler: RecyclerView.Recycler) {
-        println("removeAndRecycleAllViews")
-        super.removeAndRecycleAllViews(recycler)
-    }
-
-    override fun removeAndRecycleViewAt(index: Int, recycler: RecyclerView.Recycler) {
-        println("removeAndRecycleViewAt $index")
-        super.removeAndRecycleViewAt(index, recycler)
-    }
-
-    override fun removeAndRecycleView(child: View, recycler: RecyclerView.Recycler) {
-        println("removeAndRecycleViewAt $child")
-        super.removeAndRecycleView(child, recycler)
-    }
+//
+//    override fun measureChildWithMargins(child: View, widthUsed: Int, heightUsed: Int) {
+//        println("measureChildWithMargins")
+//        super.measureChildWithMargins(child, widthUsed, heightUsed)
+//    }
+//
+//    override fun addView(child: View?, index: Int) {
+//        println("addView $index")
+//        super.addView(child, index)
+//    }
+//
+//    override fun removeViewAt(index: Int) {
+//        println("removeViewAt $index")
+//        super.removeViewAt(index)
+//    }
+//
+//    override fun removeView(child: View?) {
+//        println("removeView $child")
+//        super.removeView(child)
+//    }
+//
+//    override fun removeAllViews() {
+//        println("removeAllViews")
+//        super.removeAllViews()
+//    }
+//
+//    override fun onItemsRemoved(recyclerView: RecyclerView, positionStart: Int, itemCount: Int) {
+//        println("onItemsRemoved")
+//        super.onItemsRemoved(recyclerView, positionStart, itemCount)
+//    }
+//
+//    override fun removeAndRecycleAllViews(recycler: RecyclerView.Recycler) {
+//        println("removeAndRecycleAllViews")
+//        super.removeAndRecycleAllViews(recycler)
+//    }
+//
+//    override fun removeAndRecycleViewAt(index: Int, recycler: RecyclerView.Recycler) {
+//        println("removeAndRecycleViewAt $index")
+//        super.removeAndRecycleViewAt(index, recycler)
+//    }
+//
+//    override fun removeAndRecycleView(child: View, recycler: RecyclerView.Recycler) {
+//        println("removeAndRecycleViewAt $child")
+//        super.removeAndRecycleView(child, recycler)
+//    }
 
     override fun scrollVerticallyBy(
         dy: Int,
@@ -105,14 +106,25 @@ class MyLayout: LinearLayoutManager {
         state: RecyclerView.State
     ): Int {
         val result = super.scrollVerticallyBy(dy, recycler, state)
-        Log.d("scrollVerticallyBy", "$childCount, ${getChildAt(0)?.top}")
+//        Log.d("scrollVerticallyBy", "$childCount, result = $result, dy = $dy, ${getChildAt(0)?.top}")
         return result
     }
 
-    override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
-        super.calculateExtraLayoutSpace(state, extraLayoutSpace)
-        println("calculateExtraLayoutSpace start ${extraLayoutSpace[0]}, end ${extraLayoutSpace[1]}")
+    override fun onSaveInstanceState(): Parcelable? {
+        println("onSaveInstanceState")
+        return super.onSaveInstanceState()
     }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        println("onRestoreInstanceState")
+        super.onRestoreInstanceState(state)
+    }
+
+
+//    override fun calculateExtraLayoutSpace(state: RecyclerView.State, extraLayoutSpace: IntArray) {
+//        super.calculateExtraLayoutSpace(state, extraLayoutSpace)
+//        println("calculateExtraLayoutSpace start ${extraLayoutSpace[0]}, end ${extraLayoutSpace[1]}")
+//    }
 }
 
 class Grid: GridLayoutManager {
@@ -184,7 +196,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
 
 
         setBarTitle("首页")
-        recyclerView.layoutManager = MyLayout(requireContext()) //TetrisLayoutManager()
+        recyclerView.layoutManager = MyLayout(context) //TetrisLayoutManager()
         recyclerView.adapter = Adapter(recyclerView)
         recyclerView.scrollToPosition(20)
     }

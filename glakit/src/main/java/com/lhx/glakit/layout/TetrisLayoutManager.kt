@@ -36,69 +36,97 @@ class TetrisLayoutManager: RecyclerView.LayoutManager() {
             return 0
         }
 
+        val scrollingOffset: Int
         val absDy = abs(dy)
         var consume = 0
-        val direction = if (dy > 0) -1 else 1
+        val direction = if (dy > 0) 1 else -1
         if (dy > 0) {
+            val start = orientationHelper.startAfterPadding
             for (i in 0 until childCount) {
                 val child = getChildAt(i)
-                if (orientationHelper.getDecoratedEnd(child) <= 0
-                    || orientationHelper.getTransformedEndWithDecoration(child) <= 0) {
+//                println("index $i end ${orientationHelper.getDecoratedEnd(child)}")
+                if (orientationHelper.getDecoratedEnd(child) <= start
+                    || orientationHelper.getTransformedEndWithDecoration(child) <= start) {
                     removeAndRecycleViewAt(i, recycler)
+                } else {
                     break
                 }
             }
             val child = getChildAt(childCount - 1)
-            var top = 0
-            var position = 0
+            var top = orientationHelper.endAfterPadding
+            var position = Int.MAX_VALUE - 1
             if (child != null) {
                 position = getPosition(child)
                 top = orientationHelper.getDecoratedEnd(child)
             }
             position ++
-            val totalSpace = orientationHelper.totalSpace
-            while (position < state.itemCount && top < totalSpace) {
+            scrollingOffset = top - orientationHelper.endAfterPadding
+            var remainSpace = absDy - scrollingOffset
+
+            while (position < state.itemCount && remainSpace > 0) {
                 val view = recycler.getViewForPosition(position)
                 addView(view)
                 measureChildWithMargins(view, 0, 0)
-                val bottom = top + orientationHelper.getDecoratedMeasurement(view)
+                val measurement = orientationHelper.getDecoratedMeasurement(view)
+                val bottom = top + measurement
                 layoutDecoratedWithMargins(view, paddingLeft, top,
                     orientationHelper.getDecoratedMeasurementInOther(child), bottom)
+//                println("position $position, measurement $measurement")
                 position ++
                 top = bottom
+                consume += measurement
+                remainSpace -= measurement
             }
         } else {
-            for (i in 0 until childCount) {
-                val end = orientationHelper.endAfterPadding
+            val end = orientationHelper.endAfterPadding
+            for (i in childCount - 1 downTo 0) {
                 val child = getChildAt(i)
                 if (orientationHelper.getDecoratedStart(child) >= end
-                    || orientationHelper.getTransformedStartWithDecoration(child) >= 0) {
+                    || orientationHelper.getTransformedStartWithDecoration(child) >= end) {
                     removeAndRecycleViewAt(i, recycler)
+                } else {
                     break
                 }
             }
             val child = getChildAt(0)
-            var bottom = 0
+            var bottom = orientationHelper.startAfterPadding
             var position = 0
             if (child != null) {
                 position = getPosition(child)
                 bottom = orientationHelper.getDecoratedStart(child)
             }
+
             position --
-            while (position >= 0 && bottom > 0) {
+            scrollingOffset = - bottom + orientationHelper.startAfterPadding
+            var remainSpace = absDy - scrollingOffset
+
+            while (position >= 0 && remainSpace > 0) {
                 val view = recycler.getViewForPosition(position)
-                addView(view)
+                addView(view, 0)
                 measureChildWithMargins(view, 0, 0)
-                val top = bottom - orientationHelper.getDecoratedMeasurement(view)
+
+                val measurement = orientationHelper.getDecoratedMeasurement(view)
+                val top = bottom - measurement
                 layoutDecoratedWithMargins(view, paddingLeft, top,
                     orientationHelper.getDecoratedMeasurementInOther(child), bottom)
-                position ++
+                position --
                 bottom = top
+                consume += measurement
+                remainSpace -= measurement
             }
         }
 
-        orientationHelper.offsetChildren(absDy * direction)
-        return absDy
+        val delta = scrollingOffset + consume
+        println("consume = $consume, scrollingOffset = $scrollingOffset")
+        if (delta <= 0) {
+            return 0
+        }
+
+        val scrolled = if (absDy > delta) delta * direction else dy
+        orientationHelper.offsetChildren(-scrolled)
+        println("childCount $childCount")
+        println("dy = $dy, scrolled = $scrolled, delta = $delta")
+        return scrolled
     }
 
     override fun onLayoutChildren(recycler: RecyclerView.Recycler, state: RecyclerView.State) {
