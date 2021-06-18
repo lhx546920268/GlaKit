@@ -54,6 +54,12 @@ class MyLayout: LinearLayoutManager {
 
         Log.d("onLayoutChildren", "$childCount")
     }
+
+    override fun getFocusedChild(): View? {
+        val view = super.getFocusedChild()
+        println("getFocusedChild $view")
+        return view
+    }
 //
 //    override fun measureChildWithMargins(child: View, widthUsed: Int, heightUsed: Int) {
 //        println("measureChildWithMargins")
@@ -118,6 +124,10 @@ class MyLayout: LinearLayoutManager {
     override fun onRestoreInstanceState(state: Parcelable?) {
         println("onRestoreInstanceState")
         super.onRestoreInstanceState(state)
+    }
+
+    override fun onLayoutCompleted(state: RecyclerView.State?) {
+        super.onLayoutCompleted(state)
     }
 
 
@@ -196,7 +206,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
 
 
         setBarTitle("首页")
-        recyclerView.layoutManager = MyLayout(context) //TetrisLayoutManager()
+        recyclerView.layoutManager = TetrisLayoutManager()
         recyclerView.adapter = Adapter(recyclerView)
         recyclerView.scrollToPosition(20)
     }
@@ -205,6 +215,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         recyclerView
     ), ToastContainer {
 
+        var count = 10
         override fun onCreateViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder {
             return RecyclerViewHolder(
                 LayoutInflater.from(context).inflate(
@@ -216,7 +227,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         }
 
         override fun numberOfItems(section: Int): Int {
-            return items.size * 10
+            return items.size * count
         }
 
         override fun onBindItemViewHolder(
@@ -228,6 +239,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         }
 
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {
+            count = if (count == 10) 5 else 10
             notifyDataSetChanged()
 //            when(positionInSection % items.size) {
 //                0 -> {
