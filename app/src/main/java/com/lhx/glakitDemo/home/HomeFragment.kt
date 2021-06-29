@@ -206,7 +206,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
 
 
         setBarTitle("首页")
-        recyclerView.layoutManager = TetrisLayoutManager()
+        recyclerView.layoutManager = MyLayout(requireContext()) //TetrisLayoutManager()
         recyclerView.adapter = Adapter(recyclerView)
         recyclerView.scrollToPosition(20)
     }
