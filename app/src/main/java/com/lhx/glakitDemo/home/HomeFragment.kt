@@ -239,44 +239,44 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
         }
 
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {
-            count = if (count == 10) 5 else 10
-            notifyDataSetChanged()
-//            when(positionInSection % items.size) {
-//                0 -> {
-//                    startActivityForResult(CornerDrawableFragment::class.java) {
-//                        Log.d("fragment", "back callback")
-//                    }
-//                }
-//                1-> {
-//                    startActivity(SectionRecycleViewFragment::class.java)
-//                }
-//                2-> {
-//                    startActivity(SectionListFragment::class.java)
-//                }
-//                3-> {
-//                    startActivity(DialogFragment::class.java)
-//                }
-//                4-> {
-//                    startActivity(ImageScaleFragment::class.java)
-//                }
-//                5-> {
-//                    val bundle = Bundle()
-//                    bundle.putString(WebConfig.URL, "https://www.baidu.com")
-//                    startActivity(WebFragment::class.java, bundle)
-//                }
-//                6 -> {
-//                   PermissionHelper.requestPermissionsIfNeeded(
-//                       this@HomeFragment,
-//                       arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
-//                   ) {
-//                       if (it) {
-//                           ToastUtils.show("授权成功")
-//                       } else {
-//                           ToastUtils.show("授权拒绝")
-//                       }
-//                   }
-//                }
-//            }
+//            count = if (count == 10) 5 else 10
+//            notifyDataSetChanged()
+            when(positionInSection % items.size) {
+                0 -> {
+                    startActivityForResult(CornerDrawableFragment::class.java) {
+                        Log.d("fragment", "back callback")
+                    }
+                }
+                1-> {
+                    startActivity(SectionRecycleViewFragment::class.java)
+                }
+                2-> {
+                    startActivity(SectionListFragment::class.java)
+                }
+                3-> {
+                    startActivity(DialogFragment::class.java)
+                }
+                4-> {
+                    startActivity(ImageScaleFragment::class.java)
+                }
+                5-> {
+                    val bundle = Bundle()
+                    bundle.putString(WebConfig.URL, "https://www.baidu.com")
+                    startActivity(WebFragment::class.java, bundle)
+                }
+                6 -> {
+                   PermissionHelper.requestPermissionsIfNeeded(
+                       this@HomeFragment,
+                       arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
+                   ) {
+                       if (it) {
+                           ToastUtils.show("授权成功")
+                       } else {
+                           ToastUtils.show("授权拒绝")
+                       }
+                   }
+                }
+            }
         }
 
         override val toastContainer: View

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <LinearLayout
@@ -56,6 +57,7 @@
         android:layout_gravity="center_horizontal"
         android:background="@color/black"
         android:scaleType="center"
+        android:adjustViewBounds="true"
         android:id="@+id/img_square"/>
 
     <ImageView
@@ -66,42 +68,21 @@
         android:layout_gravity="center_horizontal"
         android:id="@+id/img_rect"/>
 
-    <LinearLayout
+    <com.ruffian.library.widget.RFrameLayout
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:layout_height="wrap_content">
+        android:layout_marginTop="20dp"
+        app:corner_radius_top_left="10dp"
+        app:clip_layout="true"
+        android:id="@+id/corner">
 
         <View
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:id="@+id/triangle_left"
-            android:layout_marginRight="20dp"/>
+            android:layout_width="100dp"
+            android:layout_height="100dp"
 
-        <View
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:id="@+id/triangle_up"
-            android:layout_marginRight="20dp"/>
+            android:background="@color/red"/>
 
-        <View
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:id="@+id/triangle_right"
-            android:layout_marginRight="20dp"/>
+    </com.ruffian.library.widget.RFrameLayout>
 
-        <View
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:id="@+id/triangle_down"
-            android:layout_marginRight="20dp"/>
-
-        <ImageView
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@color/white"
-            android:id="@+id/triangle"
-            android:scaleType="centerInside"
-            android:layout_marginRight="20dp"/>
-    </LinearLayout>
 </LinearLayout>

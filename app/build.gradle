@@ -40,5 +40,6 @@ dependencies {
 
     implementation project(':glakit')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.github.RuffianZhong:RWidgetHelper:androidx.v0.0.2'
     testImplementation 'junit:junit:4.13.2'
 }

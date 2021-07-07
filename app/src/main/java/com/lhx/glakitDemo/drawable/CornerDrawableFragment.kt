@@ -1,9 +1,14 @@
 package com.lhx.glakitDemo.drawable
 
 import android.graphics.Color
+import android.graphics.Outline
+import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewOutlineProvider
+import androidx.annotation.RequiresApi
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.drawable.CornerBorderDrawable
