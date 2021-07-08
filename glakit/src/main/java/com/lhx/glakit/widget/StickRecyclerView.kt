@@ -42,6 +42,17 @@ class StickRecyclerView : RecyclerView {
 
     //当前悬浮的position
     private var _stickPosition = NO_POSITION
+        set(value) {
+            if (field != value) {
+                if (field != NO_POSITION && _stickItem != null) {
+                    stickAdapter?.onViewStickChange(false, _stickItem!!, field)
+                }
+                field = value
+                if (_stickItem != null) {
+                    stickAdapter?.onViewStickChange(true, _stickItem!!, field)
+                }
+            }
+        }
 
     //绘制时需要便宜的y，当两个悬浮item接触时，下一个会把上一个顶上去
     private var _translateY = 0f
@@ -76,17 +87,17 @@ class StickRecyclerView : RecyclerView {
                         val childCount = recyclerView.childCount
                         if (stickAdapter != null && childCount > 0) {
 
-                            val child: View = recyclerView.getChildAt(0)
+                            val child = recyclerView.getChildAt(0)
                             val firstVisibleItem = recyclerView.getChildLayoutPosition(child)
 
                             if (stickAdapter!!.shouldStickAtPosition(firstVisibleItem)) {
                                 if (child.top != paddingTop) {
 
-                                    //当前的悬浮item已超出listView 顶部
+                                    //当前的悬浮item已超出recyclerView 顶部
                                     layoutStickItem(firstVisibleItem, firstVisibleItem)
                                 } else {
-                                    _stickItem = null
                                     _stickPosition = NO_POSITION
+                                    _stickItem = null
                                 }
                             } else {
 
@@ -95,9 +106,9 @@ class StickRecyclerView : RecyclerView {
                                 if (position < firstVisibleItem && stickAdapter!!.shouldStickAtPosition(position)) {
 
                                     layoutStickItem(position, firstVisibleItem)
-                                } else if (firstVisibleItem < position) {
-                                    _stickItem = null
+                                } else {
                                     _stickPosition = NO_POSITION
+                                    _stickItem = null
                                 }
                             }
                         }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="50dp">
 
 
@@ -14,4 +15,9 @@
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="15dp"/>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:background="@color/divider_color"
+        android:layout_gravity="bottom"/>
 </FrameLayout>

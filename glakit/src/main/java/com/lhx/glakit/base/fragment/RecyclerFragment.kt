@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.widget.StickRecyclerView
 
 /**
  * RecyclerView
  */
 open class RecyclerFragment : RefreshableFragment() {
 
-    protected val recyclerView: RecyclerView by lazy { requireViewById(R.id.recyclerView) }
+    protected val recyclerView: StickRecyclerView by lazy { requireViewById(R.id.recyclerView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 

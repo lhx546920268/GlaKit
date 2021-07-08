@@ -2,6 +2,7 @@ package com.lhx.glakitDemo.home
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.AttributeSet
@@ -15,12 +16,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
+import com.lhx.glakit.adapter.StickAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.interf.PermissionRequester
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.helper.PermissionHelper
 import com.lhx.glakit.layout.TetrisLayoutManager
+import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.viewholder.RecyclerViewHolder
@@ -191,11 +195,12 @@ class Stage: StaggeredGridLayoutManager {
     }
 }
 
-class HomeFragment: RecyclerFragment(), PermissionRequester {
+class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
     override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
     val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission")
+    private val adapter: Adapter by lazy { Adapter(recyclerView) }
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -207,8 +212,25 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
 
         setBarTitle("首页")
         recyclerView.layoutManager = MyLayout(requireContext()) //TetrisLayoutManager()
-        recyclerView.adapter = Adapter(recyclerView)
-        recyclerView.scrollToPosition(20)
+        recyclerView.adapter = adapter
+        recyclerView.stickAdapter = this
+    }
+
+    override fun shouldStickAtPosition(position: Int): Boolean {
+        if (position == 0)
+            return false
+        val info = adapter.sectionInfoForPosition<SectionInfo>(position)
+        return info!!.isHeaderForPosition(position)
+    }
+
+    override fun getCurrentStickPosition(firstVisibleItem: Int): Int {
+        val info = adapter.sectionInfoForPosition<SectionInfo>(firstVisibleItem)
+        return info!!.getHeaderPosition()
+    }
+
+    override fun onViewStickChange(stick: Boolean, view: View, position: Int) {
+        println("stick = $stick, position = $position")
+        view.setBackgroundColor(if (stick) Color.RED else Color.WHITE)
     }
 
     private inner class Adapter(recyclerView: RecyclerView): RecyclerViewAdapter(
@@ -217,17 +239,31 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
 
         var count = 10
         override fun onCreateViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder {
-            return RecyclerViewHolder(
-                LayoutInflater.from(context).inflate(
-                    R.layout.layout_item,
-                    parent,
-                    false
+            if (viewType == ItemType.HEADER.ordinal) {
+                return RecyclerViewHolder(
+                    LayoutInflater.from(context).inflate(
+                        R.layout.section_header,
+                        parent,
+                        false
+                    )
                 )
-            )
+            } else {
+                return RecyclerViewHolder(
+                    LayoutInflater.from(context).inflate(
+                        R.layout.layout_item,
+                        parent,
+                        false
+                    )
+                )
+            }
+        }
+
+        override fun numberOfSections(): Int {
+            return count
         }
 
         override fun numberOfItems(section: Int): Int {
-            return items.size * count
+            return items.size
         }
 
         override fun onBindItemViewHolder(
@@ -236,6 +272,11 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
             section: Int
         ) {
             viewHolder.getView<TextView>(R.id.textView).text = items[position % items.size]
+        }
+
+        override fun onBindSectionHeaderViewHolder(viewHolder: RecyclerViewHolder, section: Int) {
+            viewHolder.getView<TextView>(R.id.title).text = "Header $section"
+            viewHolder.itemView.setBackgroundColor(Color.WHITE)
         }
 
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {
@@ -277,6 +318,10 @@ class HomeFragment: RecyclerFragment(), PermissionRequester {
                    }
                 }
             }
+        }
+
+        override fun shouldExistSectionHeader(section: Int): Boolean {
+            return true
         }
 
         override val toastContainer: View

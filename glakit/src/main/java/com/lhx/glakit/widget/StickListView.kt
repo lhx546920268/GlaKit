@@ -50,8 +50,8 @@ class StickListView : ListView {
                             //当前的悬浮item已超出listView 顶部
                             layoutStickItem(firstItem, firstItem)
                         } else {
-                            _stickItem = null
                             _stickPosition = Position.NO_POSITION
+                            _stickItem = null
                         }
                     } else { 
                         
@@ -60,9 +60,9 @@ class StickListView : ListView {
                         if (position < firstItem && stickAdapter!!.shouldStickAtPosition(position)) {
                             
                             layoutStickItem(position, firstItem)
-                        } else if (firstItem < position) {
-                            _stickItem = null
+                        } else {
                             _stickPosition = Position.NO_POSITION
+                            _stickItem = null
                         }
                     }
                 }
@@ -74,6 +74,17 @@ class StickListView : ListView {
 
     //当前悬浮的position
     private var _stickPosition = Position.NO_POSITION
+        set(value) {
+            if (field != value) {
+                if (field != Position.NO_POSITION && _stickItem != null) {
+                    stickAdapter?.onViewStickChange(false, _stickItem!!, field)
+                }
+                field = value
+                if (_stickItem != null) {
+                    stickAdapter?.onViewStickChange(true, _stickItem!!, field)
+                }
+            }
+        }
 
     //绘制时需要便宜的y，当两个悬浮item接触时，下一个会把上一个顶上去
     private var _translateY = 0f
