@@ -217,15 +217,11 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {
-        if (position == 0)
-            return false
-        val info = adapter.sectionInfoForPosition<SectionInfo>(position)
-        return info!!.isHeaderForPosition(position)
+        return adapter.lastSectionInfo<SectionInfo>()!!.sectionBegin == position
     }
 
-    override fun getCurrentStickPosition(firstVisibleItem: Int): Int {
-        val info = adapter.sectionInfoForPosition<SectionInfo>(firstVisibleItem)
-        return info!!.getHeaderPosition()
+    override fun getCurrentStickPosition(firstVisibleItem: Int, stickPosition: Int): Int {
+        return adapter.lastSectionInfo<SectionInfo>()!!.sectionBegin
     }
 
     override fun onViewStickChange(stick: Boolean, view: View, position: Int) {
@@ -263,7 +259,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
         }
 
         override fun numberOfItems(section: Int): Int {
-            return items.size
+            return items.size * 3
         }
 
         override fun onBindItemViewHolder(

@@ -9,7 +9,7 @@ interface StickAdapter {
     fun shouldStickAtPosition(position: Int): Boolean
 
     //根据当前第一个可见item获取当前可悬浮固定的item
-    fun getCurrentStickPosition(firstVisibleItem: Int): Int
+    fun getCurrentStickPosition(firstVisibleItem: Int, stickPosition: Int): Int
 
     //悬浮状态改变了
     fun onViewStickChange(stick: Boolean, view: View, position: Int) {

@@ -102,7 +102,7 @@ class StickRecyclerView : RecyclerView {
                             } else {
 
                                 //悬浮的item已在 firstVisibleItem 前面了
-                                val position = stickAdapter!!.getCurrentStickPosition(firstVisibleItem)
+                                val position = stickAdapter!!.getCurrentStickPosition(firstVisibleItem, _stickPosition)
                                 if (position < firstVisibleItem && stickAdapter!!.shouldStickAtPosition(position)) {
 
                                     layoutStickItem(position, firstVisibleItem)

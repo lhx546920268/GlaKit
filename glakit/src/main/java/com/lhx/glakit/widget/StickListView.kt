@@ -56,7 +56,7 @@ class StickListView : ListView {
                     } else { 
                         
                         //悬浮的item已在 firstVisibleItem 前面了
-                        val position = stickAdapter!!.getCurrentStickPosition(firstItem)
+                        val position = stickAdapter!!.getCurrentStickPosition(firstItem, _stickPosition)
                         if (position < firstItem && stickAdapter!!.shouldStickAtPosition(position)) {
                             
                             layoutStickItem(position, firstItem)

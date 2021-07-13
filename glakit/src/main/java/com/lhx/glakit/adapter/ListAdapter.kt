@@ -116,6 +116,24 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
         return info as T
     }
 
+    fun <T : SectionInfo> sectionInfoForIndex(position: Int): T? {
+        if (position >= 0 && position < sections.size)
+            return sections[position] as T
+        return null
+    }
+
+    fun <T : SectionInfo> lastSectionInfo(): T? {
+        if (sections.size > 0)
+            return sections.last() as T
+        return null
+    }
+
+    fun <T : SectionInfo> firstSectionInfo(): T? {
+        if (sections.size > 0)
+            return sections.first() as T
+        return null
+    }
+
     //如果可能 触发加载更多
     fun triggerLoadMoreIfNeeded(position: Int) {
         if (loadMoreEnable && loadMoreControl.loadingStatus == LoadMoreStatus.HAS_MORE) {
