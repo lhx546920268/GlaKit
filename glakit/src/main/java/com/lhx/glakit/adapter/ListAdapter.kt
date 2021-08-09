@@ -167,7 +167,7 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
                 emptyType
             }
             isLoadMoreItem(position) -> {
-                if (hasMore()) loadMoreType else loadMoreNoMoreDataType
+                if (isNoData()) loadMoreNoMoreDataType else loadMoreType
             }
             sectionInfo!!.isHeaderForPosition(position) -> {
                 //存在头部

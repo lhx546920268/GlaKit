@@ -45,11 +45,12 @@ class DefaultLoadingView: LoadingView {
         textView = findViewById(R.id.textView)
         imageView = findViewById(R.id.imageView)
 
-
-        val drawable = CornerBorderDrawable()
-        drawable.setCornerRadius(SizeUtils.pxFormDip(8f, context))
-        drawable.backgroundColor = Color.parseColor("#4c4c4c")
-        drawable.attachView(container)
+        if (container.background == null) {
+            val drawable = CornerBorderDrawable()
+            drawable.setCornerRadius(SizeUtils.pxFormDip(8f, context))
+            drawable.backgroundColor = Color.parseColor("#4c4c4c")
+            drawable.attachView(container)
+        }
 
         imageView.setImageDrawable(loadingDrawable)
     }

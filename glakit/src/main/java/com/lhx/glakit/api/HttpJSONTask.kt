@@ -36,6 +36,17 @@ abstract class HttpJSONTask : HttpTask() {
     var data: JSONObject? = null
         protected set
 
+    //快速设置loading
+    fun interactionSetting(callback: InteractionCallback?,
+                           showLoading: Boolean = true,
+                           delay: Long = 500L,
+                           showErrorMessage: Boolean = true) {
+        interactionCallback = callback
+        shouldShowLoading = showLoading
+        loadingDelay = delay
+        shouldShowErrorMessage = showErrorMessage
+    }
+
     final override fun processResponse(body: ResponseBody?): Boolean {
         if (body != null) {
             val json = JSONObject.parse(body.string())

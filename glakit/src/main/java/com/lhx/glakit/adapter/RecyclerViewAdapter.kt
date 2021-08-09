@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.refresh.LoadMoreControl
@@ -94,11 +95,10 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
     /**
      * 获取item
      */
-    fun getItem(positionInSection: Int, section: Int): View? {
+    fun getItem(position: Int, section: Int): View? {
         return recyclerView.layoutManager?.let {
             val sectionInfo = sections[section]
-            val position = sectionInfo.getItemStartPosition() + positionInSection
-            it.findViewByPosition(position)
+            it.findViewByPosition(sectionInfo.getItemStartPosition() + position)
         }
     }
 
@@ -127,8 +127,8 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
     /**
      * 获取item viewHolder
      */
-    fun getItemViewHolder(positionInSection: Int, section: Int): RecyclerViewHolder? {
-        val item = getItem(positionInSection, section)
+    fun getItemViewHolder(position: Int, section: Int): RecyclerViewHolder? {
+        val item = getItem(position, section)
         return item?.let {
             recyclerView.getChildViewHolder(it) as RecyclerViewHolder
         }
@@ -170,17 +170,17 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
 
     final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerViewHolder {
         return when (viewType) {
-            LOAD_MORE_VIEW_TYPE, LOAD_MORE_VIEW_NO_DATA_TYPE -> {
+            loadMoreType, loadMoreNoMoreDataType -> {
                 RecyclerViewHolder(getLoadMoreContentView(null, parent))
             }
-            EMPTY_VIEW_TYPE -> {
+            emptyType -> {
                 createEmptyViewIfNeed(parent)
                 RecyclerViewHolder(emptyView!!)
             }
-            HEADER_VIEW_TYPE -> {
+            headerType -> {
                 onCreateHeaderViewHolder(viewType, parent)!!
             }
-            FOOTER_VIEW_TYPE -> {
+            footerType -> {
                 onCreateFooterViewHolder(viewType, parent)!!
             }
             else -> {
@@ -216,31 +216,19 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
         triggerLoadMoreIfNeeded(position)
 
         when (holder.itemViewType) {
-            LOAD_MORE_VIEW_TYPE, LOAD_MORE_VIEW_NO_DATA_TYPE -> {
-
-                if (holder.itemView.layoutParams !is RecyclerView.LayoutParams) {
-                    holder.itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
-                }
+            loadMoreType -> {
+                onBindLoadMoreViewHolder(holder)
             }
-            EMPTY_VIEW_TYPE -> {
-                val params = if (holder.itemView.layoutParams is RecyclerView.LayoutParams) {
-                    holder.itemView.layoutParams
-                } else {
-                    RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
-                }
-
-                var height = getEmptyViewHeight()
-                if (height < 0) {
-                    height = recyclerView.height
-                }
-                params.height = height
-                holder.itemView.layoutParams = params
-                onEmptyViewDisplay(holder.itemView)
+            loadMoreNoMoreDataType -> {
+                onBindNoMoreDataViewHolder(holder)
             }
-            HEADER_VIEW_TYPE -> {
+            emptyType -> {
+                onBindEmptyViewHolder(holder)
+            }
+            headerType -> {
                 onBindHeaderViewHolder(holder)
             }
-            FOOTER_VIEW_TYPE -> {
+            footerType -> {
                 onBindFooterViewHolder(holder)
             }
             else -> {
@@ -259,6 +247,40 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
             }
         }
     }
+    
+    open fun onBindEmptyViewHolder(holder: RecyclerViewHolder) {
+        setDefaultLayoutParams(holder)
+        val params = holder.itemView.layoutParams
+
+        var height = getEmptyViewHeight()
+        if (height < 0) {
+            height = recyclerView.height
+        }
+        params.height = height
+        holder.itemView.layoutParams = params
+        onEmptyViewDisplay(holder.itemView)
+    }
+
+    open fun onBindLoadMoreViewHolder(holder: RecyclerViewHolder) {
+        loadMoreControl.loadMoreFooter?.loadingStatus = loadMoreControl.loadingStatus
+        setDefaultLayoutParams(holder)
+    }
+
+    open fun onBindNoMoreDataViewHolder(holder: RecyclerViewHolder) {
+        setDefaultLayoutParams(holder)
+    }
+
+    //设置默认的布局属性
+    fun setDefaultLayoutParams(holder: RecyclerViewHolder) {
+        val params = holder.itemView.layoutParams
+        if (params is StaggeredGridLayoutManager.LayoutParams) {
+            params.isFullSpan = true
+        } else if (holder.itemView.layoutParams !is RecyclerView.LayoutParams) {
+            holder.itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT)
+        }
+        holder.itemView.layoutParams = params
+    }
 
     //滚到对应的位置
     fun scrollTo(section: Int) {
@@ -269,37 +291,37 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
         scrollTo(section, -1, smooth)
     }
 
-    fun scrollTo(section: Int, positionInSection: Int, smooth: Boolean) {
+    fun scrollTo(section: Int, position: Int, smooth: Boolean) {
         if (section < sections.size) {
             val info = sections[section]
-            var position = info.getHeaderPosition()
-            if (positionInSection >= 0) {
-                position = info.getItemStartPosition() + positionInSection
+            var targetPosition = info.getHeaderPosition()
+            if (position >= 0) {
+                targetPosition = info.getItemStartPosition() + position
             }
             if (smooth) {
-                recyclerView.smoothScrollToPosition(position)
+                recyclerView.smoothScrollToPosition(targetPosition)
             } else {
-                recyclerView.scrollToPosition(position)
+                recyclerView.scrollToPosition(targetPosition)
             }
         }
     }
 
     //移动到对应位置，如果能置顶则置顶
-    fun scrollToWithOffset(positionInSection: Int, offset: Int) {
-        scrollToWithOffset(0, positionInSection, offset)
+    fun scrollToWithOffset(position: Int, offset: Int) {
+        scrollToWithOffset(0, position, offset)
     }
 
-    fun scrollToWithOffset(section: Int, positionInSection: Int, offset: Int) {
+    fun scrollToWithOffset(section: Int, position: Int, offset: Int) {
 
         if (recyclerView.layoutManager is LinearLayoutManager) {
             val layoutManager =
                 recyclerView.layoutManager as LinearLayoutManager
             val info = sections[section]
-            var position = info.getHeaderPosition()
-            if (positionInSection >= 0) {
-                position = info.getItemStartPosition() + positionInSection
+            var targetPosition = info.getHeaderPosition()
+            if (position >= 0) {
+                targetPosition = info.getItemStartPosition() + position
             }
-            layoutManager.scrollToPositionWithOffset(position, offset)
+            layoutManager.scrollToPositionWithOffset(targetPosition, offset)
         } else {
             throw RuntimeException("scrollToWithOffset 仅仅支持 LinearLayoutManager")
         }

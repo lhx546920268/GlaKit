@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingHorizontal="30dp"
     android:paddingVertical="15dp"
     android:orientation="vertical">
@@ -51,4 +52,48 @@
 
     </LinearLayout>
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintTop_toTopOf="parent"
+            android:background="@color/red"
+            android:alpha="0.5"
+            android:id="@+id/top"/>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/top"
+            android:background="@color/yellow"
+            app:layout_constraintHeight_max="200dp"
+            app:layout_constraintBottom_toTopOf="@+id/bottom"
+            android:id="@+id/content"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="100dp"/>
+
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@color/blue"
+            android:alpha="0.5"
+            android:visibility="visible"
+            android:id="@+id/bottom"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

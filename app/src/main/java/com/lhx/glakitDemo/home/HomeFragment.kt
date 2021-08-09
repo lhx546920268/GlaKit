@@ -2,8 +2,10 @@ package com.lhx.glakitDemo.home
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
+import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.util.Log
@@ -12,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +25,7 @@ import com.lhx.glakit.adapter.StickAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.interf.PermissionRequester
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.helper.PermissionHelper
 import com.lhx.glakit.layout.TetrisLayoutManager
 import com.lhx.glakit.section.SectionInfo
@@ -36,6 +40,7 @@ import com.lhx.glakitDemo.drawable.CornerDrawableFragment
 import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
+import java.util.*
 
 class MyLayout: LinearLayoutManager {
     constructor(context: Context?) : super(context)
@@ -195,6 +200,131 @@ class Stage: StaggeredGridLayoutManager {
     }
 }
 
+open class Parent: Parcelable {
+    var age = 0
+    constructor()
+
+    constructor(parcel: Parcel) : this() {
+        age = parcel.readInt()
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeInt(age)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Parent> {
+        override fun createFromParcel(parcel: Parcel): Parent {
+            return Parent(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Parent?> {
+            return arrayOfNulls(size)
+        }
+    }
+
+    fun copy(input: Parcelable): Parcelable {
+        var parcel: Parcel?= null
+        try {
+            parcel = Parcel.obtain()
+            parcel.writeParcelable(input,0)
+            parcel.setDataPosition(0)
+            return parcel.readParcelable(input.javaClass.classLoader)!!
+        }finally {
+            parcel?.recycle()
+        }
+    }
+}
+
+class Child: Parent, Parcelable {
+
+    var name: String? = null
+    constructor()
+
+    constructor(parcel: Parcel) : super(parcel) {
+        name = parcel.readString()
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        super.writeToParcel(parcel, flags)
+        parcel.writeString(name)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Child> {
+        override fun createFromParcel(parcel: Parcel): Child {
+            return Child(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Child?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+abstract class ParcelParent {
+
+    var id = ""
+    var expand = false
+    var title = ""
+}
+
+class ParcelTest: ParcelParent, Parcelable {
+
+
+    var child2: Child? = null
+    var child1: Child? = null
+    constructor()
+
+    constructor(parcel: Parcel) : this() {
+        id = parcel.readString()!!
+        expand = parcel.readInt() == 1
+        title = parcel.readString()!!
+        child2 = parcel.readParcelable(Child::class.java.classLoader)
+        child1 = parcel.readParcelable(Child::class.java.classLoader)
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(id)
+        parcel.writeInt(if (expand) 1 else 0)
+        parcel.writeString(title)
+        parcel.writeParcelable(child2, flags)
+        parcel.writeParcelable(child1, flags)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<ParcelTest> {
+        override fun createFromParcel(parcel: Parcel): ParcelTest {
+            return ParcelTest(parcel)
+        }
+
+        override fun newArray(size: Int): Array<ParcelTest?> {
+            return arrayOfNulls(size)
+        }
+    }
+
+    fun copy(input: Parcelable): Parcelable {
+        var parcel: Parcel?= null
+        try {
+            parcel = Parcel.obtain()
+            parcel.writeParcelable(input,0)
+            parcel.setDataPosition(0)
+            return parcel.readParcelable(input.javaClass.classLoader)!!
+        }finally {
+            parcel?.recycle()
+        }
+    }
+}
+
 class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
     override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
@@ -209,11 +339,45 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
     ) {
         super.initialize(inflater, container, saveInstanceState)
 
+        val parent = Parent()
+        parent.age = 18
+        val copyParent = parent.copy(parent)
+
+        println("parent $parent, $copyParent")
+
+        val child = Child()
+        child.age = 15
+        child.name = "wifi"
+        val copyChild = child.copy(child) as Child
+
+        println("child $child, ${copyChild.age}, ${copyChild.name}")
+
+        val test = ParcelTest()
+        test.child2 = child
+        test.child1 = copyChild
+        val copyTest =  test.copy(test) as ParcelTest
+        println("test ${copyTest.child2?.name}")
 
         setBarTitle("首页")
+        recyclerView.setBackgroundColor(Color.GRAY)
         recyclerView.layoutManager = MyLayout(requireContext()) //TetrisLayoutManager()
+        recyclerView.addItemDecoration(Decoration())
         recyclerView.adapter = adapter
-        recyclerView.stickAdapter = this
+//        recyclerView.stickAdapter = this
+
+        var min = 0
+        var max = 1
+        when(true) {
+            min == 0 -> {
+                println("min")
+            }
+            max == 1 -> {
+                println("max")
+            }
+            else -> {
+                println("else")
+            }
+        }
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {
@@ -225,8 +389,56 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
     }
 
     override fun onViewStickChange(stick: Boolean, view: View, position: Int) {
-        println("stick = $stick, position = $position")
         view.setBackgroundColor(if (stick) Color.RED else Color.WHITE)
+    }
+
+    private inner class Decoration: RecyclerView.ItemDecoration() {
+
+        val drawable = CornerBorderDrawable()
+        init {
+            drawable.backgroundColor = Color.WHITE
+        }
+
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+
+            var left = 0
+            var top = 0
+            var right = 0
+            var bottom = 0
+
+            var isTop = false
+            var isBottom = false
+
+            val count = parent.childCount
+            for (i in 0 until count) {
+                val child = parent.getChildAt(i)
+                val position = parent.getChildLayoutPosition(child)
+                val info = adapter.sectionInfoForPosition<SectionInfo>(position)!!
+                if (info.section == 1) {
+                    if (info.isHeaderForPosition(position)) {
+                        isTop = true
+                    } else if (info.getItemStartPosition() + info.numberItems - 1 == position) {
+                        isBottom = true
+                    }
+                    if (bottom == 0) {
+                        top = child.top
+                        left = child.left
+                        right = child.right
+                    }
+                    bottom = child.bottom
+                }
+            }
+            if (bottom - top > 0) {
+                val radius = pxFromDip(10f)
+                drawable.leftTopCornerRadius = if (isTop) radius else 0
+                drawable.rightTopCornerRadius = if (isTop) radius else 0
+                drawable.leftBottomCornerRadius = if (isBottom) radius else 0
+                drawable.rightBottomCornerRadius = if (isBottom) radius else 0
+
+                drawable.setBounds(left, top, right, bottom)
+                drawable.draw(c)
+            }
+        }
     }
 
     private inner class Adapter(recyclerView: RecyclerView): RecyclerViewAdapter(
@@ -272,7 +484,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
         override fun onBindSectionHeaderViewHolder(viewHolder: RecyclerViewHolder, section: Int) {
             viewHolder.getView<TextView>(R.id.title).text = "Header $section"
-            viewHolder.itemView.setBackgroundColor(Color.WHITE)
+//            viewHolder.itemView.setBackgroundColor(Color.WHITE)
         }
 
         override fun onItemClick(positionInSection: Int, section: Int, item: View) {

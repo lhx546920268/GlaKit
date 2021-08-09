@@ -77,4 +77,13 @@ object ColorUtils {
         }
         return value.toString()
     }
+
+    //判断是否是浅色
+    fun isLightColor(color: Int): Boolean {
+        val red = 0xff0000 and color
+        val green = 0x00ff00 and color
+        val blue = 0x0000ff and color
+        val gray = red * 0.299 + green * 0.587 + blue * 0.114  //转成YUV
+        return gray >= 192
+    }
 }

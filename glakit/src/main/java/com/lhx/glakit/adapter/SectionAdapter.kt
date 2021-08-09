@@ -37,12 +37,12 @@ internal interface SectionAdapter {
     }
 
     //getItemViewType 的重写方法
-    fun getItemViewType(positionInSection: Int, section: Int, type: ItemType): Int{
+    fun getItemViewType(position: Int, section: Int, type: ItemType): Int{
         return type.ordinal
     }
 
     //点击item
-    fun onItemClick(positionInSection: Int, section: Int, item: View) {}
+    fun onItemClick(position: Int, section: Int, item: View) {}
 
     //点击头部
     fun onHeaderClick(section: Int, header: View) {}
