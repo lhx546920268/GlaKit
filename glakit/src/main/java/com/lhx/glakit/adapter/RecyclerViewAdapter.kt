@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.lhx.glakit.base.constant.Position
-import com.lhx.glakit.base.widget.OnSingleClickListener
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.refresh.LoadMoreControl
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.viewholder.RecyclerViewHolder
@@ -18,18 +18,19 @@ import java.lang.ref.WeakReference
 /**
  * Recycler 布局控制器
  */
-abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
+abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
+    RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
 
-    companion object{
-        const val LOAD_MORE_VIEW_TYPE = 9999 //加载更多视图类型
+    companion object {
+        const val LOAD_MORE_VIEW_TYPE = Int.MAX_VALUE //加载更多视图类型
 
-        const val LOAD_MORE_VIEW_NO_DATA_TYPE = 9998 //加载更多视图没有数据了
+        const val LOAD_MORE_VIEW_NO_DATA_TYPE = Int.MAX_VALUE - 1 //加载更多视图没有数据了
 
-        const val EMPTY_VIEW_TYPE = 9997 //空视图类型
+        const val EMPTY_VIEW_TYPE = Int.MAX_VALUE - 2 //空视图类型
 
-        const val HEADER_VIEW_TYPE = 9996 //头部视图类型
+        const val HEADER_VIEW_TYPE = Int.MAX_VALUE - 3 //头部视图类型
 
-        const val FOOTER_VIEW_TYPE = 9995 //底部视图类型
+        const val FOOTER_VIEW_TYPE = Int.MAX_VALUE - 4 //底部视图类型
     }
 
     private val recyclerViewWeakReference = WeakReference(recyclerView)
@@ -54,7 +55,7 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
     override var loadMoreType: Int = LOAD_MORE_VIEW_TYPE
     override var loadMoreNoMoreDataType: Int = LOAD_MORE_VIEW_NO_DATA_TYPE
 
-    override val loadMoreControl: LoadMoreControl by lazy{
+    override val loadMoreControl: LoadMoreControl by lazy {
         LoadMoreControl()
     }
 
@@ -76,10 +77,10 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
             }
         }
 
-        this.setHasStableIds(true)
+        setHasStableIds(true)
 
         //添加数据改变监听
-        this.registerAdapterDataObserver(object : AdapterDataObserver() {
+        registerAdapterDataObserver(object : AdapterDataObserver() {
             override fun onChanged() {
                 //数据改变，刷新数据
                 shouldReloadData = true
@@ -154,7 +155,6 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
         }
     }
 
-
     final override fun getItemCount(): Int {
         createSectionsIfNeeded()
         return totalCount
@@ -177,35 +177,21 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
                 createEmptyViewIfNeed(parent)
                 RecyclerViewHolder(emptyView!!)
             }
-            headerType -> {
-                onCreateHeaderViewHolder(viewType, parent)!!
-            }
-            footerType -> {
-                onCreateFooterViewHolder(viewType, parent)!!
-            }
+            headerType -> onCreateHeaderViewHolder(viewType, parent)
+            footerType -> onCreateFooterViewHolder(viewType, parent)
             else -> {
                 val holder = onCreateViewHolder(viewType, parent)
-                holder.itemView.setOnClickListener(object : OnSingleClickListener() {
+                holder.itemView.setOnSingleListener { v ->
+                    //添加点击事件
+                    val p = holder.bindingAdapterPosition
+                    val info: SectionInfo = sectionInfoForPosition(p)!!
 
-                    override fun onSingleClick(v: View) {
-
-                        //添加点击事件
-                        val p = holder.bindingAdapterPosition
-                        val info: SectionInfo = sectionInfoForPosition(p)!!
-
-                        when{
-                            info.isHeaderForPosition(p) -> {
-                                onHeaderClick(info.section, v)
-                            }
-                            info.isFooterForPosition(p) -> {
-                                onFooterClick(info.section, v)
-                            }
-                            else -> {
-                                onItemClick(info.getItemPosition(p), info.section, v)
-                            }
-                        }
+                    when {
+                        info.isHeaderForPosition(p) -> onHeaderClick(info.section, v)
+                        info.isFooterForPosition(p) -> onFooterClick(info.section, v)
+                        else -> onItemClick(info.getItemPosition(p), info.section, v)
                     }
-                })
+                }
                 holder
             }
         }
@@ -216,38 +202,33 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
         triggerLoadMoreIfNeeded(position)
 
         when (holder.itemViewType) {
-            loadMoreType -> {
-                onBindLoadMoreViewHolder(holder)
-            }
-            loadMoreNoMoreDataType -> {
-                onBindNoMoreDataViewHolder(holder)
-            }
-            emptyType -> {
-                onBindEmptyViewHolder(holder)
-            }
-            headerType -> {
-                onBindHeaderViewHolder(holder)
-            }
-            footerType -> {
-                onBindFooterViewHolder(holder)
-            }
+            loadMoreType -> onBindLoadMoreViewHolder(holder)
+            loadMoreNoMoreDataType -> onBindNoMoreDataViewHolder(holder)
+
+            emptyType -> onBindEmptyViewHolder(holder)
+            headerType -> onBindHeaderViewHolder(holder)
+            footerType -> onBindFooterViewHolder(holder)
             else -> {
                 val sectionInfo: SectionInfo = sectionInfoForPosition(position)!!
-                when{
-                    sectionInfo.isHeaderForPosition(position) -> {
-                        onBindSectionHeaderViewHolder(holder, sectionInfo.section)
-                    }
-                    sectionInfo.isFooterForPosition(position) -> {
-                        onBindSectionFooterViewHolder(holder, sectionInfo.section)
-                    }
-                    else -> {
-                        onBindItemViewHolder(holder, sectionInfo.getItemPosition(position), sectionInfo.section)
-                    }
+                when {
+                    sectionInfo.isHeaderForPosition(position) -> onBindSectionHeaderViewHolder(
+                        holder,
+                        sectionInfo.section
+                    )
+                    sectionInfo.isFooterForPosition(position) -> onBindSectionFooterViewHolder(
+                        holder,
+                        sectionInfo.section
+                    )
+                    else -> onBindItemViewHolder(
+                        holder,
+                        sectionInfo.getItemPosition(position),
+                        sectionInfo.section
+                    )
                 }
             }
         }
     }
-    
+
     open fun onBindEmptyViewHolder(holder: RecyclerViewHolder) {
         setDefaultLayoutParams(holder)
         val params = holder.itemView.layoutParams
@@ -276,8 +257,10 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) : RecyclerView.Ad
         if (params is StaggeredGridLayoutManager.LayoutParams) {
             params.isFullSpan = true
         } else if (holder.itemView.layoutParams !is RecyclerView.LayoutParams) {
-            holder.itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT,
-                RecyclerView.LayoutParams.WRAP_CONTENT)
+            holder.itemView.layoutParams = RecyclerView.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                RecyclerView.LayoutParams.WRAP_CONTENT
+            )
         }
         holder.itemView.layoutParams = params
     }

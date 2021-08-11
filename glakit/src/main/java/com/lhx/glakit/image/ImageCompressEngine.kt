@@ -8,7 +8,7 @@ import android.net.Uri
 import android.os.Environment
 import android.text.TextUtils
 import android.util.Log
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.base.widget.ValueCallback
 import com.luck.picture.lib.PictureContentResolver
 import com.luck.picture.lib.compress.InputStreamAdapter
 import com.luck.picture.lib.compress.InputStreamProvider

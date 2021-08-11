@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
-import com.lhx.glakit.GlaKitInitializer
+import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ViewUtils
@@ -34,9 +34,9 @@ interface LoadingHelper {
     fun showLoading(parent: ViewGroup, delay: Long, text: CharSequence? = null) {
         if (!loading) {
             loading = true
-            if (GlaKitInitializer.loadViewClass != null) {
+            if (GlaKitConfig.loadViewClass != null) {
                 try {
-                    loadingView = GlaKitInitializer.loadViewClass!!.getConstructor(Context::class.java).newInstance(parent.context)
+                    loadingView = GlaKitConfig.loadViewClass!!.getConstructor(Context::class.java).newInstance(parent.context)
                 } catch (e: Exception) {
                     throw IllegalStateException("loadViewClass 无法通过context实例化")
                 }

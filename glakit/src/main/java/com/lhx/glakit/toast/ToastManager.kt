@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import com.google.android.material.animation.AnimationUtils
 import com.lhx.glakit.R
-import com.lhx.glakit.base.interf.VoidCallback
+import com.lhx.glakit.base.widget.VoidCallback
 import com.lhx.glakit.utils.ViewUtils
 
 internal object ToastManager{

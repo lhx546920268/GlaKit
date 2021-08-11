@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.CornerBorderDrawable
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ViewUtils
@@ -415,28 +416,24 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
 
             val itemView = View.inflate(context, R.layout.alert_button_item, null)
             val holder = ViewHolder(itemView, setBackgroundSelector(itemView))
-            holder.itemView.setOnClickListener(object : OnSingleClickListener() {
-
-                override fun onSingleClick(v: View) {
-
-                    if (shouldDismissAfterClickItem) {
-                        if(onItemClick != null){
-                            addOnDismissHandler{
-                                onItemClick!!(
-                                    holder.bindingAdapterPosition
-                                )
-                            }
-                        }
-                        dismiss()
-                    } else {
-                        if (onItemClick != null) {
+            holder.itemView.setOnSingleListener {
+                if (shouldDismissAfterClickItem) {
+                    if(onItemClick != null){
+                        addOnDismissHandler{
                             onItemClick!!(
                                 holder.bindingAdapterPosition
                             )
                         }
                     }
+                    dismiss()
+                } else {
+                    if (onItemClick != null) {
+                        onItemClick!!(
+                            holder.bindingAdapterPosition
+                        )
+                    }
                 }
-            })
+            }
             holder.textView.textSize = props.buttonTextSize
             holder.textView.setPadding(
                 props.buttonLeftRightPadding, props.buttonTopBottomPadding,

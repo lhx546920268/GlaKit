@@ -7,8 +7,9 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import com.lhx.glakit.R
-import com.lhx.glakit.base.interf.PermissionRequester
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.permission.PermissionRequester
+import com.lhx.glakit.base.widget.ValueCallback
+import com.lhx.glakit.permission.PermissionHelper
 import com.lhx.glakit.utils.AppUtils
 
 /**
@@ -25,8 +26,7 @@ class LocationHelper(val requester: PermissionRequester): LocationListener{
     //
     private var locationManager: LocationManager? = null
 
-    fun startLocation() {
-        PermissionHelper.requestPermissionsIfNeeded(requester, necessaryPermissions()) {
+    fun startLocation() { PermissionHelper.requestPermissionsIfNeeded(requester, necessaryPermissions()) {
             if (it) {
                 startLocationAfterGranted()
             } else {
@@ -48,14 +48,15 @@ class LocationHelper(val requester: PermissionRequester): LocationListener{
 
         val locationManager = activity.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        val providerName = if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
-            LocationManager.NETWORK_PROVIDER
-        } else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            LocationManager.GPS_PROVIDER
-        }  else {
-            openAppSettings(R.string.location_service_tip)
-            return
+        val providerName = when {
+            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) -> LocationManager.NETWORK_PROVIDER
+            locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) -> LocationManager.GPS_PROVIDER
+            else -> {
+                openAppSettings(R.string.location_service_tip)
+                null
+            }
         }
+        providerName ?: return
 
         locating = true
         val location = locationManager.getLastKnownLocation(providerName)

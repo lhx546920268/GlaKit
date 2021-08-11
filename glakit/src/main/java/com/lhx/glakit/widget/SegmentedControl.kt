@@ -15,6 +15,7 @@ import androidx.appcompat.widget.LinearLayoutCompat
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.BaseDrawable
 import com.lhx.glakit.drawable.CornerBorderDrawable
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.ViewUtils
 
@@ -239,12 +240,10 @@ class SegmentedControl : LinearLayoutCompat {
             item.layoutParams = params
             addView(item)
             _items!!.add(item)
-            item.setOnClickListener(object : OnSingleClickListener() {
-                override fun onSingleClick(v: View) {
-                    val segmentedItem = v as SegmentedItem
-                    setSelectedPosition(segmentedItem.position, true)
-                }
-            })
+            item.setOnSingleListener {
+                val segmentedItem = it as SegmentedItem
+                setSelectedPosition(segmentedItem.position, true)
+            }
         }
     }
 

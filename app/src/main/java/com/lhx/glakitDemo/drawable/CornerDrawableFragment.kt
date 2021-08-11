@@ -55,7 +55,6 @@ class SliderPoint: AppCompatImageView {
         when(event.action) {
             MotionEvent.ACTION_DOWN -> {
                 touchX = event.x
-                println("ACTION_DOWN x = ${event.x}")
                 return true
             }
             MotionEvent.ACTION_MOVE -> {
@@ -73,9 +72,6 @@ class SliderPoint: AppCompatImageView {
                     if (offset + totalOffset > max) offset = max - totalOffset
                 }
                 totalOffset += offset
-
-//                touchX = event.x
-                println("offset $offset , total $totalOffset $scrollX")
                 return true
             }
         }
@@ -243,6 +239,64 @@ class Slider: FrameLayout {
         }
     }
 }
+
+class MeasureParent: ViewGroup {
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+
+        println("parent width size = $widthSize, mode $widthMode")
+
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+
+        println("height size = $heightSize, mode $heightMode")
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+
+        measureChildren(widthMeasureSpec, heightMeasureSpec)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            child.layout(paddingLeft, paddingTop, paddingLeft + child.measuredWidth, paddingTop + child.measuredHeight)
+        }
+    }
+}
+
+class MeasureChild: View {
+
+    constructor(context: Context?) : super(context)
+    constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+
+        println("child width size = $widthSize, mode $widthMode")
+
+        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+
+        println("height size = $heightSize, mode $heightMode")
+
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+}
+
 @Suppress("deprecation")
 class CornerDrawableFragment: BaseFragment() {
 

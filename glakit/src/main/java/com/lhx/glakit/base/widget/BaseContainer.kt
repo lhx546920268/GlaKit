@@ -8,10 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.annotation.LayoutRes
-import com.lhx.glakit.GlaKitInitializer
+import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.OverlayArea
 import com.lhx.glakit.base.constant.PageStatus
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.loading.*
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ToastUtils
@@ -118,13 +119,11 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     fun setShowBackButton(show: Boolean) {
         if (titleBar != null) {
             val textView = titleBar!!.setShowBackButton(show)
-            textView?.setOnClickListener(object : OnSingleClickListener() {
-                override fun onSingleClick(v: View) {
-                    if (mOnEventCallback != null) {
-                        mOnEventCallback!!.onBack()
-                    }
+            textView?.setOnSingleListener {
+                if (mOnEventCallback != null) {
+                    mOnEventCallback!!.onBack()
                 }
-            })
+            }
         }
     }
 
@@ -224,10 +223,10 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     override fun showLoading(delay: Long, text: CharSequence?) {
         if (!loading) {
             loading = true
-            if (GlaKitInitializer.loadViewClass != null) {
+            if (GlaKitConfig.loadViewClass != null) {
                 try {
                     loadingView =
-                        GlaKitInitializer.loadViewClass!!.getConstructor(Context::class.java)
+                        GlaKitConfig.loadViewClass!!.getConstructor(Context::class.java)
                             .newInstance(context)
                 } catch (e: Exception) {
                     throw IllegalStateException("loadViewClass 无法通过context实例化")
@@ -261,7 +260,7 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     }
 
     override fun showToast(text: CharSequence) {
-        ToastUtils.showToast(this, text)
+        ToastUtils.showToast(text)
     }
 
     //</editor-fold>
@@ -317,9 +316,9 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     //加载 pageLoading 如果需要
     private fun loadPageLoadingViewIfNeeded() {
         if ((pageStatus == PageStatus.LOADING || pageStatus == PageStatus.FAIL) && pageLoadingView == null) {
-            if (GlaKitInitializer.defaultPageLoadingViewClass != null) {
+            if (GlaKitConfig.defaultPageLoadingViewClass != null) {
                 pageLoadingView = try {
-                    GlaKitInitializer.defaultPageLoadingViewClass!!.getConstructor(Context::class.java)
+                    GlaKitConfig.defaultPageLoadingViewClass!!.getConstructor(Context::class.java)
                         .newInstance(context)
                 } catch (e: Exception) {
                     throw IllegalStateException("pageLoadingViewClass 无法通过context实例化")

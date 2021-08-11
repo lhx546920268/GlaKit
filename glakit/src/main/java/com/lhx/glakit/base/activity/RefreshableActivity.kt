@@ -4,9 +4,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.annotation.LayoutRes
-import com.lhx.glakit.GlaKitInitializer
+import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
-import com.lhx.glakit.base.interf.RefreshablePage
+import com.lhx.glakit.base.widget.RefreshablePage
 import com.lhx.glakit.refresh.RefreshHeader
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.widget.BackToTopButton
@@ -17,7 +17,7 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout
  */
 abstract class RefreshableActivity: BaseContainerActivity(), RefreshablePage {
 
-    override var curPage = GlaKitInitializer.HttpFirstPage
+    override var curPage = GlaKitConfig.HttpFirstPage
 
     override var refreshing = false
     override var refreshHeader: RefreshHeader? = null

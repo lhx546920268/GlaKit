@@ -8,7 +8,7 @@ import com.lhx.glakit.section.SectionInfo
  * 列表适配器
  */
 @Suppress("unchecked_cast")
-internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
+internal interface ListAdapter : LoadMoreAdapter, EmptyAdapter, SectionAdapter {
 
     /**
      * item总数
@@ -50,8 +50,8 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
             val numberOfSection = numberOfSections()
             var count = 0
 
-            if(shouldExistHeader()){
-                count ++
+            if (shouldExistHeader()) {
+                count++
             }
 
             for (section in 0 until numberOfSection) {
@@ -66,8 +66,8 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
                 if (sectionInfo.isExistFooter) count++
             }
 
-            if(shouldExistFooter()){
-                count ++
+            if (shouldExistFooter()) {
+                count++
             }
 
             realCount = count
@@ -88,7 +88,7 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
     }
 
     //创建sectionInfo
-    fun createSectionInfo(section: Int, numberOfItems: Int, position: Int): SectionInfo{
+    fun createSectionInfo(section: Int, numberOfItems: Int, position: Int): SectionInfo {
         val sectionInfo = SectionInfo()
         sectionInfo.section = section
         sectionInfo.numberItems = numberOfItems
@@ -156,30 +156,26 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
     //getItemViewType 的重写方法
     fun getListItemViewType(position: Int): Int {
         val sectionInfo: SectionInfo? = sectionInfoForPosition(position)
-        return when{
-            isHeader(position) -> {
-                headerType
-            }
-            isFooter(position) -> {
-                footerType
-            }
-            isEmptyItem(position) -> {
-                emptyType
-            }
-            isLoadMoreItem(position) -> {
-                if (isNoData()) loadMoreNoMoreDataType else loadMoreType
-            }
-            sectionInfo!!.isHeaderForPosition(position) -> {
-                //存在头部
-                getItemViewType(0, sectionInfo.section, ItemType.HEADER)
-            }
-            sectionInfo.isFooterForPosition(position) -> {
-                //存在底部
-                getItemViewType(0, sectionInfo.section, ItemType.FOOTER)
-            }
-            else -> {
-                getItemViewType(sectionInfo.getItemPosition(position), sectionInfo.section, ItemType.VIEW)
-            }
+        return when {
+            isHeader(position) -> headerType
+            isFooter(position) -> footerType
+            isEmptyItem(position) -> emptyType
+            isLoadMoreItem(position) -> if (isNoData()) loadMoreNoMoreDataType else loadMoreType
+            sectionInfo!!.isHeaderForPosition(position) -> getItemViewType(
+                0,
+                sectionInfo.section,
+                ItemType.HEADER
+            )
+            sectionInfo.isFooterForPosition(position) -> getItemViewType(
+                0,
+                sectionInfo.section,
+                ItemType.FOOTER
+            )
+            else -> getItemViewType(
+                sectionInfo.getItemPosition(position),
+                sectionInfo.section,
+                ItemType.VIEW
+            )
         }
     }
 
@@ -199,7 +195,7 @@ internal interface ListAdapter: LoadMoreAdapter, EmptyAdapter, SectionAdapter {
     }
 
     //是否是底部
-    fun isFooter(position: Int): Boolean{
+    fun isFooter(position: Int): Boolean {
         return shouldExistFooter() && position == totalCount - 1
     }
 }

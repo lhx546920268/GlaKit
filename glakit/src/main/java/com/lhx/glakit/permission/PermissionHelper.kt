@@ -1,4 +1,4 @@
-package com.lhx.glakit.helper
+package com.lhx.glakit.permission
 
 import android.app.Activity
 import android.content.Context
@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.lhx.glakit.base.interf.PermissionRequester
 import java.util.*
 import kotlin.collections.HashMap
 

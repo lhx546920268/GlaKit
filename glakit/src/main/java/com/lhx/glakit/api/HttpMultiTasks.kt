@@ -1,6 +1,6 @@
 package com.lhx.glakit.api
 
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
 
 /**

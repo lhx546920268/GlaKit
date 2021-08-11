@@ -7,7 +7,7 @@ import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.util.Log
 import com.google.zxing.Result
-import com.lhx.glakit.helper.PermissionHelper
+import com.lhx.glakit.permission.PermissionHelper
 import com.lhx.glakit.utils.AlertUtils
 import com.lhx.glakit.utils.AppUtils
 import java.io.IOException

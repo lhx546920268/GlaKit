@@ -11,7 +11,7 @@ import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.lhx.glakit.R
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.base.widget.ValueCallback
 
 /**
  * hint和text 字体不一样

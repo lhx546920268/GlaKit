@@ -58,7 +58,7 @@ class ListPopupWindow(context: Context): BasePopupWindow(context) {
             return items.count()
         }
 
-        override fun onItemClick(positionInSection: Int, section: Int, item: View) {
+        override fun onItemClick(position: Int, section: Int, item: View) {
             dismiss()
         }
     }

@@ -1,10 +1,10 @@
-package com.lhx.glakit.base.interf
+package com.lhx.glakit.base.widget
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.CallSuper
-import com.lhx.glakit.GlaKitInitializer
+import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
 import com.lhx.glakit.refresh.DefaultRefreshHeader
 import com.lhx.glakit.refresh.RefreshHeader
@@ -92,9 +92,9 @@ interface RefreshablePage: BasePage, RefreshHeader.RefreshOnScrollHandler, OnRef
 
     //获取下拉刷新头部
     fun createRefreshHeader(): RefreshHeader {
-        return if (GlaKitInitializer.refreshHeaderClass != null) {
+        return if (GlaKitConfig.refreshHeaderClass != null) {
             try {
-                GlaKitInitializer.refreshHeaderClass!!.getConstructor(Context::class.java).newInstance(attachedContext)
+                GlaKitConfig.refreshHeaderClass!!.getConstructor(Context::class.java).newInstance(attachedContext)
             } catch (e: Exception) {
                 throw IllegalStateException("refreshHeaderClass 无法通过context实例化")
             }

@@ -1,4 +1,4 @@
-package com.lhx.glakit.base.interf
+package com.lhx.glakit.base.widget
 
 import android.app.Activity
 import android.content.Context
@@ -12,8 +12,6 @@ import androidx.core.content.ContextCompat
 import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.base.constant.PageStatus
-import com.lhx.glakit.base.widget.BaseContainer
-import com.lhx.glakit.base.widget.TitleBar
 import com.lhx.glakit.loading.InteractionCallback
 import com.lhx.glakit.utils.SizeUtils
 import java.io.Serializable
@@ -133,7 +131,7 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
 
     fun <T : Parcelable> getParcelableFromBundle(key: String?): T? {
         if(attachedBundle != null){
-            return attachedBundle!!.getParcelable<T>(key)
+            return attachedBundle!!.getParcelable(key)
         }
         return null
     }

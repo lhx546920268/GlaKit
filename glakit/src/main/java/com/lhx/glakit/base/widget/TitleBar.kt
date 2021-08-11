@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.DrawableUtils
 import kotlin.math.max
@@ -19,10 +20,19 @@ import kotlin.math.min
 
 
 //标题栏
-class TitleBar : ViewGroup {
+class TitleBar: ViewGroup {
 
     //标题
     private var titleTextView: TextView? = null
+
+    //标题颜色
+    var titleColor = ContextCompat.getColor(context, R.color.title_bar_title_color)
+        set(value) {
+            if (value != field) {
+                field = value
+                titleTextView?.setTextColor(titleColor)
+            }
+        }
 
     //阴影分割线
     private var shadow: View
@@ -35,15 +45,7 @@ class TitleBar : ViewGroup {
 
     ///标题视图
     private var titleView: View? = null
-
-    //标题颜色
-    var titleColor = ContextCompat.getColor(context, R.color.title_bar_title_color)
-        set(value) {
-            if (value != field) {
-                field = value
-                titleTextView?.setTextColor(titleColor)
-            }
-        }
+    private var titleViewFill = false
 
     //着色
     var tintColor = ContextCompat.getColor(context, R.color.title_bar_tint_color)
@@ -55,12 +57,7 @@ class TitleBar : ViewGroup {
                     val drawables = textView.compoundDrawables
                     val drawable = drawables[0]
                     if (drawable != null) {
-                        textView.setCompoundDrawables(
-                            DrawableUtils.getTintDrawable(
-                                drawable,
-                                field
-                            ), null, null, null
-                        )
+                        textView.setCompoundDrawables(DrawableUtils.getTintDrawable(drawable, field), null, null, null)
                     }
                     textView.setTextColor(field)
                 }
@@ -70,12 +67,7 @@ class TitleBar : ViewGroup {
                     val drawables = textView.compoundDrawables
                     val drawable = drawables[2]
                     if (drawable != null) {
-                        textView.setCompoundDrawables(
-                            null,
-                            null,
-                            DrawableUtils.getTintDrawable(drawable, field),
-                            null
-                        )
+                        textView.setCompoundDrawables(null, null, DrawableUtils.getTintDrawable(drawable, field), null)
                     }
                     textView.setTextColor(field)
                 }
@@ -85,29 +77,20 @@ class TitleBar : ViewGroup {
     constructor(context: Context) : this(context, null)
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-        context, attrs, defStyleAttr
-    ) {
+        context, attrs, defStyleAttr) {
 
         setBackgroundColor(ContextCompat.getColor(getContext(), R.color.title_bar_background_color))
         shadow = View(context)
-        shadow.setBackgroundColor(
-            ContextCompat.getColor(
-                getContext(),
-                R.color.title_bar_shadow_color
-            )
-        )
+        shadow.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.title_bar_shadow_color))
         addView(shadow)
     }
 
     //设置标题
     fun setTitle(title: CharSequence?) {
-
-        if (titleTextView == null) {
+        titleViewFill = false
+        if(titleTextView == null){
             val textView = TextView(this.context)
-            textView.setTextSize(
-                TypedValue.COMPLEX_UNIT_PX,
-                resources.getDimension(R.dimen.title_bar_text_size)
-            )
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_bar_text_size))
             textView.paint.isFakeBoldText = context.resources.getBoolean(R.bool.title_bar_text_style_bold)
             textView.setTextColor(titleColor)
             textView.setLines(1)
@@ -120,12 +103,11 @@ class TitleBar : ViewGroup {
 
             this.titleView = titleTextView
         }
-
         titleTextView!!.text = title
     }
 
     fun getTitle(): CharSequence? {
-        if (titleTextView != null) {
+        if(titleTextView != null){
             return titleTextView!!.text
         }
 
@@ -140,18 +122,18 @@ class TitleBar : ViewGroup {
     }
 
     //设置标题视图
-    fun setTitleView(titleView: View?) {
+    fun setTitleView(titleView: View?, fill: Boolean = false) {
 
-        if (this.titleView != null)
+        if(this.titleView != null)
             removeView(this.titleView)
 
         this.titleView = titleView
         if (titleView != null) {
-
+            titleViewFill = fill
             titleTextView?.visibility = View.INVISIBLE
             addView(titleView, 0)
         } else {
-
+            titleViewFill = false
             titleTextView?.visibility = View.VISIBLE
             this.titleView = titleTextView
         }
@@ -165,7 +147,7 @@ class TitleBar : ViewGroup {
             var title: String? = null
             if (icon != 0) {
                 drawable = ContextCompat.getDrawable(context, icon)
-                drawable = DrawableUtils.getTintDrawable(drawable!!, titleColor)
+                drawable = DrawableUtils.getTintDrawable(drawable!!, tintColor)
             }
             if (drawable == null) {
                 title = context.getString(R.string.title_bar_back_title)
@@ -240,11 +222,8 @@ class TitleBar : ViewGroup {
         }
 
         val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
-        textView.setPadding(margin, 0, margin, 0)
-        textView.setTextSize(
-            TypedValue.COMPLEX_UNIT_PX,
-            resources.getDimension(R.dimen.title_bar_item_text_size)
-        )
+        textView.setPadding(margin,0, margin, 0)
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_bar_item_text_size))
         textView.setBackgroundColor(Color.TRANSPARENT)
         textView.setTextColor(tintColor)
         textView.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT)
@@ -254,13 +233,13 @@ class TitleBar : ViewGroup {
         }
         drawable?.setBounds(0, 0, drawable.minimumWidth, drawable.minimumHeight)
 
-        if (isLeft) {
+        if(isLeft){
             textView.gravity = Gravity.START or Gravity.CENTER_VERTICAL
             if (drawable != null) {
                 textView.setCompoundDrawables(drawable, null, null, null)
             }
             setLeftItem(textView)
-        } else {
+        }else{
             textView.gravity = Gravity.END or Gravity.CENTER_VERTICAL
             if (drawable != null) {
                 textView.setCompoundDrawables(null, null, drawable, null)
@@ -274,8 +253,31 @@ class TitleBar : ViewGroup {
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
-        //测量子视图大小
-        measureChildren(widthMeasureSpec, heightMeasureSpec)
+        var leftWidth = 0
+        var rightWidth = 0
+
+        if (leftItem != null && !leftItem!!.isGone) {
+            leftWidth = leftItem!!.measuredWidth
+            measureChild(leftItem!!, widthMeasureSpec, heightMeasureSpec)
+        }
+
+        if (rightItem != null && !rightItem!!.isGone) {
+            rightWidth = rightItem!!.measuredWidth
+            measureChild(rightItem!!, widthMeasureSpec, heightMeasureSpec)
+        }
+
+        if(titleView != null){
+            val params = titleView!!.layoutParams
+            val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
+            val padding = if (titleViewFill) {
+                max(leftWidth, margin) + max(rightWidth, margin)
+            } else {
+                max(max(leftWidth, rightWidth), margin) * 2
+            }
+            val childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, padding, params.width)
+            val childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, params.height)
+            measureChild(titleView!!, childWidthMeasureSpec, childHeightMeasureSpec)
+        }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -287,32 +289,25 @@ class TitleBar : ViewGroup {
 
         var leftWidth = 0
 
-        if (leftItem != null) {
+        if(leftItem != null){
             leftWidth = leftItem!!.measuredWidth
-            leftItem!!.layout(left, top, left + leftWidth, top + height)
+            leftItem!!.layout(left, top,left + leftWidth, top + height)
         }
 
-        var rightWidth = 0
-
-        if (rightItem != null) {
-            rightWidth = rightItem!!.measuredWidth
-            rightItem!!.layout(left + width - rightWidth, top, left + width, top + height)
+        if(rightItem != null){
+            rightItem!!.layout(left + width - rightItem!!.measuredWidth, top, left + width, top + height)
         }
 
-        if (titleView != null) {
-            var titleWidth = titleView!!.measuredWidth
+        if(titleView != null){
+            val titleWidth = titleView!!.measuredWidth
             val titleHeight = min(height, titleView!!.measuredHeight)
-
-            val margin = max(
-                max(leftWidth, rightWidth),
-                resources.getDimensionPixelSize(R.dimen.title_bar_margin)
-            )
-            if (titleWidth > width - margin * 2) {
-                titleWidth = max(0, width - margin * 2)
+            val titleTop = top + (height - titleHeight) / 2
+            val titleLeft = if (titleViewFill) {
+                max(leftWidth, resources.getDimensionPixelSize(R.dimen.title_bar_margin))
+            } else {
+                (width - titleWidth) / 2
             }
 
-            val titleLeft = left + (width - titleWidth) / 2
-            val titleTop = top + (height - titleHeight) / 2
             titleView?.layout(titleLeft, titleTop, titleLeft + titleWidth, titleTop + titleHeight)
         }
 

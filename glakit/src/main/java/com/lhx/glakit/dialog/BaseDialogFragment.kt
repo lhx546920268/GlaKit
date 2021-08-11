@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
-import com.lhx.glakit.base.interf.VoidCallback
+import com.lhx.glakit.base.widget.VoidCallback
 
 /**
  * 基础弹窗fragment

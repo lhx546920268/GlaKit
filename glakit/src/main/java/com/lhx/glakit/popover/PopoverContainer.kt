@@ -11,6 +11,7 @@ import android.view.animation.Animation.AnimationListener
 import android.view.animation.ScaleAnimation
 import androidx.core.view.ViewCompat
 import com.lhx.glakit.base.widget.OnSingleClickListener
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.ViewUtils
 import kotlin.math.min
 
@@ -56,11 +57,9 @@ open class PopoverContainer : ViewGroup {
         attrs,
         defStyleAttr
     ){
-        setOnClickListener(object : OnSingleClickListener() {
-            override fun onSingleClick(v: View) {
-                dismiss(true)
-            }
-        })
+        setOnSingleListener {
+            dismiss(true)
+        }
 
         overlayView.setBackgroundColor(Color.TRANSPARENT)
         addView(overlayView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))

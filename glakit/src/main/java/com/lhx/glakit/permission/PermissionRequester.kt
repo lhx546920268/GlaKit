@@ -1,4 +1,4 @@
-package com.lhx.glakit.base.interf
+package com.lhx.glakit.permission
 
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
-import com.lhx.glakit.helper.PermissionHelper
+import com.lhx.glakit.base.widget.BaseAttached
 
 /**
  * 权限申请

@@ -7,7 +7,7 @@ import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.base.interf.BasePage
+import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 
 

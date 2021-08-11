@@ -69,7 +69,7 @@ class PopoverMenu: PopoverContainer {
             return items.count()
         }
 
-        override fun onItemClick(positionInSection: Int, section: Int, item: View) {
+        override fun onItemClick(position: Int, section: Int, item: View) {
             dismiss(true)
         }
     }

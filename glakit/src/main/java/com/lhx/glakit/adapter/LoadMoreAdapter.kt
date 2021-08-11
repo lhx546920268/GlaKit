@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.OnSingleClickListener
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.refresh.LoadMoreControl
 import com.lhx.glakit.refresh.LoadMoreFooter
 import com.lhx.glakit.refresh.LoadMoreStatus
@@ -58,14 +59,11 @@ internal interface LoadMoreAdapter {
             if (reusedView == null) {
                 if(loadMoreControl.loadMoreFooter == null){
                     loadMoreControl.loadMoreFooter = LayoutInflater.from(parent.context).inflate(R.layout.load_more_footer, parent, false) as LoadMoreFooter
-                    loadMoreControl.loadMoreFooter!!.setOnClickListener(object : OnSingleClickListener() {
-
-                        override fun onSingleClick(v: View) {
-                            if (loadMoreControl.loadingStatus == LoadMoreStatus.FAIL) {
-                                startLoadMore()
-                            }
+                    loadMoreControl.loadMoreFooter!!.setOnSingleListener {
+                        if (loadMoreControl.loadingStatus == LoadMoreStatus.FAIL) {
+                            startLoadMore()
                         }
-                    })
+                    }
                 }
                 return loadMoreControl.loadMoreFooter!!
             } else{

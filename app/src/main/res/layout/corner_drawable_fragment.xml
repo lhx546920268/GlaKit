@@ -75,4 +75,16 @@
         android:id="@+id/slider"
         android:layout_marginTop="20dp"/>
 
+    <com.lhx.glakitDemo.drawable.MeasureParent
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/blue">
+
+        <com.lhx.glakitDemo.drawable.MeasureChild
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@color/red"/>
+
+    </com.lhx.glakitDemo.drawable.MeasureParent>
+
 </LinearLayout>

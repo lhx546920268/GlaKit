@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
 import com.lhx.glakit.base.constant.PageStatus
-import com.lhx.glakit.base.interf.VoidCallback
+import com.lhx.glakit.base.widget.VoidCallback
 
 /**
  * 页面加载接口

@@ -18,7 +18,7 @@ import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.activity.BaseActivity
 import com.lhx.glakit.base.activity.ResultCallback
-import com.lhx.glakit.base.interf.BasePage
+import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 
 
@@ -219,10 +219,5 @@ abstract class BaseFragment : Fragment(), BasePage {
     }
 
     //http可取消的任务
-    private var _currentTasks: HashSet<HttpCancelable>? = null
-    override var currentTasks: HashSet<HttpCancelable>?
-        get() = _currentTasks
-        set(value) {
-            _currentTasks = value
-        }
+    override var currentTasks: HashSet<HttpCancelable>? = null
 }

@@ -22,7 +22,7 @@ import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
-import com.lhx.glakit.base.interf.VoidCallback
+import com.lhx.glakit.base.widget.VoidCallback
 import com.lhx.glakit.utils.ViewUtils
 
 /**

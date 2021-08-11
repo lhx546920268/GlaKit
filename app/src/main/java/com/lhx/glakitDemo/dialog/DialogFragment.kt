@@ -29,7 +29,7 @@ class DialogFragment: BaseFragment() {
                     buttonTitles = arrayOf("取消", "确定"),
                     destructivePosition = 0
                 ) { position ->
-                    ToastUtils.showToast(it, "点击第 $position 个")
+                    ToastUtils.showToast("点击第 $position 个")
                 }.show(childFragmentManager)
             }
 
@@ -41,7 +41,7 @@ class DialogFragment: BaseFragment() {
                     buttonTitles = arrayOf("删除"),
                     destructivePosition = 0
                 ){position ->
-                    ToastUtils.showToast(it, "点击第 $position 个")
+                    ToastUtils.showToast("点击第 $position 个")
                 }.show(childFragmentManager)
             }
 

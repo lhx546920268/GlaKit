@@ -12,8 +12,8 @@ internal interface RecyclerViewSectionAdapter : SectionAdapter {
     /**
      * 创建 header viewHolder
      */
-    fun onCreateHeaderViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder?{
-        return null
+    fun onCreateHeaderViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder{
+        throw Exception("${javaClass.name} must impl onCreateHeaderViewHolder")
     }
 
     /**
@@ -24,8 +24,8 @@ internal interface RecyclerViewSectionAdapter : SectionAdapter {
     /**
      * 创建 footer viewHolder
      */
-    fun onCreateFooterViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder?{
-        return null
+    fun onCreateFooterViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder{
+        throw Exception("${javaClass.name} must impl onCreateFooterViewHolder")
     }
 
     /**

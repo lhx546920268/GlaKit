@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -23,11 +22,10 @@ import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.adapter.StickAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
-import com.lhx.glakit.base.interf.PermissionRequester
+import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.helper.PermissionHelper
-import com.lhx.glakit.layout.TetrisLayoutManager
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.utils.ToastUtils
@@ -359,25 +357,10 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
         println("test ${copyTest.child2?.name}")
 
         setBarTitle("首页")
-        recyclerView.setBackgroundColor(Color.GRAY)
         recyclerView.layoutManager = MyLayout(requireContext()) //TetrisLayoutManager()
         recyclerView.addItemDecoration(Decoration())
         recyclerView.adapter = adapter
 //        recyclerView.stickAdapter = this
-
-        var min = 0
-        var max = 1
-        when(true) {
-            min == 0 -> {
-                println("min")
-            }
-            max == 1 -> {
-                println("max")
-            }
-            else -> {
-                println("else")
-            }
-        }
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {
@@ -487,10 +470,10 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 //            viewHolder.itemView.setBackgroundColor(Color.WHITE)
         }
 
-        override fun onItemClick(positionInSection: Int, section: Int, item: View) {
+        override fun onItemClick(position: Int, section: Int, item: View) {
 //            count = if (count == 10) 5 else 10
 //            notifyDataSetChanged()
-            when(positionInSection % items.size) {
+            when(position % items.size) {
                 0 -> {
                     startActivityForResult(CornerDrawableFragment::class.java) {
                         Log.d("fragment", "back callback")
@@ -519,9 +502,9 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
                        arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE)
                    ) {
                        if (it) {
-                           ToastUtils.show("授权成功")
+                           ToastUtils.showToast("授权成功")
                        } else {
-                           ToastUtils.show("授权拒绝")
+                           ToastUtils.showToast("授权拒绝")
                        }
                    }
                 }

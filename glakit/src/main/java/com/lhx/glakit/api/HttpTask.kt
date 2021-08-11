@@ -2,7 +2,7 @@ package com.lhx.glakit.api
 
 import androidx.annotation.CallSuper
 import com.alibaba.fastjson.JSONObject
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType

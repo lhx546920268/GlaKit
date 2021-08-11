@@ -7,7 +7,7 @@ import android.widget.AbsListView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.lhx.glakit.base.interf.VoidCallback
+import com.lhx.glakit.base.widget.VoidCallback
 
 
 /**

@@ -16,6 +16,7 @@ import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.DrawableUtils
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.ViewUtils
 
 
@@ -132,14 +133,12 @@ abstract class TabBarActivity : BaseContainerActivity() {
                 item.imageView.setImageDrawable(getIcon(i))
 
                 item.setImageTextPadding(pxFromDip(2f))
-                item.setOnClickListener(object : OnSingleClickListener() {
-                    override fun onSingleClick(v: View) {
-                        val tabBarItem = v as TabBarItem
-                        if (!tabBarItem.checked) {
-                            checkedPosition = tabBarItems.indexOf(tabBarItem)
-                        }
+                item.setOnSingleListener {
+                    val tabBarItem = it as TabBarItem
+                    if (!tabBarItem.checked) {
+                        checkedPosition = tabBarItems.indexOf(tabBarItem)
                     }
-                })
+                }
 
                 val params = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT)
                 params.weight = 1f

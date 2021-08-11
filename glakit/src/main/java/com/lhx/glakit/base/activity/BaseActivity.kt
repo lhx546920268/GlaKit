@@ -243,12 +243,7 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
     }
 
     //http可取消的任务
-    private var _currentTasks: HashSet<HttpCancelable>? = null
-    override var currentTasks: HashSet<HttpCancelable>?
-        get() = _currentTasks
-        set(value) {
-            _currentTasks = value
-        }
+    override var currentTasks: HashSet<HttpCancelable>? = null
 
     //回调
     private var callbackEntities: HashMap<Int, CallbackEntity>? = null

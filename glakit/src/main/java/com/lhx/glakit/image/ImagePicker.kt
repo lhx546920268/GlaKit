@@ -2,7 +2,7 @@ package com.lhx.glakit.image
 
 import android.app.Activity
 import android.content.Context
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.AlertUtils
 import com.lhx.glakit.utils.StringUtils
 import com.luck.picture.lib.config.PictureConfig

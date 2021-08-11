@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.RelativeLayout
 import com.lhx.glakit.api.HttpCancelable
-import com.lhx.glakit.base.interf.BasePage
+import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 
 
@@ -62,12 +62,7 @@ abstract class BaseContainerDialogFragment : BaseDialogFragment(), BasePage {
     }
 
     //http可取消的任务
-    private var _currentTasks: HashSet<HttpCancelable>? = null
-    override var currentTasks: HashSet<HttpCancelable>?
-        get() = _currentTasks
-        set(value) {
-            _currentTasks = value
-        }
+    override var currentTasks: HashSet<HttpCancelable>? = null
 
     /**
      * 配置弹窗信息

@@ -6,7 +6,7 @@ import android.widget.AbsListView
 import android.widget.BaseAdapter
 import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.Position
-import com.lhx.glakit.base.widget.OnSingleClickListener
+import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.refresh.LoadMoreControl
 import com.lhx.glakit.section.SectionInfo
 
@@ -62,9 +62,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
 
         val sectionInfo: SectionInfo? = sectionInfoForPosition(position)
         return when {
-            isEmptyItem(position) || isLoadMoreItem(position) -> {
-                null
-            }
+            isEmptyItem(position) || isLoadMoreItem(position) -> null
             position == sectionInfo?.getHeaderPosition() && sectionInfo.isExistHeader -> {
                 //存在头部
                 getItem(0, sectionInfo.section, ItemType.HEADER)
@@ -177,25 +175,16 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
 
                 //添加点击事件
                 setTag(R.id.list_view_item_onclick_tag_key, true)
-                setOnClickListener(object : OnSingleClickListener() {
+                setOnSingleListener {
+                    val p = it.getTag(R.id.list_view_item_position_tag_key) as Int
+                    val info: SectionInfo = sectionInfoForPosition(p)!!
 
-                    override fun onSingleClick(v: View) {
-                        val p = v.getTag(R.id.list_view_item_position_tag_key) as Int
-                        val info: SectionInfo = sectionInfoForPosition(p)!!
-
-                        when {
-                            info.isHeaderForPosition(p) -> {
-                                onHeaderClick(info.section, v)
-                            }
-                            info.isFooterForPosition(p) -> {
-                                onFooterClick(info.section, v)
-                            }
-                            else -> {
-                                onItemClick(info.getItemPosition(p), info.section, v)
-                            }
-                        }
+                    when {
+                        info.isHeaderForPosition(p) -> onHeaderClick(info.section, it)
+                        info.isFooterForPosition(p) -> onFooterClick(info.section, it)
+                        else -> onItemClick(info.getItemPosition(p), info.section, it)
                     }
-                })
+                }
             }
         }
     }

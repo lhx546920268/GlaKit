@@ -21,8 +21,10 @@ import com.lhx.glakit.section.SectionInfo
  * 网格布局
  */
 @Suppress("unused_parameter")
-abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
-                              @RecyclerView.Orientation val orientation: Int = RecyclerView.VERTICAL): RecyclerViewAdapter(recyclerView) {
+abstract class RecyclerViewGridAdapter(
+    recyclerView: RecyclerView,
+    @RecyclerView.Orientation val orientation: Int = RecyclerView.VERTICAL
+) : RecyclerViewAdapter(recyclerView) {
 
     //item之间的间隔 px
     var itemSpace = 0
@@ -50,11 +52,11 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
     private var _differentColumnProduct = 0
 
     //布局信息
-    private val _layoutInfos: SparseArray<LayoutInfo> by lazy{
+    private val _layoutInfos: SparseArray<LayoutInfo> by lazy {
         SparseArray<LayoutInfo>()
     }
 
-    
+
     init {
         recyclerView.apply {
             dividerColor = ContextCompat.getColor(context, R.color.divider_color)
@@ -71,7 +73,7 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
                     override fun getSpanSize(position: Int): Int {
                         if (totalCount == 0) return _differentColumnProduct
 
-                        return when(getItemViewType(position)){
+                        return when (getItemViewType(position)) {
                             LOAD_MORE_VIEW_TYPE, LOAD_MORE_VIEW_NO_DATA_TYPE, EMPTY_VIEW_TYPE, HEADER_VIEW_TYPE, FOOTER_VIEW_TYPE -> {
                                 _differentColumnProduct
                             }
@@ -93,7 +95,7 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
     }
 
     override fun createSectionsIfNeeded() {
-        if(shouldReloadData){
+        if (shouldReloadData) {
             _differentColumnProduct = getDifferentColumnProduct()
             _layoutManager?.spanCount = _differentColumnProduct
             _layoutInfos.clear()
@@ -120,7 +122,7 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
 
         return sectionInfo
     }
-    
+
 
     /**
      * 列数
@@ -186,7 +188,9 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
     private fun spanCountForPosition(position: Int): Int {
         val sectionInfo: GridSectionInfo = sectionInfoForPosition(position)!!
 
-        return if (sectionInfo.isHeaderForPosition(position) || sectionInfo.isFooterForPosition(position)) {
+        return if (sectionInfo.isHeaderForPosition(position)
+            || sectionInfo.isFooterForPosition(position)
+        ) {
             _differentColumnProduct
         } else {
             _differentColumnProduct / sectionInfo.numberOfColumns
@@ -205,14 +209,18 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
 
         //是否靠右
         private fun isOnTheRight(sectionInfo: GridSectionInfo, position: Int): Boolean {
-            if (sectionInfo.isFooterForPosition(position) || sectionInfo.isHeaderForPosition(position))
+            if (sectionInfo.isFooterForPosition(position)
+                || sectionInfo.isHeaderForPosition(position)
+            )
                 return true
             return (sectionInfo.getItemPosition(position) + 1) % sectionInfo.numberOfColumns == 0
         }
 
         //是否靠左
         private fun isOnTheLeft(sectionInfo: GridSectionInfo, position: Int): Boolean {
-            if (sectionInfo.isFooterForPosition(position) || sectionInfo.isHeaderForPosition(position))
+            if (sectionInfo.isFooterForPosition(position)
+                || sectionInfo.isHeaderForPosition(position)
+            )
                 return true
             return sectionInfo.getItemPosition(position) % sectionInfo.numberOfColumns == 0
         }
@@ -224,7 +232,10 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
             if (sectionInfo.isHeaderForPosition(position)) return true
 
             //当不存在item和顶部时，如果是底部
-            if (!sectionInfo.isExistHeader && sectionInfo.numberItems == 0 && sectionInfo.isFooterForPosition(position))
+            if (!sectionInfo.isExistHeader
+                && sectionInfo.numberItems == 0
+                && sectionInfo.isFooterForPosition(position)
+            )
                 return true
 
             //存在头部，item都不靠顶
@@ -243,7 +254,10 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
                 return true
 
             //当不存在item和底部时，如果是顶部
-            if (!sectionInfo.isExistFooter && sectionInfo.numberItems == 0 && sectionInfo.isHeaderForPosition(position))
+            if (!sectionInfo.isExistFooter
+                && sectionInfo.numberItems == 0
+                && sectionInfo.isHeaderForPosition(position)
+            )
                 return true
 
             val totalRow = (sectionInfo.numberItems - 1) / sectionInfo.numberOfColumns + 1
@@ -270,20 +284,20 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
                 }
                 else -> {
                     val sectionInfo: GridSectionInfo = sectionInfoForPosition(position)!!
-                    
+
                     val onTheTop = isOnTheTop(sectionInfo, position)
                     val onTheLeft = isOnTheLeft(sectionInfo, position)
                     val onTheRight = isOnTheRight(sectionInfo, position)
                     val onTheBottom = isOnTheBottom(sectionInfo, position)
-                    
+
                     sectionInfo.sectionInsets?.apply {
                         left = if (onTheLeft) left else 0
                         top = if (onTheTop) top else 0
                         right = if (onTheRight) right else 0
                         bottom = if (onTheBottom) bottom else 0
                     }
-                    
-                    
+
+
                     if (sectionInfo.isHeaderForPosition(position)) {
                         if (!sectionInfo.headerUseSectionInsets) {
                             left = 0
@@ -326,9 +340,10 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
                         //如果不是最后一行，添加item间隔
                         if (!onTheBottom) {
                             bottom = sectionInfo.itemSpace
-                        } else if (!sectionInfo.isExistFooter) { 
+                        } else if (!sectionInfo.isExistFooter) {
                             //不存在底部，设置section偏移量
-                            bottom = if (sectionInfo.sectionInsets == null) 0 else sectionInfo.sectionInsets!!.bottom
+                            bottom =
+                                if (sectionInfo.sectionInsets == null) 0 else sectionInfo.sectionInsets!!.bottom
                         }
                     }
                 }
@@ -338,7 +353,8 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
 
 
     //网格分割线
-    private inner class GridItemDecoration(private val orientation: Int): RecyclerView.ItemDecoration() {
+    private inner class GridItemDecoration(private val orientation: Int) :
+        RecyclerView.ItemDecoration() {
 
         //分割线
         private var divider = ColorDrawable()
@@ -412,7 +428,12 @@ abstract class RecyclerViewGridAdapter(recyclerView: RecyclerView,
             return layoutInfo
         }
 
-        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
 
             if (sections.size > 0) {
                 val layoutParams = view.layoutParams as GridLayoutManager.LayoutParams

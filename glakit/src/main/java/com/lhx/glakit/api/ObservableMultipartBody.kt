@@ -1,6 +1,6 @@
 package com.lhx.glakit.api
 
-import com.lhx.glakit.base.interf.ValueCallback
+import com.lhx.glakit.base.widget.ValueCallback
 import okhttp3.Headers
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaType
@@ -11,6 +11,9 @@ import okio.ByteString.Companion.encodeUtf8
 import java.io.IOException
 import java.util.*
 
+/**
+ * 可以监听上传进度的body
+ */
 @Suppress("NAME_SHADOWING")
 class ObservableMultipartBody internal constructor(
     private val boundaryByteString: ByteString,
