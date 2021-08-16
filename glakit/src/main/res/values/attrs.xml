@@ -6,6 +6,7 @@
         <attr name="badge_fill_color" format="color"/>
         <attr name="badge_stroke_color" format="color"/>
         <attr name="badge_stroke_width" format="dimension"/>
+        <attr name="badge_max_icon" format="reference"/>
     </declare-styleable>
 
     <!--可换行的线性布局-->
