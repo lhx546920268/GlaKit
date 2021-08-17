@@ -1,12 +1,17 @@
 package com.lhx.glakit.extension
 
 import android.view.View
+import android.view.ViewGroup
 import com.lhx.glakit.base.widget.OnSingleClickListener
+import com.lhx.glakit.utils.ViewUtils
 
 
 /**
  * 视图扩展
  */
+
+const val MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT
+const val WRAP_CONTENT = ViewGroup.LayoutParams.WRAP_CONTENT
 
 /**
  * 防止多次点击
@@ -30,4 +35,8 @@ fun View.invisible() {
 
 fun View.gone() {
     visibility = View.GONE
+}
+
+fun View.removeFromParent() {
+    ViewUtils.removeFromParent(this)
 }

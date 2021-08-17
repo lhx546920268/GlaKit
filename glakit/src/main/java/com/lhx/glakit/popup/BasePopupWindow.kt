@@ -1,6 +1,5 @@
 package com.lhx.glakit.popup
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -11,9 +10,6 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AlphaAnimation
-import android.view.animation.Animation
-import android.view.animation.TranslateAnimation
 import android.widget.FrameLayout
 import android.widget.PopupWindow
 import androidx.activity.OnBackPressedCallback
@@ -28,19 +24,7 @@ import com.lhx.glakit.utils.ViewUtils
 /**
  * 基础弹窗
  */
-abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindow.OnDismissListener {
-
-    //动画
-    enum class AnimationStyle {
-        //平移
-        TRANSLATE,
-
-        //高度缩放
-        SCALE,
-
-        //自定义，要重写executeCustomAnimation
-        CUSTOM,
-    }
+abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnimation, PopupWindow.OnDismissListener {
 
     //触发消失的操作
     enum class DismissAction {
@@ -51,7 +35,13 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     }
 
     //动画方式
-    var animationStyle = AnimationStyle.TRANSLATE
+    override var animationStyle = AnimationStyle.TRANSLATE
+    override val popupBackgroundView: View
+        get() = backgroundView
+    override val popupContentView: View?
+        get() = _contentView
+    override val popupContainer: View
+        get() = container
 
     //点击弹窗以外的位置是否关闭弹窗
     var cancelable = true
@@ -151,7 +141,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
                 }
             }
         }else{
-            onShow()
+            onPopupShow()
         }
 
         if (context is AppCompatActivity) {
@@ -188,54 +178,6 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         super.showAsDropDown(anchor)
     }
 
-    //显示动画
-    private fun executeShowAnimation(){
-        container.onLayoutHandler = null
-
-        container.post {
-            container.visibility = View.VISIBLE
-            when(animationStyle){
-                AnimationStyle.SCALE -> {
-                    _contentView?.apply {
-                        val params = layoutParams
-                        val animation = ValueAnimator.ofInt(0, measuredHeight)
-                        animation.duration = 250
-                        animation.addUpdateListener {
-                            params.height = it.animatedValue as Int
-                            requestLayout()
-                        }
-                        animation.start()
-                    }
-                }
-                AnimationStyle.TRANSLATE -> {
-                    val animation = TranslateAnimation(
-                        Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, 0.0f,
-                        Animation.RELATIVE_TO_SELF, -1f,
-                        Animation.RELATIVE_TO_SELF, 0f)
-                    animation.duration = 250
-                    _contentView?.startAnimation(animation)
-                }
-                AnimationStyle.CUSTOM -> executeCustomAnimation(true)
-            }
-
-            val alphaAnimation = AlphaAnimation(0f, 1.0f)
-            alphaAnimation.duration = 250
-            alphaAnimation.setAnimationListener(object: Animation.AnimationListener{
-                override fun onAnimationStart(animation: Animation?) {
-                }
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    onShow()
-                }
-
-                override fun onAnimationRepeat(animation: Animation?) {
-                }
-            })
-            backgroundView.startAnimation(alphaAnimation)
-        }
-    }
-
     fun dismiss(animate: Boolean, action: DismissAction = DismissAction.API) {
         if(animate){
             val dismiss = willDismissHandler?.let {
@@ -259,49 +201,6 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         }
     }
 
-    //消失动画
-    private fun executeDismissAnimation(){
-        when(animationStyle){
-            AnimationStyle.SCALE -> {
-                _contentView?.apply {
-                    val params = layoutParams
-                    val animation = ValueAnimator.ofInt(measuredHeight, 0)
-                    animation.duration = 250
-                    animation.addUpdateListener {
-                        params.height = it.animatedValue as Int
-                        requestLayout()
-                    }
-                    animation.start()
-                }
-            }
-            AnimationStyle.TRANSLATE -> {
-                val animation = TranslateAnimation(
-                    Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0.0f,
-                    Animation.RELATIVE_TO_SELF, 0f,
-                    Animation.RELATIVE_TO_SELF, -1f)
-                animation.duration = 250
-                _contentView?.startAnimation(animation)
-            }
-            AnimationStyle.CUSTOM -> executeCustomAnimation(false)
-        }
-
-        val alphaAnimation = AlphaAnimation(1.0f, 0.0f)
-        alphaAnimation.duration = 250
-        alphaAnimation.setAnimationListener(object: Animation.AnimationListener{
-            override fun onAnimationStart(animation: Animation?) {
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                dismiss(false, DismissAction.API)
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
-        })
-        backgroundView.startAnimation(alphaAnimation)
-    }
-
     //弹窗已消失
     override fun onDismiss() {
         if (onDismissHandlers.size > 0) {
@@ -312,9 +211,12 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
         onBackPressedCallback.isEnabled = false
     }
 
-    //弹窗已显示，动画完成后调用
+    override fun onPopupDismiss() {
+        dismiss(false, DismissAction.API)
+    }
+
     @CallSuper
-    protected fun onShow() {
+    override fun onPopupShow() {
         onBackPressedCallback.isEnabled = true
     }
 
@@ -340,11 +242,6 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
     //配置内容视图
     abstract fun configLayoutParams(view: View, params: FrameLayout.LayoutParams)
 
-    //自定义动画
-    open fun executeCustomAnimation(isShow: Boolean){
-
-    }
-
     //弹窗容器
     protected class BasePopupWindowContainer: FrameLayout {
 
@@ -365,6 +262,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupWindo
 
             if(onLayoutHandler != null){
                 onLayoutHandler!!()
+                onLayoutHandler = null
             }
         }
     }

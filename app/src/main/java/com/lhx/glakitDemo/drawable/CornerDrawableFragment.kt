@@ -257,8 +257,6 @@ class MeasureParent: ViewGroup {
 
         val heightSize = MeasureSpec.getSize(heightMeasureSpec)
         val heightMode = MeasureSpec.getMode(heightMeasureSpec)
-
-        println("height size = $heightSize, mode $heightMode")
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
 
         measureChildren(widthMeasureSpec, heightMeasureSpec)

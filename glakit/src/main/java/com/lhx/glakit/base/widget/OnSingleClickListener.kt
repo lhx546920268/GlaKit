@@ -12,7 +12,7 @@ abstract class OnSingleClickListener : View.OnClickListener{
 
     override fun onClick(v: View) {
         val time = System.currentTimeMillis()
-        if (time - mLastTouchTime > 1000) {
+        if (time - mLastTouchTime > 200) {
             mLastTouchTime = time
             onSingleClick(v)
         }

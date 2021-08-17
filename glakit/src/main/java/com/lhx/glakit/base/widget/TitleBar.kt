@@ -269,11 +269,7 @@ class TitleBar: ViewGroup {
         if(titleView != null){
             val params = titleView!!.layoutParams
             val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
-            val padding = if (titleViewFill) {
-                max(leftWidth, margin) + max(rightWidth, margin)
-            } else {
-                max(max(leftWidth, rightWidth), margin) * 2
-            }
+            val padding = max(leftWidth, margin) + max(rightWidth, margin)
             val childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, padding, params.width)
             val childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, params.height)
             measureChild(titleView!!, childWidthMeasureSpec, childHeightMeasureSpec)
@@ -286,26 +282,28 @@ class TitleBar: ViewGroup {
         val top = paddingTop
         val width = r - paddingRight - left
         val height = b - paddingBottom - top
+        val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
 
-        var leftWidth = 0
-
+        var leftWidth = margin
         if(leftItem != null){
             leftWidth = leftItem!!.measuredWidth
             leftItem!!.layout(left, top,left + leftWidth, top + height)
         }
 
+        var rightWidth = margin
         if(rightItem != null){
+            rightWidth = rightItem!!.measuredWidth
             rightItem!!.layout(left + width - rightItem!!.measuredWidth, top, left + width, top + height)
         }
 
         if(titleView != null){
-            val titleWidth = titleView!!.measuredWidth
+            val titleWidth = min(titleView!!.measuredWidth, width - leftWidth - rightWidth)
             val titleHeight = min(height, titleView!!.measuredHeight)
             val titleTop = top + (height - titleHeight) / 2
             val titleLeft = if (titleViewFill) {
-                max(leftWidth, resources.getDimensionPixelSize(R.dimen.title_bar_margin))
+                max(leftWidth, margin)
             } else {
-                (width - titleWidth) / 2
+                max((width - titleWidth) / 2, leftWidth)
             }
 
             titleView?.layout(titleLeft, titleTop, titleLeft + titleWidth, titleTop + titleHeight)
