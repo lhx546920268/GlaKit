@@ -41,7 +41,7 @@ abstract class RefreshableFragment: BaseFragment(), RefreshablePage {
                     val params = RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     params.setMargins(0, 0, SizeUtils.pxFormDip(20f, context), SizeUtils.pxFormDip(20f, context))
                     params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-                    params.addRule(RelativeLayout.ABOVE, R.id.base_fragment_bottom_id)
+                    if (getBottomView() != null) params.addRule(RelativeLayout.ABOVE, getBottomView()!!.id)
                     params.alignWithParent = true
 
                     visibility = View.GONE

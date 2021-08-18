@@ -24,7 +24,7 @@ import java.util.*
 @Suppress("deprecation")
 object AppUtils {
 
-    private val context: Context
+    val context: Context
         get() = ActivityLifeCycleManager.currentContext
 
 

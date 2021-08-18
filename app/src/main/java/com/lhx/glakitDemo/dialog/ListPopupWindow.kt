@@ -10,6 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.RecyclerViewAdapter
+import com.lhx.glakit.popup.AnimationStyle
 import com.lhx.glakit.popup.BasePopupWindow
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakitDemo.R

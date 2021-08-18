@@ -11,8 +11,8 @@ import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.base.interf.VoidCallback
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.base.widget.VoidCallback
 import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.drawable.LoadingDrawable
 import com.lhx.glakit.properties.ObservableProperty

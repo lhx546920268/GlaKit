@@ -21,7 +21,7 @@ open class ListFragment : RefreshableFragment() {
             if (hasRefresh) {
                 res = R.layout.list_refresh_fragment
             } else {
-                res = R.layout.list_fragment
+                res = R.layout.common_list_view
             }
         }
 

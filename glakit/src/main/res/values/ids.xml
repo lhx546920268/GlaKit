@@ -3,11 +3,11 @@
     <item name="title_bar_left_item" type="id"/>
     <item name="title_bar_right_item" type="id"/>
 
-    <!--AppBaseFragment 顶部 内容 底部视图-->
-    <item name="base_fragment_title_bar_id" type="id"/>
-    <item name="base_fragment_content_id" type="id"/>
-    <item name="base_fragment_bottom_id" type="id"/>
-    <item name="base_fragment_top_id" type="id"/>
+    <!-- 顶部 内容 底部视图-->
+    <item name="base_title_bar_id" type="id"/>
+    <item name="base_content_view_id" type="id"/>
+    <item name="base_bottom_view_id" type="id"/>
+    <item name="base_top_view_id" type="id"/>
 
     <!--listView-->
     <item name="list_view_type_tag_key" type="id"/>

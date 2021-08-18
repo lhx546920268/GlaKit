@@ -8,10 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import androidx.annotation.LayoutRes
+import androidx.core.view.isVisible
 import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.OverlayArea
 import com.lhx.glakit.base.constant.PageStatus
+import com.lhx.glakit.extension.MATCH_PARENT
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.loading.*
 import com.lhx.glakit.utils.StringUtils
@@ -90,7 +92,7 @@ class BaseContainer : RelativeLayout, InteractionCallback {
                     LayoutParams.MATCH_PARENT,
                     context.resources.getDimensionPixelOffset(R.dimen.title_bar_height)
                 )
-                titleBar!!.id = R.id.base_fragment_title_bar_id
+                titleBar!!.id = R.id.base_title_bar_id
                 addView(titleBar, 0, params)
                 layoutChildren()
             }
@@ -103,7 +105,7 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     }
 
     fun isTitleBarShowing(): Boolean {
-        return titleBar != null && titleBar!!.visibility == View.VISIBLE
+        return titleBar != null && titleBar!!.isVisible
     }
 
     //设置标题
@@ -144,7 +146,7 @@ class BaseContainer : RelativeLayout, InteractionCallback {
             contentView = view
             if (contentView != null) {
                 contentView!!.apply {
-                    id = R.id.base_fragment_content_id
+                    if (id == NO_ID) id = R.id.base_content_view_id
                     val params = if (layoutParams is LayoutParams) {
                         layoutParams as LayoutParams
                     } else {
@@ -165,54 +167,71 @@ class BaseContainer : RelativeLayout, InteractionCallback {
 
     //重新布局子视图
     private fun layoutChildren() {
+        if (topView != null) {
+            val params = topView!!.layoutParams as LayoutParams
+            if (titleBar != null) {
+                params.addRule(BELOW, titleBar!!.id)
+            } else {
+                params.addRule(BELOW, 0)
+            }
+            topView!!.layoutParams = params
+        }
+
         if (contentView != null) {
             val params = contentView!!.layoutParams as LayoutParams
 
-            params.addRule(BELOW, 0)
             if (topView != null && !topViewFloat) {
-                params.addRule(BELOW, R.id.base_fragment_top_id)
+                params.addRule(BELOW, topView!!.id)
+            } else if (titleBar != null) {
+                params.addRule(BELOW, titleBar!!.id)
             } else {
-                params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+                params.addRule(BELOW, 0)
             }
 
-            params.addRule(ABOVE, 0)
             if (bottomView != null) {
-                params.addRule(ABOVE, R.id.base_fragment_bottom_id)
+                params.addRule(ABOVE, bottomView!!.id)
+            } else {
+                params.addRule(ABOVE, 0)
             }
+            contentView!!.layoutParams = params
         }
 
         if (pageLoadingView != null) {
-
             val params = pageLoadingView!!.layoutParams as LayoutParams
 
-            params.addRule(BELOW, 0)
             if (topView != null && !topViewFloat && (overlayArea and OverlayArea.PAGE_LOADING_TOP == OverlayArea.PAGE_LOADING_TOP)) {
-                params.addRule(BELOW, R.id.base_fragment_top_id)
+                params.addRule(BELOW, topView!!.id)
+            } else if (titleBar != null) {
+                params.addRule(BELOW, titleBar!!.id)
             } else {
-                params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+                params.addRule(BELOW, 0)
             }
 
-            params.addRule(ABOVE, 0)
             if (bottomView != null && (overlayArea and OverlayArea.PAGE_LOADING_BOTTOM == OverlayArea.PAGE_LOADING_BOTTOM)) {
-                params.addRule(ABOVE, R.id.base_fragment_bottom_id)
+                params.addRule(ABOVE, bottomView!!.id)
+            } else {
+                params.addRule(ABOVE, 0)
             }
+            pageLoadingView!!.layoutParams = params
         }
 
         if (emptyView != null) {
-
             val params = emptyView!!.layoutParams as LayoutParams
 
-            params.addRule(BELOW, 0)
             if (topView != null && !topViewFloat && (overlayArea and OverlayArea.EMPTY_TOP == OverlayArea.EMPTY_TOP)) {
-                params.addRule(BELOW, R.id.base_fragment_top_id)
+                params.addRule(BELOW, topView!!.id)
+            } else if (titleBar != null) {
+                params.addRule(BELOW, titleBar!!.id)
             } else {
-                params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+                params.addRule(BELOW, 0)
             }
 
-            params.addRule(ABOVE, 0)
             if (bottomView != null && (overlayArea and OverlayArea.EMPTY_BOTTOM == OverlayArea.EMPTY_BOTTOM)) {
-                params.addRule(ABOVE, R.id.base_fragment_bottom_id)
+                params.addRule(ABOVE, bottomView!!.id)
+            } else{
+                params.addRule(ABOVE, 0)
             }
+            emptyView!!.layoutParams = params
         }
     }
 
@@ -223,31 +242,32 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     override fun showLoading(delay: Long, text: CharSequence?) {
         if (!loading) {
             loading = true
-            if (GlaKitConfig.loadViewClass != null) {
+            val view: LoadingView = if (GlaKitConfig.loadViewClass != null) {
                 try {
-                    loadingView =
-                        GlaKitConfig.loadViewClass!!.getConstructor(Context::class.java)
+                    GlaKitConfig.loadViewClass!!.getConstructor(Context::class.java)
                             .newInstance(context)
                 } catch (e: Exception) {
                     throw IllegalStateException("loadViewClass 无法通过context实例化")
                 }
             } else {
-                loadingView = LayoutInflater.from(context)
-                    .inflate(R.layout.default_loading_view, this, false) as LoadingView?
+                LayoutInflater.from(context)
+                    .inflate(R.layout.default_loading_view, this, false) as LoadingView
             }
-            loadingView!!.delay = delay
-            if (loadingView is DefaultLoadingView) {
-                val loadingText =
-                    if (StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
-                (loadingView as DefaultLoadingView).textView.text = loadingText
+            view.delay = delay
+            if (view is DefaultLoadingView) {
+                view.textView.text = if (StringUtils.isEmpty(text)) context.getString(R.string.loading_text) else text
             }
-            addView(loadingView)
-            val params = loadingView!!.layoutParams as LayoutParams
+
+            val params = if (view.layoutParams is LayoutParams) view.layoutParams as LayoutParams else LayoutParams(0, 0)
             params.width = LayoutParams.MATCH_PARENT
             params.height = LayoutParams.MATCH_PARENT
             params.alignWithParent = true
-            params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+            if (titleBar != null) {
+                params.addRule(BELOW, titleBar!!.id)
+            }
             params.addRule(ALIGN_PARENT_BOTTOM)
+            addView(view, params)
+            loadingView = view
         }
     }
 
@@ -316,23 +336,24 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     //加载 pageLoading 如果需要
     private fun loadPageLoadingViewIfNeeded() {
         if ((pageStatus == PageStatus.LOADING || pageStatus == PageStatus.FAIL) && pageLoadingView == null) {
-            if (GlaKitConfig.defaultPageLoadingViewClass != null) {
-                pageLoadingView = try {
+            val view: PageLoadingView = if (GlaKitConfig.defaultPageLoadingViewClass != null) {
+                try {
                     GlaKitConfig.defaultPageLoadingViewClass!!.getConstructor(Context::class.java)
                         .newInstance(context)
                 } catch (e: Exception) {
                     throw IllegalStateException("pageLoadingViewClass 无法通过context实例化")
                 }
             } else {
-                pageLoadingView = LayoutInflater.from(context)
+                LayoutInflater.from(context)
                     .inflate(R.layout.default_page_loading_view, this, false) as PageLoadingView
             }
-            pageLoadingView!!.reloadCallback = {
+            view.reloadCallback = {
                 if(pageStatus == PageStatus.FAIL){
                     mOnEventCallback?.onReloadPage()
                 }
             }
-            addView(pageLoadingView)
+            addView(view)
+            pageLoadingView = view
         }
         pageLoadingView?.status = pageStatus
     }
@@ -340,9 +361,10 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     //加载空视图如果需要
     private fun loadEmptyViewIfNeeded() {
         if (pageStatus == PageStatus.EMPTY && emptyView == null) {
-            emptyView = LayoutInflater.from(context).inflate(R.layout.page_empty_view, this, false)
-            emptyView!!.isClickable = true
-            addView(emptyView)
+            val view = LayoutInflater.from(context).inflate(R.layout.page_empty_view, this, false)
+            view.isClickable = true
+            addView(view)
+            emptyView = view
         }
     }
 
@@ -375,12 +397,14 @@ class BaseContainer : RelativeLayout, InteractionCallback {
                     val params = if (layoutParams is LayoutParams) {
                         layoutParams as LayoutParams
                     } else {
-                        LayoutParams(LayoutParams.MATCH_PARENT, height)
+                        LayoutParams(0, 0)
                     }
-
+                    params.width = MATCH_PARENT
+                    params.height = height
                     params.addRule(ALIGN_PARENT_BOTTOM)
                     layoutParams = params
-                    id = R.id.base_fragment_bottom_id
+
+                    if (id == NO_ID) id = R.id.base_bottom_view_id
                     if (parent !== this@BaseContainer) {
                         ViewUtils.removeFromParent(this)
                         addView(this)
@@ -408,12 +432,14 @@ class BaseContainer : RelativeLayout, InteractionCallback {
                     val params = if (layoutParams is LayoutParams) {
                         layoutParams as LayoutParams
                     } else {
-                        LayoutParams(LayoutParams.MATCH_PARENT, height)
+                        LayoutParams(0, 0)
                     }
-                    params.addRule(BELOW, R.id.base_fragment_title_bar_id)
+                    params.width = MATCH_PARENT
+                    params.height = height
+
                     layoutParams = params
 
-                    id = R.id.base_fragment_top_id
+                    if (id == NO_ID) id = R.id.base_top_view_id
                     if (parent !== this@BaseContainer) {
                         ViewUtils.removeFromParent(this)
                         addView(topView)

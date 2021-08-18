@@ -15,7 +15,7 @@ import kotlin.math.min
 /**
  * 可悬浮item的RecyclerView
  */
-class StickRecyclerView : RecyclerView {
+open class StickRecyclerView : RecyclerView {
 
     //悬浮适配器
     var stickAdapter: StickAdapter? = null

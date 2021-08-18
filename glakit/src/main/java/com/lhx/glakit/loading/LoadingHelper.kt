@@ -56,7 +56,7 @@ interface LoadingHelper {
 
             if (params is RelativeLayout.LayoutParams){
                 params.alignWithParent = true
-                params.addRule(RelativeLayout.BELOW, R.id.base_fragment_title_bar_id)
+                params.addRule(RelativeLayout.BELOW, R.id.base_title_bar_id)
                 params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM)
             }
         }
