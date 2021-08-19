@@ -25,7 +25,9 @@ class ParentLayoutManager: LinearLayoutManager {
     override fun canScrollVertically(): Boolean {
         if (callback != null) {
             val child = callback!!()
-            return child == null || child.isScrollTop
+            val result = child == null || child.isScrollTop
+//            println("canScrollVertically $result")
+            return result
         }
         return super.canScrollVertically()
     }

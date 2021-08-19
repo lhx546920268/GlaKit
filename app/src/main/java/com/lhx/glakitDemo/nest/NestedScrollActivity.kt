@@ -2,6 +2,7 @@ package com.lhx.glakitDemo.nest
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
@@ -76,6 +77,10 @@ class NestedScrollActivity: RecyclerActivity() {
                 }
                 item.setView(childContainer!!)
             }
+        }
+
+        override fun onItemClick(position: Int, section: Int, item: View) {
+            println("click parent")
         }
     }
 }

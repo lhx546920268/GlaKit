@@ -35,6 +35,7 @@ class ParentRecyclerView: StickRecyclerView {
                 super.onScrollStateChanged(recyclerView, newState)
                 println("onScrollStateChanged $newState")
                 if (newState == SCROLL_STATE_IDLE) {
+                    println("onScrolled fling $totalDyConsumed")
                     childFlingIfEnabled()
                 }
             }
@@ -43,7 +44,6 @@ class ParentRecyclerView: StickRecyclerView {
                 super.onScrolled(recyclerView, dx, dy)
                 if (flingStarting) {
                     totalDyConsumed += dy
-                    println("onScrolled fling $totalDyConsumed")
                 } else {
                     totalDyConsumed = 0
                 }
@@ -64,6 +64,7 @@ class ParentRecyclerView: StickRecyclerView {
             val childRecyclerView = callback!!()
             childRecyclerView?.apply {
                 val deltaY = (lastY - e.y).toInt()
+                println("parent move $deltaY")
                 if(deltaY != 0) {
                     scrollBy(0, deltaY)
                 }
@@ -102,10 +103,10 @@ class ParentRecyclerView: StickRecyclerView {
         }
     }
 
-    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        println("dispatchTouchEvent")
-        return super.dispatchTouchEvent(ev)
-    }
+//    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+//        println("dispatchTouchEvent")
+//        return super.dispatchTouchEvent(ev)
+//    }
 
     override fun onNestedFling(
         target: View?,

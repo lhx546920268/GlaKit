@@ -54,7 +54,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.addItemDecoration(Decoration())
         recyclerView.adapter = adapter
-//        recyclerView.stickAdapter = this
+        recyclerView.stickAdapter = this
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {
@@ -211,6 +211,10 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
         override fun shouldExistSectionHeader(section: Int): Boolean {
             return true
+        }
+
+        override fun onHeaderClick(section: Int, header: View) {
+            println("click header")
         }
 
         override val toastContainer: View

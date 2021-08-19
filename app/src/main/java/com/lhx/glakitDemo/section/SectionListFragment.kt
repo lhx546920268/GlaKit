@@ -6,12 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.lhx.glakit.adapter.AbsListViewAdapter
+import com.lhx.glakit.adapter.StickAdapter
+import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.base.fragment.ListFragment
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.viewholder.ViewHolder
 import com.lhx.glakitDemo.R
 
-class SectionListFragment: ListFragment() {
+class SectionListFragment: ListFragment(), StickAdapter {
 
     override val hasRefresh: Boolean
         get() = true
@@ -26,7 +29,20 @@ class SectionListFragment: ListFragment() {
     ) {
         super.initialize(inflater, container, saveInstanceState)
         listView.adapter = adapter
+        listView.stickAdapter = this
         setBarTitle("ListView")
+    }
+
+    override fun getRefreshableContentRes(): Int {
+        return R.layout.section_list_fragment
+    }
+
+    override fun shouldStickAtPosition(position: Int): Boolean {
+        return adapter.sectionInfoForPosition<SectionInfo>(position)?.sectionBegin == position
+    }
+
+    override fun getCurrentStickPosition(firstVisibleItem: Int, stickPosition: Int): Int {
+        return adapter.sectionInfoForPosition<SectionInfo>(firstVisibleItem)?.sectionBegin ?: Position.NO_POSITION
     }
 
     override fun onRefresh() {
@@ -72,7 +88,7 @@ class SectionListFragment: ListFragment() {
             }
 
             return view!!.apply {
-                ViewHolder.get<TextView>(this, R.id.title).text = "Item-$section"
+                ViewHolder.get<TextView>(this, R.id.title).text = "Header -$section"
             }
         }
 
@@ -83,8 +99,16 @@ class SectionListFragment: ListFragment() {
             }
 
             return view!!.apply {
-                ViewHolder.get<TextView>(this, R.id.title).text = "Item-$section"
+                ViewHolder.get<TextView>(this, R.id.title).text = "Footer -$section"
             }
+        }
+
+        override fun shouldExistSectionHeader(section: Int): Boolean {
+            return true
+        }
+
+        override fun onHeaderClick(section: Int, header: View) {
+            println("header click")
         }
 
         override fun numberOfItems(section: Int): Int {

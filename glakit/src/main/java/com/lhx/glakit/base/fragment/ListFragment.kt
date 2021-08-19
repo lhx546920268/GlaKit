@@ -6,13 +6,14 @@ import android.widget.BaseAdapter
 import android.widget.ListView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.widget.StickListView
 
 /**
  * 列表 listView
  */
 open class ListFragment : RefreshableFragment() {
 
-    protected val listView: ListView by lazy { requireViewById(R.id.listView) }
+    protected val listView: StickListView by lazy { requireViewById(R.id.listView) }
 
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 

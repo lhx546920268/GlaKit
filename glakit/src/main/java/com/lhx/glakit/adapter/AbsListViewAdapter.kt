@@ -158,7 +158,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
         val sectionInfo: SectionInfo = sectionInfoForPosition(position)!!
         val view = when {
             sectionInfo.isHeaderForPosition(position) -> {
-                getSectionFooter(sectionInfo.section, result, parent)
+                getSectionHeader(sectionInfo.section, result, parent)
             }
             sectionInfo.isFooterForPosition(position) -> {
                 getSectionFooter(sectionInfo.section, result, parent)
