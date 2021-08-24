@@ -1,8 +1,14 @@
 package com.lhx.glakit.utils
 
 import android.content.Context
+import android.content.res.Configuration
+import android.graphics.Point
+import android.os.Build
 import android.util.TypedValue
-
+import android.view.Display
+import android.view.WindowManager
+import kotlin.math.max
+import kotlin.math.min
 
 
 /**
@@ -91,5 +97,65 @@ object SizeUtils {
         }
 
         return height
+    }
+
+    /**
+     * 获取屏幕高度
+     */
+    fun getScreenHeight(context: Context): Int {
+        return if (!isFullScreen(context)) getWindowHeight(context) else getWindowRealHeight(context)
+    }
+
+    private const val PORTRAIT = 0
+    private const val LANDSCAPE = 1
+    private val realSizes: Array<Point?> = arrayOfNulls(2)
+
+    /**
+     * 获取屏幕真实高度
+     */
+    fun getWindowRealHeight(context: Context): Int {
+        var orientation = context.resources.configuration.orientation
+        orientation = if (orientation == Configuration.ORIENTATION_PORTRAIT) PORTRAIT else LANDSCAPE
+        if (realSizes[orientation] == null) {
+            val display = displayCompat(context)
+            val point = Point()
+            if(display != null) {
+                display.getRealSize(point)
+            }
+            realSizes[orientation] = point
+        }
+        return realSizes[orientation]!!.y
+    }
+
+    /**
+     * 是否是全面屏
+     */
+    fun isFullScreen(context: Context): Boolean {
+        // 低于 API 21的，都不会是全面屏。。。
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            return false
+        }
+
+        val display = displayCompat(context)
+        if (display != null) {
+            val point = Point()
+            display.getRealSize(point)
+
+            val width = min(point.x, point.y)
+            val height = max(point.x, point.y)
+
+            return height.toFloat() / width >= 1.97f
+        }
+        return false
+    }
+
+    @Suppress("deprecation")
+    fun displayCompat(context: Context): Display? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            context.display
+        } else {
+            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+            windowManager.defaultDisplay
+        }
     }
 }

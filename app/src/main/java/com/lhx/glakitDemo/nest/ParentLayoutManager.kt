@@ -3,6 +3,7 @@ package com.lhx.glakitDemo.nest
 import android.content.Context
 import android.util.AttributeSet
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class ParentLayoutManager: LinearLayoutManager {
 
@@ -22,10 +23,12 @@ class ParentLayoutManager: LinearLayoutManager {
 
     var callback: (() -> ChildRecyclerView?)? = null
 
+    var currentScrollState = RecyclerView.SCROLL_STATE_IDLE
+
     override fun canScrollVertically(): Boolean {
         if (callback != null) {
             val child = callback!!()
-            val result = child == null || child.isScrollTop
+            val result = child == null || child.isScrollTop || currentScrollState != RecyclerView.SCROLL_STATE_IDLE
 //            println("canScrollVertically $result")
             return result
         }

@@ -10,6 +10,7 @@ import android.text.TextUtils
 import android.util.Base64
 import android.webkit.MimeTypeMap
 import java.io.*
+import java.nio.channels.FileChannel
 
 
 /**
@@ -72,7 +73,7 @@ object FileUtils {
      * @param filePath 文件路径
      * @return MIME TYPE
      */
-    fun getMimeType(filePath: String): String? {
+    fun getMimeType(filePath: String): String {
         val index = filePath.lastIndexOf(File.separator)
         var fileName = filePath
         var extension = ""
@@ -87,7 +88,7 @@ object FileUtils {
         }
         if (!StringUtils.isEmpty(extension)) {
             val map = MimeTypeMap.getSingleton()
-            return map.getMimeTypeFromExtension(extension)
+            return map.getMimeTypeFromExtension(extension) ?: ""
         }
         return ""
     }
@@ -348,6 +349,26 @@ object FileUtils {
         return null
     }
 
+    /**
+     * 复制文件
+     */
+    fun copyFile(pathFrom: String, pathTo: String) {
+        if (pathFrom.equals(pathTo, ignoreCase = true)) {
+            return
+        }
+        var outputChannel: FileChannel? = null
+        var inputChannel: FileChannel? = null
+        try {
+            inputChannel = FileInputStream(File(pathFrom)).channel
+            outputChannel = FileOutputStream(File(pathTo)).channel
+            inputChannel.transferTo(0, inputChannel.size(), outputChannel)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            inputChannel?.close()
+            outputChannel?.close()
+        }
+    }
 
     /**
      * 获取文件大小

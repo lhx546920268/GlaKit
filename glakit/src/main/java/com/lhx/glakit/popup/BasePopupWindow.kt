@@ -19,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.VoidCallback
+import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.ViewUtils
 
 /**
@@ -172,8 +173,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val rect = Rect()
             anchor.getGlobalVisibleRect(rect)
-            val h = anchor.resources.displayMetrics.heightPixels - rect.bottom
-            height = h
+            height = SizeUtils.getScreenHeight(context) - rect.bottom
         }
         super.showAsDropDown(anchor)
     }

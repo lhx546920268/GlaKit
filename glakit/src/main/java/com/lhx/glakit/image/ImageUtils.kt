@@ -1,11 +1,15 @@
 package com.lhx.glakit.image
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.FileUtils
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
+import com.lhx.glakit.utils.ThreadUtils
+import java.io.*
 import kotlin.math.floor
 
 /**
@@ -142,5 +146,94 @@ object ImageUtils {
             return null
         }
         return file
+    }
+
+    //保存图片到相册
+    //需要申请权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
+    @Suppress("deprecation")
+    fun saveImageToAlbum(file: File, context: Context, completion: ValueCallback<Boolean>) {
+        val mimeType = FileUtils.getMimeType(file.absolutePath)
+        val filename = "${FileUtils.getUniqueFileName()}${getLastImageSuffix(mimeType)}"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "${Environment.DIRECTORY_DCIM}${File.separator}Camera")
+            values.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, filename)
+            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis().toString())
+
+            val contentResolver = context.contentResolver
+            val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            if (uri != null) {
+                Thread {
+                    var inputStream: InputStream? = null
+                    var outputStream: OutputStream? = null
+                    var result = false
+                    try {
+                        outputStream = contentResolver.openOutputStream(uri)
+                        if (outputStream != null) {
+                            inputStream = FileInputStream(file)
+                            android.os.FileUtils.copy(inputStream, outputStream)
+                            result = true
+                        }
+                    }catch (e: Exception) {
+
+                    }finally {
+                        inputStream?.close()
+                        outputStream?.close()
+                        ThreadUtils.runOnMainThread {
+                            completion(result)
+                        }
+                    }
+                }.start()
+            } else {
+                completion(false)
+            }
+        } else {
+            val state = Environment.getExternalStorageState()
+            val rootDir = if (state == Environment.MEDIA_MOUNTED) {
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+            } else {
+                context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            }
+
+            if (rootDir != null) {
+                Thread {
+                    if (!rootDir.exists()) rootDir.mkdirs()
+                    val path = if (state != Environment.MEDIA_MOUNTED) {
+                        rootDir.absolutePath
+                    } else {
+                        "${rootDir.absolutePath}${File.separator}Camera${File.separator}"
+                    }
+                    val foldDir = File(path)
+                    if (!foldDir.exists()) {
+                        foldDir.mkdirs()
+                    }
+
+                    val imageFile = File(foldDir, filename)
+                    FileUtils.copyFile(file.absolutePath, imageFile.absolutePath)
+                    ThreadUtils.runOnMainThread {
+                        completion(true)
+                    }
+                }.start()
+            } else {
+                completion(false)
+            }
+        }
+    }
+
+    //获取图片后缀
+    private fun getLastImageSuffix(mineType: String): String {
+        val defaultSuffix = ".png"
+        try {
+            val index = mineType.lastIndexOf("/") + 1
+            if (index > 0) {
+                return ".${mineType.substring(index)}"
+            }
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            return defaultSuffix
+        }
+        return defaultSuffix
     }
 }

@@ -50,8 +50,6 @@ class ChildRecyclerView: StickRecyclerView {
                 super.onScrolled(recyclerView, dx, dy)
                 if (flingStarting) {
                     totalDyConsumed += dy
-                } else {
-                    totalDyConsumed = 0
                 }
             }
         })
@@ -70,6 +68,7 @@ class ChildRecyclerView: StickRecyclerView {
                     println("child scroll y $deltaY")
                     if(deltaY != 0) {
                         parentRecyclerView.scrollBy(0, deltaY)
+                        return false
                     }
                 }
             }
@@ -86,6 +85,7 @@ class ChildRecyclerView: StickRecyclerView {
         if (fling && velocityY < 0) {
             //向下快速滑动了，如果滑动距离超过父视图的可滑动范围，继续让子视图滑动
             flingStarting = true
+            totalDyConsumed = 0
             targetVelocityY = velocityY
         } else {
             flingStarting = false
@@ -99,11 +99,11 @@ class ChildRecyclerView: StickRecyclerView {
             flingStarting = false
             val distance = flingHelper.getSplineFlingDistance(targetVelocityY)
             val remain = distance - abs(totalDyConsumed)
+            println("child fling remain $remain $totalDyConsumed $distance")
             if (remain > 0) {
                 val velocity = flingHelper.getSplineFlingVelocity(remain)
                 parentRecyclerView.fling(0, -velocity)
             }
-            totalDyConsumed = 0
         }
     }
 }

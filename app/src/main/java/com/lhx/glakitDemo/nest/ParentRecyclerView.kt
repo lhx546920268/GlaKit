@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
-import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.widget.StickRecyclerView
 
@@ -33,6 +32,8 @@ class ParentRecyclerView: StickRecyclerView {
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
+                val manager = layoutManager as ParentLayoutManager
+                manager.currentScrollState = newState
                 println("onScrollStateChanged $newState")
                 if (newState == SCROLL_STATE_IDLE) {
                     println("onScrolled fling $totalDyConsumed")
@@ -44,8 +45,6 @@ class ParentRecyclerView: StickRecyclerView {
                 super.onScrolled(recyclerView, dx, dy)
                 if (flingStarting) {
                     totalDyConsumed += dy
-                } else {
-                    totalDyConsumed = 0
                 }
             }
         })
@@ -77,11 +76,12 @@ class ParentRecyclerView: StickRecyclerView {
     private var targetVelocityY = 0
     private var flingStarting = false
     override fun fling(velocityX: Int, velocityY: Int): Boolean {
-        println("fling $velocityY")
+        println("parent fling $velocityY")
         val fling = super.fling(velocityX, velocityY)
         if (fling && velocityY > 0) {
             //向下快速滑动了，如果滑动距离超过父视图的可滑动范围，继续让子视图滑动
             flingStarting = true
+            totalDyConsumed = 0
             targetVelocityY = velocityY
         } else {
             flingStarting = false
@@ -99,7 +99,6 @@ class ParentRecyclerView: StickRecyclerView {
                 val velocity = flingHelper.getSplineFlingVelocity(remain)
                 currentChildRecyclerView?.fling(0, velocity)
             }
-            totalDyConsumed = 0
         }
     }
 
@@ -107,19 +106,4 @@ class ParentRecyclerView: StickRecyclerView {
 //        println("dispatchTouchEvent")
 //        return super.dispatchTouchEvent(ev)
 //    }
-
-    override fun onNestedFling(
-        target: View?,
-        velocityX: Float,
-        velocityY: Float,
-        consumed: Boolean
-    ): Boolean {
-        println("onNestedFling ${target ?: "null"}")
-        return super.onNestedFling(target, velocityX, velocityY, consumed)
-    }
-
-    override fun onNestedPreFling(target: View?, velocityX: Float, velocityY: Float): Boolean {
-        println("onNestedPreFling ${target ?: "null"}")
-        return super.onNestedPreFling(target, velocityX, velocityY)
-    }
 }

@@ -16,14 +16,13 @@ object DrawableUtils{
      * @return 着色后的drawable
      */
     fun getTintDrawable(drawable: Drawable, @ColorInt tintColor: Int) : Drawable{
-
-        val wrapDrawable = DrawableCompat.wrap(drawable)
+        val wrapDrawable = DrawableCompat.wrap(drawable).mutate()
         DrawableCompat.setTint(wrapDrawable, tintColor)
         return wrapDrawable
     }
 
     fun getTintListDrawable(drawable: Drawable, color: ColorStateList) : Drawable{
-        val wrapDrawable = DrawableCompat.wrap(drawable)
+        val wrapDrawable = DrawableCompat.wrap(drawable).mutate()
         DrawableCompat.setTintList(wrapDrawable, color)
         return wrapDrawable
     }

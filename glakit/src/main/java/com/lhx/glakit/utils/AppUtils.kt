@@ -326,4 +326,17 @@ object AppUtils {
         }
         return false
     }
+
+    /**
+     * 判断是否为鸿蒙系统
+     * */
+    fun isHarmonyOs(): Boolean{
+        try {
+            val clz = Class.forName("com.huawei.system.BuildEx")
+            val method = clz.getMethod("getOsBrand")
+            return "harmony" == method.invoke(clz)
+        } catch (e: Exception) {
+        }
+        return false
+    }
 }
