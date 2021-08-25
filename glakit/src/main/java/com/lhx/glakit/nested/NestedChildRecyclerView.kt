@@ -1,4 +1,4 @@
-package com.lhx.glakitDemo.nest
+package com.lhx.glakit.nested
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,7 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.widget.StickRecyclerView
 import kotlin.math.abs
 
-class ChildRecyclerView: StickRecyclerView {
+/**
+ * 可嵌套滑动的子列表
+ */
+class NestedChildRecyclerView: StickRecyclerView {
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
@@ -18,30 +21,16 @@ class ChildRecyclerView: StickRecyclerView {
         defStyleAttr
     )
 
-    private val flingHelper by lazy { FlingHelper(context) }
-
-    private val parentRecyclerView: ParentRecyclerView by lazy {
-        var p = parent
-        while (p != null && p !is ParentRecyclerView) {
-            p = p.parent
-        }
-        p as ParentRecyclerView
-    }
+    var nestedScrollHelper: NestedScrollHelper? = null
 
     val isScrollTop: Boolean
         get() = !canScrollVertically(-1)
 
-    //滑动
-    private var totalDyConsumed = 0
-
     init {
         addOnScrollListener(object : OnScrollListener() {
-
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                println("onChildScrollStateChanged $newState")
                 if (newState == SCROLL_STATE_IDLE) {
-                    println("onChildScrolled fling $totalDyConsumed")
                     parentFlingIfEnabled()
                 }
             }
@@ -55,24 +44,26 @@ class ChildRecyclerView: StickRecyclerView {
         })
     }
 
+    //滑动
+    private var totalDyConsumed = 0
     private var lastY = 0f
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        println("child y ${e.y}")
-        when(e.action) {
-            MotionEvent.ACTION_MOVE -> {
-                val deltaY = (lastY - e.y).toInt()
-                if((isScrollTop && deltaY < 0) || !parentRecyclerView.isScrollEnd) {
-                    //如果父RecyclerView已经滑动到底部，需要让子RecyclerView滑动剩余的距离
-                    println("child scroll y $deltaY")
-                    if(deltaY != 0) {
-                        parentRecyclerView.scrollBy(0, deltaY)
-                        return false
-                    }
+        val helper = nestedScrollHelper
+        helper ?: return super.onTouchEvent(e)
+
+        if (e.action == MotionEvent.ACTION_MOVE) {
+            val deltaY = (lastY - e.y).toInt()
+            if((isScrollTop && deltaY < 0) || !helper.parent.isScrollEnd) {
+                //如果子RecyclerView已经滑动到顶部，需要让父RecyclerView滑动剩余的距离
+                if(deltaY != 0) {
+                    helper.parent.scrollBy(0, deltaY)
+                    return false
                 }
             }
         }
+
         lastY = e.y
         return super.onTouchEvent(e)
     }
@@ -80,10 +71,9 @@ class ChildRecyclerView: StickRecyclerView {
     private var targetVelocityY = 0
     private var flingStarting = false
     override fun fling(velocityX: Int, velocityY: Int): Boolean {
-        println("child fling $velocityY")
         val fling = super.fling(velocityX, velocityY)
         if (fling && velocityY < 0) {
-            //向下快速滑动了，如果滑动距离超过父视图的可滑动范围，继续让子视图滑动
+            //向上快速滑动了，如果滑动距离超过子视图的可滑动范围，继续让父视图滑动
             flingStarting = true
             totalDyConsumed = 0
             targetVelocityY = velocityY
@@ -97,12 +87,15 @@ class ChildRecyclerView: StickRecyclerView {
     private fun parentFlingIfEnabled() {
         if (flingStarting) {
             flingStarting = false
-            val distance = flingHelper.getSplineFlingDistance(targetVelocityY)
+
+            val helper = nestedScrollHelper
+            helper ?: return
+
+            val distance = helper.getSplineFlingDistance(targetVelocityY)
             val remain = distance - abs(totalDyConsumed)
-            println("child fling remain $remain $totalDyConsumed $distance")
             if (remain > 0) {
-                val velocity = flingHelper.getSplineFlingVelocity(remain)
-                parentRecyclerView.fling(0, -velocity)
+                val velocity = helper.getSplineFlingVelocity(remain)
+                helper.parent.fling(0, -velocity)
             }
         }
     }

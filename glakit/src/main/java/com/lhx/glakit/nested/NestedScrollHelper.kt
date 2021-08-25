@@ -1,16 +1,18 @@
-package com.lhx.glakitDemo.nest
+package com.lhx.glakit.nested
 
-import android.content.Context
 import android.hardware.SensorManager
 import android.view.ViewConfiguration
+import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
 
-/**
- * 快速滑动帮助类 相关算法可以在OverScroller找到
- */
-class FlingHelper(context: Context) {
+
+//嵌套滑动帮助类
+class NestedScrollHelper(
+    val parent: NestedParentRecyclerView,
+    private val childFetcher: () -> NestedChildRecyclerView?,
+    ) {
 
     companion object {
         // Fling friction
@@ -20,11 +22,27 @@ class FlingHelper(context: Context) {
         private val DECELERATION_RATE = (ln(0.78) / ln(0.9)).toFloat()
     }
 
+    init {
+        parent.nestedScrollHelper = this
+    }
+
+    //当前子列表
+    val child: NestedChildRecyclerView?
+        get() = childFetcher()
+
+    fun layoutCanScrollVertically(): Boolean {
+        val child = childFetcher()
+        return child == null
+                || child.isScrollTop
+                || !parent.isScrollEnd
+                || (parent.scrollState != RecyclerView.SCROLL_STATE_IDLE && !parent.touching)
+    }
+
     // A context-specific coefficient adjusted to physical values.
     private val physicalCoeff: Float
 
     init {
-        val ppi = context.resources.displayMetrics.density * 160.0f
+        val ppi = parent.context.resources.displayMetrics.density * 160.0f
         physicalCoeff = (SensorManager.GRAVITY_EARTH // g (m/s^2)
                 * 39.37f // inch/meter
                 * ppi

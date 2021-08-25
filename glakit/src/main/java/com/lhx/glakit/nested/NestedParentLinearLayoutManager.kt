@@ -1,11 +1,13 @@
-package com.lhx.glakitDemo.nest
+package com.lhx.glakit.nested
 
 import android.content.Context
 import android.util.AttributeSet
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 
-class ParentLayoutManager: LinearLayoutManager {
+/**
+ * 嵌套滑动父视图布局管理
+ */
+class NestedParentLinearLayoutManager: LinearLayoutManager {
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, orientation: Int, reverseLayout: Boolean) : super(
@@ -21,16 +23,11 @@ class ParentLayoutManager: LinearLayoutManager {
         defStyleRes: Int
     ) : super(context, attrs, defStyleAttr, defStyleRes)
 
-    var callback: (() -> ChildRecyclerView?)? = null
-
-    var currentScrollState = RecyclerView.SCROLL_STATE_IDLE
+    var nestedScrollHelper: NestedScrollHelper? = null
 
     override fun canScrollVertically(): Boolean {
-        if (callback != null) {
-            val child = callback!!()
-            val result = child == null || child.isScrollTop || currentScrollState != RecyclerView.SCROLL_STATE_IDLE
-//            println("canScrollVertically $result")
-            return result
+        if (nestedScrollHelper != null) {
+            return nestedScrollHelper!!.layoutCanScrollVertically()
         }
         return super.canScrollVertically()
     }

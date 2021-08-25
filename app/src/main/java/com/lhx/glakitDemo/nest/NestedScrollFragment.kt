@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.nested.NestedChildRecyclerView
+import com.lhx.glakit.nested.NestedScrollHelper
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakitDemo.R
 
@@ -19,8 +21,10 @@ class NestedScrollFragment: RecyclerFragment() {
         return R.layout.nested_scroll_fragment
     }
 
-    val childRecyclerView: ChildRecyclerView
-        get() = recyclerView as ChildRecyclerView
+    var nestedScrollHelper: NestedScrollHelper? = null
+
+    val childRecyclerView: NestedChildRecyclerView
+        get() = recyclerView as NestedChildRecyclerView
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -29,6 +33,7 @@ class NestedScrollFragment: RecyclerFragment() {
     ) {
         super.initialize(inflater, container, saveInstanceState)
 
+        childRecyclerView.nestedScrollHelper = nestedScrollHelper
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = Adapter(recyclerView)
     }

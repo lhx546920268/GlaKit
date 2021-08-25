@@ -10,6 +10,9 @@ import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.activity.RecyclerActivity
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.nested.NestedParentLinearLayoutManager
+import com.lhx.glakit.nested.NestedParentRecyclerView
+import com.lhx.glakit.nested.NestedScrollHelper
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakitDemo.R
 
@@ -19,6 +22,14 @@ class NestedScrollActivity: RecyclerActivity() {
     override val hasRefresh: Boolean
         get() = true
 
+    val parentRecyclerView: NestedParentRecyclerView
+        get() = recyclerView as NestedParentRecyclerView
+
+    private val helper by lazy {
+        NestedScrollHelper(parentRecyclerView) {
+        childContainer?.getChildRecyclerView()
+    } }
+
     override fun initialize(
         inflater: LayoutInflater,
         container: BaseContainer,
@@ -26,15 +37,22 @@ class NestedScrollActivity: RecyclerActivity() {
     ) {
         super.initialize(inflater, container, saveInstanceState)
         setBarTitle("嵌套滑动")
-        val layoutManager = ParentLayoutManager(this)
-        layoutManager.callback = {
-            childContainer?.getChildRecyclerView()
-        }
-        (recyclerView as ParentRecyclerView).callback = {
-            childContainer?.getChildRecyclerView()
-        }
+        val layoutManager = NestedParentLinearLayoutManager(this)
+        layoutManager.nestedScrollHelper = helper
+
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = Adapter(recyclerView)
+
+        //到底部就 不让下拉刷新了，不然滑动 indicator 的时候会触发
+        recyclerView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val parent = recyclerView as NestedParentRecyclerView
+                    smartRefreshLayout?.setEnableRefresh(!parent.isScrollEnd)
+                }
+            }
+        })
     }
 
     override fun onRefresh() {
@@ -74,6 +92,7 @@ class NestedScrollActivity: RecyclerActivity() {
                 val item = viewHolder.itemView as NestedScrollItem
                 if (childContainer == null) {
                     childContainer = LayoutInflater.from(context).inflate(R.layout.nested_scroll_child_container, null) as NestedScrollChildContainer
+                    childContainer?.nestedScrollHelper = helper
                 }
                 item.setView(childContainer!!)
             }

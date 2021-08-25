@@ -32,6 +32,7 @@ import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
 import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.nest.NestedScrollActivity
+import com.lhx.glakitDemo.pager.PagerFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
 import java.util.*
@@ -40,7 +41,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
     override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
-    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll")
+    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager")
     private val adapter: Adapter by lazy { Adapter(recyclerView) }
 
     override fun initialize(
@@ -205,6 +206,9 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
                 7 -> {
                     val intent = Intent(requireContext(), NestedScrollActivity::class.java)
                     startActivity(intent)
+                }
+                8 -> {
+                    startActivity(PagerFragment::class.java)
                 }
             }
         }

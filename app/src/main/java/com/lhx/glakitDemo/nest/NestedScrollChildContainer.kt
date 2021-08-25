@@ -7,7 +7,10 @@ import android.widget.LinearLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.lhx.glakit.base.activity.BaseActivity
+import com.lhx.glakit.nested.NestedChildRecyclerView
+import com.lhx.glakit.nested.NestedScrollHelper
 import com.lhx.glakitDemo.R
 import net.lucode.hackware.magicindicator.MagicIndicator
 import net.lucode.hackware.magicindicator.ViewPagerHelper
@@ -31,6 +34,8 @@ class NestedScrollChildContainer: LinearLayout {
         defStyleAttr
     )
 
+    var nestedScrollHelper: NestedScrollHelper? = null
+
     val titles = arrayOf("水果生鲜", "休闲零食", "男装女装", "日用百货", "母婴用品")
     val fragments = arrayOf(NestedScrollFragment(),
         NestedScrollFragment(),
@@ -38,7 +43,7 @@ class NestedScrollChildContainer: LinearLayout {
         NestedScrollFragment(),
         NestedScrollFragment())
 
-    fun getChildRecyclerView(): ChildRecyclerView? {
+    fun getChildRecyclerView(): NestedChildRecyclerView? {
         val fragment = fragments[viewPager.currentItem]
         return if (fragment.isInit) fragment.childRecyclerView else null
     }
@@ -69,15 +74,17 @@ class NestedScrollChildContainer: LinearLayout {
         }
         magicIndicator.navigator = commonNavigator
         ViewPagerHelper.bind(magicIndicator, viewPager)
-
+        
         val activity = context as BaseActivity
-        viewPager.adapter = object: FragmentPagerAdapter(activity.supportFragmentManager) {
+        viewPager.adapter = object: FragmentPagerAdapter(activity.supportFragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
             override fun getCount(): Int {
                 return fragments.size
             }
 
             override fun getItem(position: Int): Fragment {
-                return fragments[position]
+                val fragment = fragments[position]
+                fragment.nestedScrollHelper = nestedScrollHelper
+                return fragment
             }
         }
     }

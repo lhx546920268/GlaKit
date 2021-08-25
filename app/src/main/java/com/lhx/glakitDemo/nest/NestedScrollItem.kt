@@ -23,7 +23,7 @@ class NestedScrollItem: FrameLayout {
     fun setView(view: View) {
         if (oldView != view) {
             oldView?.removeFromParent()
-            view?.removeFromParent()
+            view.removeFromParent()
             addView(view, LayoutParams(MATCH_PARENT, MATCH_PARENT))
         }
     }
