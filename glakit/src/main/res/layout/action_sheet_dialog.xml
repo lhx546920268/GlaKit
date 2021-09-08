@@ -25,6 +25,7 @@
              android:layout_above="@id/cancelTextView"
              android:id="@+id/topContainer"
              android:layout_width="match_parent"
+             android:layout_alignWithParentIfMissing="true"
              android:layout_height="wrap_content"/>
 
     <!--顶部透明-->

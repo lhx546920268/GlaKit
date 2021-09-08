@@ -24,6 +24,7 @@ class MainActivity : TabBarActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         application.registerActivityLifecycleCallbacks(LifeCycle)
         user.addObserver(this, arrayOf("title", "subtitle"), {oldValue, newValue, property ->
             if (oldValue != newValue) {

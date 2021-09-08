@@ -16,7 +16,6 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
-import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
