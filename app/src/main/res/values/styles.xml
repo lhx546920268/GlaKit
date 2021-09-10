@@ -13,7 +13,9 @@
         <item name="android:windowBackground">@color/transparent</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsTranslucent">false</item>
+        <!--不会覆盖底部导航栏 false-->
         <item name="android:windowIsFloating">false</item>
+        <!--防止状态栏有背景颜色-->
         <item name="android:windowTranslucentStatus">true</item>
     </style>
 

@@ -11,11 +11,11 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.fragment.BaseFragment
+import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.utils.AppUtils
 
 /**
@@ -70,7 +70,7 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         //状态栏
         if (shouldSetStatusBarStyle) {
             AppUtils.setStatusBarStyle(
-                window, ContextCompat.getColor(this, R.color.status_bar_background_color),
+                this, getColorCompat(R.color.status_bar_background_color),
                 resources.getBoolean(R.bool.status_bar_is_light)
             )
         }

@@ -152,8 +152,7 @@ class SegmentedControl : LinearLayoutCompat {
         _backgroundDrawable.borderWidth = borderWidth
         _backgroundDrawable.setCornerRadius(cornerRadius)
         _backgroundDrawable.borderColor = tintColor
-
-        ViewUtils.setBackground(_backgroundDrawable, this)
+        background = _backgroundDrawable
     }
 
     //设置item 的padding
@@ -269,8 +268,7 @@ class SegmentedControl : LinearLayoutCompat {
 
             normalBackgroundDrawable = NormalBackgroundDrawable()
             stateListDrawable.addState(intArrayOf(), normalBackgroundDrawable)
-
-            ViewUtils.setBackground(stateListDrawable, this)
+            background = stateListDrawable
         }
     }
 

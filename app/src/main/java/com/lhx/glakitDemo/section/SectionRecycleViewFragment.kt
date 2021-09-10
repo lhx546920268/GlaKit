@@ -5,8 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.ItemType
@@ -17,7 +15,6 @@ import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.viewholder.RecyclerViewHolder
-import com.lhx.glakitDemo.BR
 import com.lhx.glakitDemo.R
 
 class SectionRecycleViewFragment: RecyclerFragment(), StickAdapter {
@@ -81,8 +78,7 @@ class SectionRecycleViewFragment: RecyclerFragment(), StickAdapter {
                     RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.section_footer, parent, false))
                 }
                 else -> {
-                    val binding: ViewDataBinding = DataBindingUtil.inflate(LayoutInflater.from(context), R.layout.list_item, parent, false)
-                    RecyclerViewHolder(binding)
+                    RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.list_item, parent, false))
                 }
             }
         }
@@ -108,12 +104,8 @@ class SectionRecycleViewFragment: RecyclerFragment(), StickAdapter {
             position: Int,
             section: Int
         ) {
-            viewHolder.binding.apply {
-                setVariable(BR.title, "标题-$position")
-                setVariable(BR.subtitle, "副标题-$position")
-            }
-//            viewHolder.getView<TextView>(R.id.title).text = "标题-$position"
-//            viewHolder.getView<TextView>(R.id.subtitle).text = "副标题"
+            viewHolder.getView<TextView>(R.id.title).text = "标题-$position"
+            viewHolder.getView<TextView>(R.id.subtitle).text = "副标题"
         }
 
         override fun onBindSectionHeaderViewHolder(viewHolder: RecyclerViewHolder, section: Int) {

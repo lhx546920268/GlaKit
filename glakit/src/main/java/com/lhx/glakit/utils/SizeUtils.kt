@@ -1,11 +1,12 @@
 package com.lhx.glakit.utils
 
+import android.app.Activity
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Point
 import android.os.Build
 import android.util.TypedValue
 import android.view.Display
+import android.view.View
 import android.view.WindowManager
 import kotlin.math.max
 import kotlin.math.min
@@ -14,6 +15,7 @@ import kotlin.math.min
 /**
  * 尺寸大小工具类
  */
+@Suppress("deprecation")
 object SizeUtils {
 
     /**
@@ -100,31 +102,37 @@ object SizeUtils {
     }
 
     /**
-     * 获取屏幕高度
+     * 获取底部导航栏高度
      */
-    fun getScreenHeight(context: Context): Int {
-        return if (!isFullScreen(context)) getWindowHeight(context) else getWindowRealHeight(context)
+    fun getNavigationBarHeight(context: Context): Int {
+        val resId = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+        return if (resId > 0) {
+            context.resources.getDimensionPixelSize(resId)
+        } else 0
     }
 
-    private const val PORTRAIT = 0
-    private const val LANDSCAPE = 1
-    private val realSizes: Array<Point?> = arrayOfNulls(2)
+    /**
+     * 获取显示区域高度
+     */
+    fun getDisplayHeight(context: Context): Int {
+        if (context is Activity) {
+            val view = context.findViewById<View>(android.R.id.content)
+            if (view != null) {
+                var height = view.measuredHeight
+                if (!AppUtils.isStatusBarOverlay(context)) height += getStatusBarHeight(context)
+                return height
+            }
+        }
+        return getWindowHeight(context)
+    }
 
     /**
      * 获取屏幕真实高度
      */
     fun getWindowRealHeight(context: Context): Int {
-        var orientation = context.resources.configuration.orientation
-        orientation = if (orientation == Configuration.ORIENTATION_PORTRAIT) PORTRAIT else LANDSCAPE
-        if (realSizes[orientation] == null) {
-            val display = displayCompat(context)
-            val point = Point()
-            if(display != null) {
-                display.getRealSize(point)
-            }
-            realSizes[orientation] = point
-        }
-        return realSizes[orientation]!!.y
+        val size = Point()
+        displayCompat(context)?.getRealSize(size)
+        return size.y
     }
 
     /**
@@ -149,7 +157,6 @@ object SizeUtils {
         return false
     }
 
-    @Suppress("deprecation")
     fun displayCompat(context: Context): Display? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             context.display

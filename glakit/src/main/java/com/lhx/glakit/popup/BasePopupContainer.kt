@@ -76,9 +76,6 @@ open class BasePopupContainer: FrameLayout, PopupAnimation {
     //内容
     private var _contentView: View? = null
 
-    //是否要动画
-    private var shouldAnimate = true
-
     //添加弹窗消失回调
     fun addOnDismissHandler(onDismissHandler: VoidCallback) {
         onDismissHandlers.add(onDismissHandler)
@@ -93,7 +90,6 @@ open class BasePopupContainer: FrameLayout, PopupAnimation {
     fun showAsDropDown(anchor: View, animate: Boolean) {
         if (parent != null) return
 
-        shouldAnimate = animate
         val parent = ViewUtils.findSuitableParent(anchor)
         if (parent != null) {
             parent.addView(this)
@@ -106,11 +102,10 @@ open class BasePopupContainer: FrameLayout, PopupAnimation {
                 layoutParams = params
             }
 
-            if (shouldAnimate) {
-                if (isLaidOut) {
+            if (animate) {
+                invisible()
+                post {
                     executeShowAnimation()
-                } else {
-                    invisible()
                 }
             } else {
                 onPopupShow()
@@ -123,14 +118,6 @@ open class BasePopupContainer: FrameLayout, PopupAnimation {
         _contentView?.removeFromParent()
         _contentView = view
         addView(view, LayoutParams(MATCH_PARENT, WRAP_CONTENT))
-    }
-
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-        super.onLayout(changed, left, top, right, bottom)
-        if (shouldAnimate) {
-            executeShowAnimation()
-            shouldAnimate = false
-        }
     }
 
     fun dismiss(animate: Boolean) {

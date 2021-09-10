@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
-import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -19,6 +18,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.VoidCallback
+import com.lhx.glakit.extension.MATCH_PARENT
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.ViewUtils
 
@@ -57,7 +57,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
     private var setByThis = false
 
     //容器
-    protected val container: BasePopupWindowContainer by lazy {BasePopupWindowContainer(context)}
+    protected val container: FrameLayout by lazy {FrameLayout(context)}
 
     //内容
     protected var _contentView: View? = null
@@ -69,11 +69,11 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
         view.setOnClickListener {
             dismiss(true, DismissAction.BACKGROUND)
         }
-        view.layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT)
+        view.layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         view
     }
 
-    //是否要动画
+    //是否需要动画
     private var shouldAnimate = true
 
     //添加弹窗消失回调
@@ -133,13 +133,9 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
         setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         if (shouldAnimate) {
-            if (container.isLaidOut) {
+            container.visibility = View.INVISIBLE
+            container.post {
                 executeShowAnimation()
-            } else {
-                container.visibility = View.INVISIBLE
-                container.onLayoutHandler = {
-                    executeShowAnimation()
-                }
             }
         }else{
             onPopupShow()
@@ -173,7 +169,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             val rect = Rect()
             anchor.getGlobalVisibleRect(rect)
-            height = SizeUtils.getScreenHeight(context) - rect.bottom
+            height = SizeUtils.getDisplayHeight(context) - rect.bottom
         }
         super.showAsDropDown(anchor)
     }
@@ -241,29 +237,4 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
 
     //配置内容视图
     abstract fun configLayoutParams(view: View, params: FrameLayout.LayoutParams)
-
-    //弹窗容器
-    protected class BasePopupWindowContainer: FrameLayout {
-
-        //布局完成回调，用来执行显示动画的
-        var onLayoutHandler: (() -> Unit)? = null
-
-        constructor(context: Context) : super(context)
-        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
-        constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-            context,
-            attrs,
-            defStyleAttr
-        )
-
-
-        override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
-            super.onLayout(changed, left, top, right, bottom)
-
-            if(onLayoutHandler != null){
-                onLayoutHandler!!()
-                onLayoutHandler = null
-            }
-        }
-    }
 }

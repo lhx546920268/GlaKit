@@ -20,7 +20,6 @@ import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
-import com.lhx.glakit.utils.ViewUtils
 
 /**
  * 信息弹窗fragment
@@ -382,7 +381,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     }
 
     //设置背景
-    private fun setBackground(view: View?) {
+    private fun setBackground(view: View) {
         val drawable = CornerBorderDrawable()
         drawable.setCornerRadius(props.cornerRadius)
         drawable.backgroundColor = props.backgroundColor
@@ -404,7 +403,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
         stateListDrawable.addState(intArrayOf(), drawable)
 
         view.isClickable = true
-        ViewUtils.setBackground(stateListDrawable, view)
+        view.background = stateListDrawable
         return arrayOf(drawablePressed, drawable)
     }
 

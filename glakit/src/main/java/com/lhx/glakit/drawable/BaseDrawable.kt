@@ -70,11 +70,11 @@ abstract class BaseDrawable : Drawable() {
     }
 
     //如果drawable用于多个view, 使用这个方法 关联view 将copy一份
-    fun attachView(view: View?, shouldCopy: Boolean = false){
-        if(shouldCopy){
-            ViewUtils.setBackground(this.copy(), view)
+    fun attachView(view: View, shouldCopy: Boolean = false){
+        view.background = if(shouldCopy){
+            copy()
         }else{
-            ViewUtils.setBackground(this, view)
+            this
         }
     }
 

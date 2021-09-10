@@ -1,5 +1,6 @@
 package com.lhx.glakit.utils
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -8,7 +9,6 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.view.View
-import android.view.Window
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -20,7 +20,6 @@ import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import java.util.*
 
-
 @Suppress("deprecation")
 object AppUtils {
 
@@ -29,7 +28,7 @@ object AppUtils {
 
 
     /**
-     * 设备id
+     * 设备id 有可能重复
      */
     val deviceId: String by lazy {
         "35${Build.BRAND.length % 10}" +
@@ -275,36 +274,35 @@ object AppUtils {
     }
 
     /**
-     * 设置状态栏样式
-     * @param window 对应window
+     * 设置状态栏样式dow
      * @param backgroundColor 背景颜色 0不改变并且全屏
      * @param isLight 内容是否是浅色(白色）
      * @param overlay 状态栏是否是否覆盖在布局上面
      * @return 是否成功
      */
     fun setStatusBarStyle(
-        window: Window?,
+        context: Context,
         @ColorInt backgroundColor: Int?,
         isLight: Boolean,
         overlay: Boolean = backgroundColor == 0
     ): Boolean {
+        if (context !is Activity) return false
+        val window = context.window
 
-        if (window == null) return false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
             window.statusBarColor = backgroundColor ?: ContextCompat.getColor(
                 window.context,
                 R.color.status_bar_background_color
             )
             if (isLight) {
-                var flags: Int = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 if (overlay) {
                     flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 }
                 window.decorView.systemUiVisibility = flags
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //android6.0以后可以对状态栏文字颜色和图标进行修改
-                    var flags: Int = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                    var flags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
                     if (overlay) {
                         flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                     }
@@ -316,8 +314,7 @@ object AppUtils {
                 }
             }
             return true
-        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-
+        }else{
             if (overlay) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             } else {
@@ -325,6 +322,23 @@ object AppUtils {
             }
         }
         return false
+    }
+
+    /**
+     * 判断是否是沉浸式状态栏
+     */
+    fun isStatusBarOverlay(context: Context): Boolean {
+        if (context !is Activity) return false
+        val window = context.window
+
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val flags = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            window.decorView.systemUiVisibility and flags == flags
+        }else{
+            val params = window.attributes
+            val flags = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+            params.flags and flags == flags
+        }
     }
 
     /**
