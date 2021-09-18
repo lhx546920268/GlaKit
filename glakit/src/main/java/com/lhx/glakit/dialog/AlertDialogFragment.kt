@@ -12,11 +12,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.CornerBorderDrawable
+import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
@@ -526,7 +526,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     //按钮分割线
     private inner class ItemDecoration : RecyclerView.ItemDecoration() {
         ///分割线
-        var divider = ColorDrawable(ContextCompat.getColor(context!!, R.color.divider_color))
+        var divider = ColorDrawable(requireContext().getColorCompat(R.color.divider_color))
 
         override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
             super.onDraw(c, parent, state)

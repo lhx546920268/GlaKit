@@ -3,12 +3,15 @@ package com.lhx.glakit.image
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.media.MediaScannerConnection
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.FileUtils
 import com.lhx.glakit.utils.ThreadUtils
+import com.luck.picture.lib.tools.PictureFileUtils
 import java.io.*
 import kotlin.math.floor
 
@@ -182,6 +185,12 @@ object ImageUtils {
                         inputStream?.close()
                         outputStream?.close()
                         ThreadUtils.runOnMainThread {
+                            if (result) {
+                                val path = PictureFileUtils.getPath(context, uri)
+                                if (path != null) {
+                                    refreshAlbum(context, path, mimeType)
+                                }
+                            }
                             completion(result)
                         }
                     }
@@ -213,6 +222,7 @@ object ImageUtils {
                     val imageFile = File(foldDir, filename)
                     FileUtils.copyFile(file.absolutePath, imageFile.absolutePath)
                     ThreadUtils.runOnMainThread {
+                        refreshAlbum(context, imageFile.absolutePath, mimeType)
                         completion(true)
                     }
                 }.start()
@@ -220,6 +230,11 @@ object ImageUtils {
                 completion(false)
             }
         }
+    }
+
+    //通知相册刷新
+    private fun refreshAlbum(context: Context, path: String, mineType: String) {
+        MediaScanner(context, path, mineType)
     }
 
     //获取图片后缀
@@ -235,5 +250,23 @@ object ImageUtils {
             return defaultSuffix
         }
         return defaultSuffix
+    }
+}
+
+//媒体内容扫描
+class MediaScanner(context: Context, val path: String, val mineType: String): MediaScannerConnection.MediaScannerConnectionClient {
+
+    private val connection = MediaScannerConnection(context, this)
+
+    override fun onScanCompleted(path: String?, uri: Uri?) {
+        connection.disconnect()
+    }
+
+    override fun onMediaScannerConnected() {
+        connection.scanFile(path, mineType)
+    }
+
+    init {
+        connection.connect()
     }
 }

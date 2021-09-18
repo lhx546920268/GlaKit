@@ -1,6 +1,7 @@
 package com.lhx.glakit.utils
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.text.TextUtils
 import android.util.Base64
 import androidx.preference.PreferenceManager
@@ -15,15 +16,17 @@ object PrefsUtils {
     private val context: Context
         get() = ActivityLifeCycleManager.currentContext
 
+    private val prefs: SharedPreferences
+        get() = PreferenceManager.getDefaultSharedPreferences(context)
+
     /**
      * 保存配置文件
      * @param key 要保存的key
      * @param value 保存的值
      */
     fun save(key: String, value: Any?) {
-
         val prefsKey = getKey(key)
-        val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
+        val editor = prefs.edit()
         when(value){
             is Boolean -> editor.putBoolean(prefsKey, value)
             is Int -> editor.putInt(prefsKey, value)
@@ -44,38 +47,31 @@ object PrefsUtils {
 
     //////////////////////////////加载配置文件中的信息////////////////////////////////
     fun loadString(key: String, defValue: String? = null): String? {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getString(getKey(key), defValue)
     }
 
     fun loadInt(key: String, defValue: Int = 0): Int {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getInt(getKey(key), defValue)
     }
 
     fun loadBoolean(key: String, defValue: Boolean = false): Boolean {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getBoolean(getKey(key), defValue)
     }
 
     fun loadLong(key: String, defValue: Long = 0): Long {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getLong(getKey(key), defValue)
     }
 
     fun loadFloat(key: String, defValue: Float = 0f): Float {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.getFloat(getKey(key), defValue)
     }
 
     fun remove(key: String) {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         prefs.edit().remove(getKey(key)).apply()
     }
 
     // 是否包含key
     fun contains(key: String): Boolean {
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context)
         return prefs.contains(getKey(key))
     }
 
@@ -84,14 +80,14 @@ object PrefsUtils {
         if (TextUtils.isEmpty(key))
             return
         val prefsKey = getKey(key)
-        val prefs = PreferenceManager.getDefaultSharedPreferences(context).edit()
+        val editor = prefs.edit()
         val outputStream = ByteArrayOutputStream()
         try {
             val oos = ObjectOutputStream(outputStream)
             oos.writeObject(obj)
             val temp = String(Base64.encode(outputStream.toByteArray(), Base64.DEFAULT))
-            prefs.putString(prefsKey, temp)
-            prefs.apply()
+            editor.putString(prefsKey, temp)
+            editor.apply()
         } catch (e: IOException) {
             e.printStackTrace()
         }

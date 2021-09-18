@@ -8,10 +8,10 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.ValueCallback
+import com.lhx.glakit.extension.getDrawableCompat
 
 /**
  * hint和text 字体不一样
@@ -57,7 +57,7 @@ class CustomTextView: AppCompatTextView {
             hintBold = array.getBoolean(R.styleable.customText_hintBold, hintBold)
             val res = array.getResourceId(R.styleable.customText_clearIcon, 0)
             if (res > 0) {
-                clearDrawable = ContextCompat.getDrawable(context, res)
+                clearDrawable = context.getDrawableCompat(res)
             }
             array.recycle()
         }

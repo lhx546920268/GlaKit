@@ -8,13 +8,11 @@ import android.view.*
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.BaseContainerActivity
 import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
-import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.DrawableUtils
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.ViewUtils
@@ -175,7 +173,7 @@ abstract class TabBarActivity : BaseContainerActivity() {
     //获取图标
     private fun getIcon(position: Int): Drawable {
         val stateListDrawable = StateListDrawable()
-        var drawable = ContextCompat.getDrawable(this, getNormalIconRes(position))
+        var drawable = getDrawableCompat(getNormalIconRes(position))
         require(drawable != null) {
             "NormalIconRes 无效"
         }
@@ -186,7 +184,7 @@ abstract class TabBarActivity : BaseContainerActivity() {
         var checkDrawable = drawable
         val checkIcon = getCheckedIconRes(position)
         if (checkIcon != 0) {
-            checkDrawable = ContextCompat.getDrawable(this, checkIcon)
+            checkDrawable = getDrawableCompat(checkIcon)
         } else {
             val color = checkedTintColor
             if (color != 0) {

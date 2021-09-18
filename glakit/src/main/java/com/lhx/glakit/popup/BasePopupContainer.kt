@@ -7,7 +7,6 @@ import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CallSuper
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.VoidCallback
 import com.lhx.glakit.extension.*
@@ -37,7 +36,7 @@ open class BasePopupContainer: FrameLayout, PopupAnimation {
     //背景
     private val backgroundView: View by lazy {
         val view = View(context)
-        view.setBackgroundColor(ContextCompat.getColor(context, R.color.dialog_background))
+        view.setBackgroundColor(context.getColorCompat(R.color.dialog_background))
         view.setOnSingleListener {
             dismiss(true)
         }

@@ -9,9 +9,9 @@ import android.view.Gravity
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatTextView
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.CornerBorderDrawable
+import com.lhx.glakit.extension.getDrawableCompat
 import com.lhx.glakit.extension.intValue
 import kotlin.math.max
 
@@ -110,7 +110,7 @@ class BadgeValueTextView : AppCompatTextView {
         var drawable: Drawable? = null
         if (text != null && text.toString().intValue() > 99) {
             if (maxValueIconRes > 0) {
-                drawable = ContextCompat.getDrawable(context, maxValueIconRes)
+                drawable = context.getDrawableCompat(maxValueIconRes)
             } else {
                 value = "99+"
             }

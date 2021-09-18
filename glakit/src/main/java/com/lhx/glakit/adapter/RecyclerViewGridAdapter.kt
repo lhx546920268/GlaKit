@@ -7,11 +7,11 @@ import android.graphics.drawable.ColorDrawable
 import android.util.SparseArray
 import android.view.View
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
+import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.section.EdgeInsets
 import com.lhx.glakit.section.GridSectionInfo
 import com.lhx.glakit.section.SectionInfo
@@ -59,7 +59,7 @@ abstract class RecyclerViewGridAdapter(
 
     init {
         recyclerView.apply {
-            dividerColor = ContextCompat.getColor(context, R.color.divider_color)
+            dividerColor = context.getColorCompat(R.color.divider_color)
             _differentColumnProduct = getDifferentColumnProduct()
 
             _layoutManager = GridLayoutManager(context, _differentColumnProduct)

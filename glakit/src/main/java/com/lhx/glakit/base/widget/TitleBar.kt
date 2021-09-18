@@ -11,10 +11,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.DrawableUtils
+import com.lhx.glakit.extension.getColorCompat
+import com.lhx.glakit.extension.getDrawableCompat
 import kotlin.math.max
 import kotlin.math.min
 
@@ -26,7 +27,7 @@ class TitleBar: ViewGroup {
     private var titleTextView: TextView? = null
 
     //标题颜色
-    var titleColor = ContextCompat.getColor(context, R.color.title_bar_title_color)
+    var titleColor = context.getColorCompat(R.color.title_bar_title_color)
         set(value) {
             if (value != field) {
                 field = value
@@ -48,7 +49,7 @@ class TitleBar: ViewGroup {
     private var titleViewFill = false
 
     //着色
-    var tintColor = ContextCompat.getColor(context, R.color.title_bar_tint_color)
+    var tintColor = context.getColorCompat(R.color.title_bar_tint_color)
         set(value) {
             if (value != field) {
                 field = value
@@ -79,9 +80,9 @@ class TitleBar: ViewGroup {
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
         context, attrs, defStyleAttr) {
 
-        setBackgroundColor(ContextCompat.getColor(getContext(), R.color.title_bar_background_color))
+        setBackgroundColor(context.getColorCompat(R.color.title_bar_background_color))
         shadow = View(context)
-        shadow.setBackgroundColor(ContextCompat.getColor(getContext(), R.color.title_bar_shadow_color))
+        shadow.setBackgroundColor(context.getColorCompat(R.color.title_bar_shadow_color))
         addView(shadow)
     }
 
@@ -146,7 +147,7 @@ class TitleBar: ViewGroup {
             val icon: Int = R.drawable.back_icon
             var title: String? = null
             if (icon != 0) {
-                drawable = ContextCompat.getDrawable(context, icon)
+                drawable = context.getDrawableCompat(icon)
                 drawable = DrawableUtils.getTintDrawable(drawable!!, tintColor)
             }
             if (drawable == null) {

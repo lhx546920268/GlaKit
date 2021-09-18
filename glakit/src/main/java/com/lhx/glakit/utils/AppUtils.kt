@@ -15,9 +15,9 @@ import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
+import com.lhx.glakit.extension.getColorCompat
 import java.util.*
 
 @Suppress("deprecation")
@@ -290,10 +290,7 @@ object AppUtils {
         val window = context.window
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            window.statusBarColor = backgroundColor ?: ContextCompat.getColor(
-                window.context,
-                R.color.status_bar_background_color
-            )
+            window.statusBarColor = backgroundColor ?: context.getColorCompat(R.color.status_bar_background_color)
             if (isLight) {
                 var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 if (overlay) {

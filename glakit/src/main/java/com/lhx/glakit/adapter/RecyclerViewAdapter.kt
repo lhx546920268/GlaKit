@@ -85,6 +85,18 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
                 //数据改变，刷新数据
                 shouldReloadData = true
             }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                shouldReloadData = true
+            }
+
+            override fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+                shouldReloadData = true
+            }
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                shouldReloadData = true
+            }
         })
     }
 

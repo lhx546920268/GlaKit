@@ -2,8 +2,8 @@ package com.lhx.glakit.dialog
 
 import android.content.Context
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
+import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.utils.SizeUtils
 
 //弹窗属性
@@ -87,18 +87,18 @@ class AlertProps {
         fun build(context: Context) : AlertProps{
             val props = AlertProps()
 
-            props.backgroundColor = ContextCompat.getColor(context, R.color.alert_dialog_background_color)
-            props.selectedBackgroundColor = ContextCompat.getColor(context, R.color.alert_high_lighted_background_color)
+            props.backgroundColor = context.getColorCompat(R.color.alert_dialog_background_color)
+            props.selectedBackgroundColor = context.getColorCompat(R.color.alert_high_lighted_background_color)
 
-            props.titleColor = ContextCompat.getColor(context, R.color.alert_title_color)
-            props.subtitleColor = ContextCompat.getColor(context, R.color.alert_subtitle_color)
+            props.titleColor = context.getColorCompat(R.color.alert_title_color)
+            props.subtitleColor = context.getColorCompat(R.color.alert_subtitle_color)
 
-            props.buttonTextColor = ContextCompat.getColor(context, R.color.alert_button_text_color)
-            props.destructiveButtonTextColor = ContextCompat.getColor(context, R.color.alert_destructive_button_text_color)
-            props.destructiveButtonBackgroundColor = ContextCompat.getColor(context, R.color.alert_destructive_button_background_color)
-            props.destructiveButtonSelectedBackgroundColor = ContextCompat.getColor(context, R.color.alert_destructive_button_high_lighted_background_color)
+            props.buttonTextColor = context.getColorCompat(R.color.alert_button_text_color)
+            props.destructiveButtonTextColor = context.getColorCompat(R.color.alert_destructive_button_text_color)
+            props.destructiveButtonBackgroundColor = context.getColorCompat(R.color.alert_destructive_button_background_color)
+            props.destructiveButtonSelectedBackgroundColor = context.getColorCompat(R.color.alert_destructive_button_high_lighted_background_color)
 
-            props.buttonDisableTextColor = ContextCompat.getColor(context, R.color.alert_disable_button_text_color)
+            props.buttonDisableTextColor = context.getColorCompat(R.color.alert_disable_button_text_color)
 
             props.dividerHeight = context.resources.getDimensionPixelSize(R.dimen.divider_height)
             props.cornerRadius = context.resources.getDimensionPixelSize(R.dimen.alert_corner_radius)

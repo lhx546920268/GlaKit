@@ -1,7 +1,5 @@
 package com.lhx.glakit.loading
 
-import androidx.annotation.DrawableRes
-
 /**
  * 交互回调
  */

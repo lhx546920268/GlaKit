@@ -25,11 +25,13 @@ interface BaseAttached {
      * 获取 activity 或者 fragment 绑定的bundle
      */
     val attachedBundle: Bundle?
+        get() = attachedActivity?.intent?.extras
 
     /**
      * 获取context
      */
     val attachedContext: Context?
+        get() = attachedActivity
 
     /**
      * 关联的activity
@@ -65,7 +67,7 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
     @ColorInt
     fun getColorCompat(@ColorRes colorRes: Int): Int {
         if(attachedContext != null){
-            return ContextCompat.getColor(attachedContext!!, colorRes)
+            ContextCompat.getColor(attachedContext!!, colorRes)
         }
         return 0
     }

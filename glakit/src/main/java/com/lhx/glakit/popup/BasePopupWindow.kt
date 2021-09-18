@@ -15,10 +15,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.VoidCallback
 import com.lhx.glakit.extension.MATCH_PARENT
+import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.ViewUtils
 
@@ -65,7 +65,7 @@ abstract class BasePopupWindow(val context: Context) : PopupWindow(), PopupAnima
     //背景
     protected val backgroundView: View by lazy {
         val view = View(context)
-        view.setBackgroundColor(ContextCompat.getColor(context, R.color.dialog_background))
+        view.setBackgroundColor(context.getColorCompat(R.color.dialog_background))
         view.setOnClickListener {
             dismiss(true, DismissAction.BACKGROUND)
         }

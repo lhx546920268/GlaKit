@@ -126,7 +126,7 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
         if(activityCount == 0){
             //app进入前台
             EventBus.getDefault()
-                .post(AppEvent(this, AppEvent.Type.ENTER_FOREGROUND))
+                .post(AppEvent(AppEvent.Type.ENTER_FOREGROUND, this))
         }
         activityCount ++
     }
@@ -142,7 +142,7 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
         if(activityCount == 0){
             //app进入后台
             EventBus.getDefault()
-                .post(AppEvent(this, AppEvent.Type.ENTER_BACKGROUND))
+                .post(AppEvent(AppEvent.Type.ENTER_BACKGROUND, this))
         }
     }
 
