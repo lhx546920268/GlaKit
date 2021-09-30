@@ -14,6 +14,8 @@ import com.lhx.glakit.utils.ThreadUtils
 import com.luck.picture.lib.tools.PictureFileUtils
 import java.io.*
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * 图片工具类
@@ -33,11 +35,15 @@ object ImageUtils {
 
     fun fitSize(width: Int, height: Int, maxWidth: Int, maxHeight: Int): Size {
 
+        if (maxWidth == 0 && maxHeight == 0) {
+            return Size(width, height)
+        }
+
         if (width == height) {
-            val value = width.coerceAtMost(if (maxWidth > maxHeight) maxHeight else maxWidth)
+            val max = if (maxWidth > 0 && maxHeight > 0) min(maxWidth, maxHeight) else max(maxWidth, maxHeight)
+            val value = min(max, width)
             return Size(value, value)
         } else {
-
             var w = width.toDouble()
             var h = height.toDouble()
             val heightScale: Double =

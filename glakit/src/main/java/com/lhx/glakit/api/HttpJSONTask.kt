@@ -49,10 +49,12 @@ abstract class HttpJSONTask : HttpTask() {
 
     final override fun processResponse(body: ResponseBody?): Boolean {
         if (body != null) {
-            val json = JSONObject.parse(body.string())
-            if (json is JSONObject) {
-                return processJSON(json)
-            }
+            try {
+                val json = JSONObject.parse(body.string())
+                if (json is JSONObject) {
+                    return processJSON(json)
+                }
+            } catch (e: Exception) { }
         }
         return false
     }

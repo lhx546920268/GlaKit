@@ -40,16 +40,19 @@ class ImagePicker(val mode: Int = PictureConfig.MULTIPLE): OnResultCallbackListe
                             .create(context as Activity)
                             .openCamera(PictureMimeType.ofImage())
                             .setLanguage(LanguageConfig.CHINESE)
+                            .cropImageWideHigh(1080, 0)
                         open(model)
                     }
                     1 -> {
                         val model = ImagePickerConfig
                             .create(context as Activity)
                             .openGallery(PictureMimeType.ofImage())
+                            .setLanguage(LanguageConfig.CHINESE)
                             .selectionMode(mode)
                             .maxSelectNum(count)
                             .imageSpanCount(4)
                             .isCamera(false)
+                            .cropImageWideHigh(1080, 0)
                         open(model)
                     }
                 }
@@ -68,8 +71,7 @@ class ImagePicker(val mode: Int = PictureConfig.MULTIPLE): OnResultCallbackListe
         if (!model.isCompress) {
             model.isAndroidQTransform(true)
         }
-        model.setLanguage(LanguageConfig.ENGLISH)
-             .imageEngine(GlideEngine.sharedEngine)
+        model.imageEngine(GlideEngine.sharedEngine)
             .forResult(this)
     }
 

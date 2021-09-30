@@ -259,10 +259,9 @@ interface ImageCompressEngine {
         }
     }
 
-    private fun needCompressToLocalMedia(leastCompressSize: Int, path: String): Boolean {
-        if (leastCompressSize > 0 && !TextUtils.isEmpty(path)) {
-            val source = File(path)
-            return source.exists() && source.length() > leastCompressSize shl 10
+    private fun needCompressToLocalMedia(leastCompressSize: Int, file: File): Boolean {
+        if (leastCompressSize > 0) {
+            return file.exists() && file.length() > leastCompressSize shl 10
         }
         return true
     }
@@ -278,7 +277,7 @@ interface ImageCompressEngine {
             val maxHeight = config.cropHeight
             if (maxWidth > 0 || maxHeight > 0) {
                 val result = ImageUtils.fitSize(width, height, maxWidth, maxHeight)
-                if (!(result.width >= width || result.height >= height)) {
+                if (result.width < width || result.height < height) {
                     //图片比裁剪大小大 才裁剪
                     size = result
                 }
@@ -313,9 +312,10 @@ interface ImageCompressEngine {
                     size.height / height.toFloat())
             }
 
+            val result = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
             return MatrixResult(
-                true,
-                Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
+                result != null,
+                result ?: bitmap
             )
         }
         return MatrixResult(false, bitmap)
@@ -331,12 +331,15 @@ interface ImageCompressEngine {
         bitmap = rotateResult.bitmap
         val path =
             if (media.isCut && !TextUtils.isEmpty(media.cutPath)) media.cutPath else media.realPath
-        val isCompress = needCompressToLocalMedia(config.minimumCompressSize, path)
+
+        path ?: return null
+
+        val file = File(path)
+        val isCompress = needCompressToLocalMedia(config.minimumCompressSize, file)
+        var compressed = false
         if (isCompress || rotateResult.change) {
             var compressQuality = config.compressQuality
-            if (rotateResult.change) {
-                compressQuality = 100
-            } else if (compressQuality <= 0 || compressQuality > 100) {
+            if (compressQuality <= 0 || compressQuality > 100) {
                 compressQuality = 80
             }
             bitmap.compress(
@@ -344,10 +347,11 @@ interface ImageCompressEngine {
                 compressQuality,
                 stream
             )
+            compressed = stream.size() < file.length()
         }
         bitmap.recycle()
 
-        if (isCompress || rotateResult.change) {
+        if (compressed) {
             val fos = FileOutputStream(outFile)
             try {
                 fos.write(stream.toByteArray())
