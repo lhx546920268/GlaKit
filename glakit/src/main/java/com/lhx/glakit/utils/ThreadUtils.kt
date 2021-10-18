@@ -13,13 +13,11 @@ object ThreadUtils {
      * 在主线程上执行
      * @param runnable 要执行的、、
      */
-    fun runOnMainThread(runnable: Runnable?) {
-        if (runnable != null) {
-            if (isRunOnMainThread()) {
-                runnable.run()
-            } else {
-                getMainHandler().post(runnable)
-            }
+    fun runOnMainThread(runnable: Runnable) {
+        if (isRunOnMainThread()) {
+            runnable.run()
+        } else {
+            mainHandler.post(runnable)
         }
     }
 
@@ -33,16 +31,10 @@ object ThreadUtils {
 
 
     //主线程handler
-    private var mMainHandler: Handler? = null
+    private val mainHandler
+        get() = MainHandlerHolder.handler
+}
 
-    /**
-     * 获取主线程handler 单例
-     */
-    @Synchronized
-    fun getMainHandler(): Handler {
-        if (mMainHandler == null) {
-            mMainHandler = Handler(Looper.getMainLooper())
-        }
-        return mMainHandler!!
-    }
+private object MainHandlerHolder {
+    val handler = Handler(Looper.getMainLooper())
 }

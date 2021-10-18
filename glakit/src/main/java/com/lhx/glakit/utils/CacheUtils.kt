@@ -18,7 +18,9 @@ object CacheUtils {
         object : Thread() {
             override fun run() {
                 FileUtils.deleteAllFiles(File(folder))
-                ThreadUtils.runOnMainThread(runnable)
+                if (runnable != null) {
+                    ThreadUtils.runOnMainThread(runnable)
+                }
             }
         }.start()
     }

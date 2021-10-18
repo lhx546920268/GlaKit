@@ -89,6 +89,7 @@ abstract class HttpTask: Callback, HttpCancelable {
         }
 
     //当前状态
+    @Volatile
     private var status = Status.PREPARING
 
     //当前call
@@ -178,10 +179,8 @@ abstract class HttpTask: Callback, HttpCancelable {
     }
 
     //开始
-    @Synchronized
     fun start() {
         if (status == Status.PREPARING) {
-
             prepare()
             status = Status.EXECUTING
             onStart()
@@ -218,7 +217,6 @@ abstract class HttpTask: Callback, HttpCancelable {
     }
 
     //取消
-    @Synchronized
     override fun cancel() {
         if (status == Status.EXECUTING || status == Status.PREPARING) {
             status = Status.CANCELLED
@@ -275,7 +273,6 @@ abstract class HttpTask: Callback, HttpCancelable {
     //任务失败
     protected open fun onFailure() {}
 
-    @Synchronized
     private fun processFailResult() {
         ThreadUtils.runOnMainThread{
             if(status == Status.EXECUTING){
@@ -300,14 +297,12 @@ abstract class HttpTask: Callback, HttpCancelable {
         onSuccess()
         callback?.onSuccess(this) //异步解析
 
-        synchronized(this){
-            if(status == Status.EXECUTING){
-                status = Status.SUCCESSFUL
-                if(onSuccess != null){
-                    onSuccess!!(this)
-                }
-                onComplete()
+        if(status == Status.EXECUTING){
+            status = Status.SUCCESSFUL
+            if(onSuccess != null){
+                onSuccess!!(this)
             }
+            onComplete()
         }
     }
 

@@ -27,13 +27,13 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
     //对应任务
     private var taskMap = HashMap<String, HttpTask>()
 
-    private var _isExecuting = false
-    override val isExecuting: Boolean
-        get() = _isExecuting
+    @Volatile
+    override var isExecuting = false
+        private set
 
     //添加任务 key 为HttpTask.name
     fun addTask(task: HttpTask, key: String = task.name ?: "") {
-        require(!_isExecuting){
+        require(!isExecuting){
             "HttpMultiTasks is executing"
         }
         tasks.add(task)
@@ -53,7 +53,7 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
 
     //开始所有任务
     fun start() {
-        require(!_isExecuting){
+        require(!isExecuting){
             "HttpMultiTasks is executing"
         }
 
@@ -61,25 +61,21 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
             "HttpMultiTasks has no task"
         }
 
-        synchronized(this) {
-            _isExecuting = true
-            for(task in tasks){
-                task.start()
-            }
+        isExecuting = true
+        for(task in tasks){
+            task.start()
         }
     }
 
     //取消所有请求
     fun cancelAllTasks() {
-        synchronized(this){
-            if (_isExecuting) {
-                for(task in tasks){
-                    task.cancel()
-                }
-                tasks.clear()
-                taskMap.clear()
-                _isExecuting = false
+        if (isExecuting) {
+            for(task in tasks){
+                task.cancel()
             }
+            tasks.clear()
+            taskMap.clear()
+            isExecuting = false
         }
     }
 
@@ -117,26 +113,24 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
     override fun onComplete(task: HttpTask) {
         ThreadUtils.runOnMainThread {
             if (!task.isCancelled) {
-                synchronized(this) {
-                    tasks.remove(task)
-                    val success = task.isApiSuccess || (!task.isNetworkError && onlyFlagNetworkError)
-                    if(!success){
-                        hasFail = true
-                        if(shouldCancelAllTaskWhileOneFail){
-                            for(tTask in tasks){
-                                tTask.cancel()
-                            }
-                            tasks.clear()
+                tasks.remove(task)
+                val success = task.isApiSuccess || (!task.isNetworkError && onlyFlagNetworkError)
+                if(!success){
+                    hasFail = true
+                    if(shouldCancelAllTaskWhileOneFail){
+                        for(tTask in tasks){
+                            tTask.cancel()
                         }
+                        tasks.clear()
                     }
+                }
 
-                    if(tasks.size == 0){
-                        _isExecuting = false
-                        for(completion in completions){
-                            completion(this)
-                        }
-                        taskMap.clear()
+                if(tasks.size == 0){
+                    isExecuting = false
+                    for(completion in completions){
+                        completion(this)
                     }
+                    taskMap.clear()
                 }
             }
         }

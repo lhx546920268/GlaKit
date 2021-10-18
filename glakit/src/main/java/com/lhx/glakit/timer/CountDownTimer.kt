@@ -3,7 +3,6 @@ package com.lhx.glakit.timer
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import android.util.Log
 
 
 /**
@@ -31,40 +30,36 @@ abstract class CountDownTimer(){
     private var _millisToStop: Long = 0
 
     //倒计时是否已取消
+    @Volatile
     private var _canceled = false
 
     //是否正在倒计时
-    private var _executing = false
-    val isExecuting: Boolean
-        get(){
-            return _executing
-        }
+    @Volatile
+    var isExecuting = false
+        private set
 
     //
     private val _handler = Handler(Looper.getMainLooper()){
-        synchronized(this) {
-            if (_canceled) {
-                return@Handler true
-            }
-            if (_millisToCountDown == COUNT_DOWN_INFINITE) {
+        if (_canceled) {
+            return@Handler true
+        }
+        if (_millisToCountDown == COUNT_DOWN_INFINITE) {
 
-                //倒计时无时间限制
-                triggerTick(COUNT_DOWN_INFINITE)
+            //倒计时无时间限制
+            triggerTick(COUNT_DOWN_INFINITE)
+        } else {
+
+            //倒计时剩余时间
+            val millisLeft = _millisToStop - SystemClock.elapsedRealtime()
+            if (millisLeft <= 0) {
+                //没时间了，倒计时停止
+                finish()
+            } else if (millisLeft < _millisInterval) {
+                //剩余的时间已经不够触发一次倒计时间隔了
+                onTick(millisLeft)
+                continueTimer(millisLeft)
             } else {
-
-                //倒计时剩余时间
-                val millisLeft = _millisToStop - SystemClock.elapsedRealtime()
-                Log.d("millisLeft", millisLeft.toString())
-                if (millisLeft <= 0) {
-                    //没时间了，倒计时停止
-                    finish()
-                } else if (millisLeft < _millisInterval) {
-                    //剩余的时间已经不够触发一次倒计时间隔了
-                    onTick(millisLeft)
-                    continueTimer(millisLeft)
-                } else {
-                    triggerTick(millisLeft)
-                }
+                triggerTick(millisLeft)
             }
         }
         true
@@ -92,9 +87,8 @@ abstract class CountDownTimer(){
     }
 
     //开始倒计时
-    @Synchronized
     open fun start() {
-        if (_executing) {
+        if (isExecuting) {
             _handler.removeMessages(COUNT_DOWN_MSG_WHAT)
         }
         _canceled = false
@@ -102,7 +96,7 @@ abstract class CountDownTimer(){
             finish()
             return
         }
-        _executing = true
+        isExecuting = true
         if (_millisToCountDown == COUNT_DOWN_INFINITE) { //倒计时无时间限制
             _handler.sendEmptyMessageDelayed(COUNT_DOWN_MSG_WHAT, _millisInterval)
         } else {
@@ -112,19 +106,18 @@ abstract class CountDownTimer(){
     }
 
     //停止倒计时
-    @Synchronized
     open fun stop() {
-        if (_canceled || !_executing) return
+        if (_canceled || !isExecuting) return
         _canceled = true
-        _executing = false
+        isExecuting = false
         _handler.removeMessages(COUNT_DOWN_MSG_WHAT)
     }
 
 
     //执行完成
     private fun finish() {
-        if (!_executing) return
-        _executing = false
+        if (!isExecuting) return
+        isExecuting = false
         _canceled = false
         onFinish()
     }
