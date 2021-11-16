@@ -124,6 +124,24 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         _visible = false
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        //不让重建fragment
+        removeFragmentStateInBundle(outState)
+    }
+
+    //移除fragment 装信息
+    private fun removeFragmentStateInBundle(bundle: Bundle) {
+        bundle.remove("android:support:fragments")
+        val keys = bundle.keySet()
+        for (key in keys) {
+            val value = bundle.get(key)
+            if (value is Bundle) {
+                removeFragmentStateInBundle(value)
+            }
+        }
+    }
+
     //语言国际化
 //    override fun attachBaseContext(newBase: Context) {
 //        super.attachBaseContext(BaseContextWrapper.wrap(newBase, ""))

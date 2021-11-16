@@ -1,6 +1,5 @@
 package com.lhx.glakitDemo
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -25,6 +24,7 @@ class MainActivity : TabBarActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        println("MainActivity $this")
         application.registerActivityLifecycleCallbacks(LifeCycle)
         user.addObserver(this, arrayOf("title", "subtitle"), {oldValue, newValue, property ->
             if (oldValue != newValue) {
@@ -68,7 +68,8 @@ class MainActivity : TabBarActivity() {
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        println("onSaveInstanceState $outState")
     }
 }

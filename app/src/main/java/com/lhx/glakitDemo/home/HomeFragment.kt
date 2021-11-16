@@ -41,7 +41,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
     override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
-    val items = arrayOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager")
+    val items = arrayListOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager")
     private val adapter: Adapter by lazy { Adapter(recyclerView) }
 
     override fun initialize(
@@ -51,6 +51,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
     ) {
         super.initialize(inflater, container, saveInstanceState)
 
+        println("首页 $this")
         setBarTitle("首页")
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.addItemDecoration(Decoration())
