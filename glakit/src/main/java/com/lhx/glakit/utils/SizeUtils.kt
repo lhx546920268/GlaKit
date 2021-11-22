@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.view.Display
 import android.view.View
 import android.view.WindowManager
+import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
 
@@ -24,9 +25,15 @@ object SizeUtils {
      * @return px值
      */
     fun pxFormDip(dipValue: Float, context: Context): Int {
-        return if (dipValue == 0f) 0 else TypedValue.applyDimension(
+        return if (dipValue == 0f) 0 else ceil(TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, dipValue, context.resources.displayMetrics
-        ).toInt()
+        )).toInt()
+    }
+
+    fun pxFormDipF(dipValue: Float, context: Context): Float {
+        return if (dipValue == 0f) 0f else TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP, dipValue, context.resources.displayMetrics
+        )
     }
 
     /**
