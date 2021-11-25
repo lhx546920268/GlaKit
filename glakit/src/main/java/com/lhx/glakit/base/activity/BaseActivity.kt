@@ -126,11 +126,11 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        //不让重建fragment
+        //不让重建fragment，有时候activity 恢复的时候会重建fragment，比如屏幕旋转的时候
         removeFragmentStateInBundle(outState)
     }
 
-    //移除fragment 装信息
+    //移除fragment 信息
     private fun removeFragmentStateInBundle(bundle: Bundle) {
         bundle.remove("android:support:fragments")
         val keys = bundle.keySet()
