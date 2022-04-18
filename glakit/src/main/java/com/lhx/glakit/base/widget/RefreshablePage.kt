@@ -1,6 +1,5 @@
 package com.lhx.glakit.base.widget
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.CallSuper
@@ -92,12 +91,8 @@ interface RefreshablePage: BasePage, RefreshHeader.RefreshOnScrollHandler, OnRef
 
     //获取下拉刷新头部
     fun createRefreshHeader(): RefreshHeader {
-        return if (GlaKitConfig.refreshHeaderClass != null) {
-            try {
-                GlaKitConfig.refreshHeaderClass!!.getConstructor(Context::class.java).newInstance(attachedContext)
-            } catch (e: Exception) {
-                throw IllegalStateException("refreshHeaderClass 无法通过context实例化")
-            }
+        return if (GlaKitConfig.refreshHeaderCreator != null) {
+            GlaKitConfig.refreshHeaderCreator!!(attachedContext!!)
         } else {
             LayoutInflater.from(attachedContext).inflate(R.layout.default_refresh_header, null) as DefaultRefreshHeader
         }

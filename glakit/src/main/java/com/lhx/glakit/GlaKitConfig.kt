@@ -1,5 +1,6 @@
 package com.lhx.glakit
 
+import android.content.Context
 import com.lhx.glakit.loading.LoadingView
 import com.lhx.glakit.loading.PageLoadingView
 import com.lhx.glakit.refresh.RefreshHeader
@@ -11,11 +12,10 @@ object GlaKitConfig {
     var HttpFirstPage = 1
 
     //页面加载类 相关类要忽略混淆
-    //-keepclassmembers class com.xx {*;}
-    var defaultPageLoadingViewClass: Class<out PageLoadingView>? = null
-    var loadViewClass: Class<out LoadingView>? = null
+    var pageLoadingViewCreator: ((Context) -> PageLoadingView)? = null
+    var loadViewCreator: ((Context) -> LoadingView)? = null
 
     //自定义下拉刷新头部 要实现 RefreshHeader
-    var refreshHeaderClass: Class<out RefreshHeader>? = null
+    var refreshHeaderCreator: ((Context) -> RefreshHeader)? = null
 }
 

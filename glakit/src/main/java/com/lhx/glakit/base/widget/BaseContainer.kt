@@ -242,13 +242,8 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     override fun showLoading(delay: Long, text: CharSequence?) {
         if (!loading) {
             loading = true
-            val view: LoadingView = if (GlaKitConfig.loadViewClass != null) {
-                try {
-                    GlaKitConfig.loadViewClass!!.getConstructor(Context::class.java)
-                            .newInstance(context)
-                } catch (e: Exception) {
-                    throw IllegalStateException("loadViewClass 无法通过context实例化")
-                }
+            val view: LoadingView = if (GlaKitConfig.loadViewCreator != null) {
+                GlaKitConfig.loadViewCreator!!(context)
             } else {
                 LayoutInflater.from(context)
                     .inflate(R.layout.default_loading_view, this, false) as LoadingView
@@ -336,13 +331,8 @@ class BaseContainer : RelativeLayout, InteractionCallback {
     //加载 pageLoading 如果需要
     private fun loadPageLoadingViewIfNeeded() {
         if ((pageStatus == PageStatus.LOADING || pageStatus == PageStatus.FAIL) && pageLoadingView == null) {
-            val view: PageLoadingView = if (GlaKitConfig.defaultPageLoadingViewClass != null) {
-                try {
-                    GlaKitConfig.defaultPageLoadingViewClass!!.getConstructor(Context::class.java)
-                        .newInstance(context)
-                } catch (e: Exception) {
-                    throw IllegalStateException("pageLoadingViewClass 无法通过context实例化")
-                }
+            val view: PageLoadingView = if (GlaKitConfig.pageLoadingViewCreator != null) {
+                GlaKitConfig.pageLoadingViewCreator!!(context)
             } else {
                 LayoutInflater.from(context)
                     .inflate(R.layout.default_page_loading_view, this, false) as PageLoadingView
