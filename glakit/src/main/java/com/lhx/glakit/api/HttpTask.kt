@@ -12,6 +12,7 @@ import java.io.File
 import java.io.IOException
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 
 /**
@@ -89,8 +90,7 @@ abstract class HttpTask: Callback, HttpCancelable {
         }
 
     //当前状态
-    @Volatile
-    private var status = Status.PREPARING
+    private val status = AtomicReference(Status.PREPARING)
 
     //当前call
     private var _call: Call? = null
@@ -117,7 +117,7 @@ abstract class HttpTask: Callback, HttpCancelable {
     var onFailure: ValueCallback<HttpTask>? = null
 
     //进度 只有上传文件才有，不保证在主线程
-    var onProgressChange: ValueCallback<Float>? = null
+    var onProgressChange: ValueCallback<Double>? = null
 
     //请求参数
     private fun getRequestBody(): RequestBody? {
@@ -134,7 +134,7 @@ abstract class HttpTask: Callback, HttpCancelable {
                 builder.build()
             }
             ContentType.MULTI_PART_FORM_DATA -> {
-                val builder = ObservableMultipartBody.Builder(progressCallback = onProgressChange)
+                val builder = MultipartBody.Builder()
                 params.forEach {
                     when(it.value) {
                         is File -> {
@@ -148,7 +148,11 @@ abstract class HttpTask: Callback, HttpCancelable {
                         else -> builder.addFormDataPart(it.key, it.value.toString())
                     }
                 }
-                builder.build()
+                if (onProgressChange != null) {
+                    ObservableMultipartBody(builder.build(), onProgressChange!!)
+                } else {
+                    builder.build()
+                }
             }
             ContentType.JSON -> {
                 val json = JSONObject.toJSONString(params)
@@ -180,9 +184,8 @@ abstract class HttpTask: Callback, HttpCancelable {
 
     //开始
     fun start() {
-        if (status == Status.PREPARING) {
+        if (status.compareAndSet(Status.PREPARING, Status.EXECUTING)) {
             prepare()
-            status = Status.EXECUTING
             onStart()
             val builder: Request.Builder
             when (httpMethod) {
@@ -218,8 +221,8 @@ abstract class HttpTask: Callback, HttpCancelable {
 
     //取消
     override fun cancel() {
-        if (status == Status.EXECUTING || status == Status.PREPARING) {
-            status = Status.CANCELLED
+        if (status.compareAndSet(Status.PREPARING, Status.CANCELLED)
+            || status.compareAndSet(Status.EXECUTING, Status.CANCELLED)) {
             _call?.cancel()
             onCancelled()
             onComplete()
@@ -227,10 +230,10 @@ abstract class HttpTask: Callback, HttpCancelable {
     }
 
     override val isExecuting: Boolean
-        get() = status == Status.EXECUTING
+        get() = status.get() == Status.EXECUTING
 
     val isCancelled: Boolean
-        get() = status == Status.CANCELLED
+        get() = status.get() == Status.CANCELLED
 
     //<editor-fold desc="okHttp 请求回调">
 
@@ -274,9 +277,14 @@ abstract class HttpTask: Callback, HttpCancelable {
     protected open fun onFailure() {}
 
     private fun processFailResult() {
-        ThreadUtils.runOnMainThread{
-            if(status == Status.EXECUTING){
-                status = Status.FAILURE
+        callbackFailure()
+    }
+
+    //回调失败
+    protected fun callbackFailure() {
+        if (status.compareAndSet(Status.EXECUTING, Status.FAILURE) ||
+            status.compareAndSet(Status.PREPARING, Status.FAILURE)) {
+            ThreadUtils.runOnMainThread{
                 onFailure()
                 if(onFailure != null){
                     onFailure!!(this)
@@ -295,14 +303,18 @@ abstract class HttpTask: Callback, HttpCancelable {
     private fun processSuccessResult() {
         isApiSuccess = true
         onSuccess()
+        if (onProgressChange != null) {
+            onProgressChange!!(1.0)
+        }
         callback?.onSuccess(this) //异步解析
 
-        if(status == Status.EXECUTING){
-            status = Status.SUCCESSFUL
-            if(onSuccess != null){
-                onSuccess!!(this)
+        if(status.compareAndSet(Status.EXECUTING, Status.SUCCESSFUL)){
+            ThreadUtils.runOnMainThread {
+                if(onSuccess != null){
+                    onSuccess!!(this)
+                }
+                onComplete()
             }
-            onComplete()
         }
     }
 

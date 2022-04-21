@@ -29,18 +29,13 @@ abstract class CountDownTimer(){
     //倒计时停止时间（毫秒）
     private var _millisToStop: Long = 0
 
-    //倒计时是否已取消
-    @Volatile
-    private var _canceled = false
-
     //是否正在倒计时
-    @Volatile
     var isExecuting = false
         private set
 
     //
     private val _handler = Handler(Looper.getMainLooper()){
-        if (_canceled) {
+        if (!isExecuting) {
             return@Handler true
         }
         if (_millisToCountDown == COUNT_DOWN_INFINITE) {
@@ -91,7 +86,7 @@ abstract class CountDownTimer(){
         if (isExecuting) {
             _handler.removeMessages(COUNT_DOWN_MSG_WHAT)
         }
-        _canceled = false
+
         if (_millisToCountDown <= 0 || _millisInterval <= 0) {
             finish()
             return
@@ -107,8 +102,7 @@ abstract class CountDownTimer(){
 
     //停止倒计时
     open fun stop() {
-        if (_canceled || !isExecuting) return
-        _canceled = true
+        if (!isExecuting) return
         isExecuting = false
         _handler.removeMessages(COUNT_DOWN_MSG_WHAT)
     }
@@ -118,7 +112,6 @@ abstract class CountDownTimer(){
     private fun finish() {
         if (!isExecuting) return
         isExecuting = false
-        _canceled = false
         onFinish()
     }
 

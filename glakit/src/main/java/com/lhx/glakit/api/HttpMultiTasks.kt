@@ -2,6 +2,8 @@ package com.lhx.glakit.api
 
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
+import java.lang.IllegalArgumentException
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 多任务处理
@@ -27,9 +29,10 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
     //对应任务
     private var taskMap = HashMap<String, HttpTask>()
 
-    @Volatile
-    override var isExecuting = false
-        private set
+    //是否正在执行
+    private val _isExecuting = AtomicBoolean(false)
+    override val isExecuting: Boolean
+        get() = _isExecuting.get()
 
     //添加任务 key 为HttpTask.name
     fun addTask(task: HttpTask, key: String = task.name ?: "") {
@@ -53,15 +56,14 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
 
     //开始所有任务
     fun start() {
-        require(!isExecuting){
-            "HttpMultiTasks is executing"
+        if (!_isExecuting.compareAndSet(false, true)) {
+            throw IllegalArgumentException("HttpMultiTasks is executing")
         }
 
         require(tasks.size > 0){
             "HttpMultiTasks has no task"
         }
 
-        isExecuting = true
         for(task in tasks){
             task.start()
         }
@@ -69,13 +71,12 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
 
     //取消所有请求
     fun cancelAllTasks() {
-        if (isExecuting) {
+        if (_isExecuting.compareAndSet(true, false)) {
             for(task in tasks){
                 task.cancel()
             }
             tasks.clear()
             taskMap.clear()
-            isExecuting = false
         }
     }
 
@@ -126,9 +127,10 @@ class HttpMultiTasks: HttpTask.Callback, HttpCancelable {
                 }
 
                 if(tasks.size == 0){
-                    isExecuting = false
-                    for(completion in completions){
-                        completion(this)
+                    if (_isExecuting.compareAndSet(true, false)) {
+                        for(completion in completions){
+                            completion(this)
+                        }
                     }
                     taskMap.clear()
                 }
