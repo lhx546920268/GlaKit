@@ -106,6 +106,10 @@ abstract class HttpTask: Callback, HttpCancelable {
     var isApiSuccess = false
         protected set
 
+    //数据是否请解析失败
+    var isDataParseFail = false
+        protected set
+
     //下面3个回调保证在主线程
     //回调
     var callback: Callback? = null
@@ -301,15 +305,21 @@ abstract class HttpTask: Callback, HttpCancelable {
     }
 
     private fun processSuccessResult() {
-        isApiSuccess = true
-        onSuccess()
-        if (onProgressChange != null) {
-            onProgressChange!!(1.0)
+        try {
+            onSuccess()
+            callback?.onSuccess(this) //异步解析
+            isApiSuccess = true
+        } catch (e: Exception) {
+            isDataParseFail = true
+            processFailResult()
+            return
         }
-        callback?.onSuccess(this) //异步解析
 
         if(status.compareAndSet(Status.EXECUTING, Status.SUCCESSFUL)){
             ThreadUtils.runOnMainThread {
+                if (onProgressChange != null) {
+                    onProgressChange!!(1.0)
+                }
                 if(onSuccess != null){
                     onSuccess!!(this)
                 }
