@@ -85,7 +85,8 @@ object PermissionHelper {
      * 处理
      */
     fun onRequestMultiplePermissions(map: Map<String, Boolean>) {
-        if (permissionCallback == null)
+        //有些机型申请权限 会马上回调，用户还没确认，这时 map的大小为空
+        if (permissionCallback == null || map.isEmpty())
             return
 
         val granted = ArrayList<String>()
@@ -110,6 +111,9 @@ object PermissionHelper {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        if (permissions.size != grantResults.size || permissions.isEmpty())
+            return
+
         val granted = ArrayList<String>()
         val denied = ArrayList<String>()
         for (i in permissions.indices) {
