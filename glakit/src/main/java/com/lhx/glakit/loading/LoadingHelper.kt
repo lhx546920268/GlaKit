@@ -1,6 +1,5 @@
 package com.lhx.glakit.loading
 
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -34,14 +33,10 @@ interface LoadingHelper {
     fun showLoading(parent: ViewGroup, delay: Long, text: CharSequence? = null) {
         if (!loading) {
             loading = true
-            if (GlaKitConfig.loadViewClass != null) {
-                try {
-                    loadingView = GlaKitConfig.loadViewClass!!.getConstructor(Context::class.java).newInstance(parent.context)
-                } catch (e: Exception) {
-                    throw IllegalStateException("loadViewClass 无法通过context实例化")
-                }
+            loadingView = if (GlaKitConfig.loadViewCreator != null) {
+                GlaKitConfig.loadViewCreator!!(parent.context)
             } else {
-                loadingView = LayoutInflater.from(parent.context).inflate(R.layout.default_loading_view, parent, false) as LoadingView?
+                LayoutInflater.from(parent.context).inflate(R.layout.default_loading_view, parent, false) as LoadingView?
             }
 
             loadingView!!.delay = delay
