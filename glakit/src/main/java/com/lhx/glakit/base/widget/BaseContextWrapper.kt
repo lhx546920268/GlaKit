@@ -18,6 +18,7 @@ class BaseContextWrapper(base: Context): ContextWrapper(base) {
     companion object {
         fun wrap(context: Context, language: String): ContextWrapper {
             val configuration = context.resources.configuration
+            configuration.fontScale = 1.0f
             val sysLocal = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
                 getSystemLocale(configuration)
             } else {
