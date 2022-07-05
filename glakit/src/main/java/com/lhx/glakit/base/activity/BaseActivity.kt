@@ -60,6 +60,11 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
      */
     protected var resultCallback: ResultCallback? = null
 
+    /**
+     * 是否把回调置空 如果是 cancel
+     */
+    protected var resultCallbackRemoveWhileCancelled = true
+
     //<editor-fold desc="父类方法">
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +115,9 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
                 if (resultCallback != null && it.resultCode == Activity.RESULT_OK) {
                     resultCallback!!(it.data)
                 }
-                resultCallback = null
+                if (it.resultCode != Activity.RESULT_CANCELED || resultCallbackRemoveWhileCancelled) {
+                    resultCallback = null
+                }
             }
     }
 

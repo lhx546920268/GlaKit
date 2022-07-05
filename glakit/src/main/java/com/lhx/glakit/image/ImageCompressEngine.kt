@@ -266,6 +266,14 @@ interface ImageCompressEngine {
         return true
     }
 
+    //判断格式是否支持
+    private fun supportFormat(stream: InputStream): Boolean {
+        return when(ImageUtils.getFormat(stream)) {
+            ImageFormat.JPEG, ImageFormat.PNG, ImageFormat.WEBP -> true
+            else -> false
+        }
+    }
+
     private fun rotatingAndScaleIfNeeded(bitmap: Bitmap, provider: InputStreamProvider): MatrixResult {
 
         var size: ImageUtils.Size? = null
@@ -322,7 +330,9 @@ interface ImageCompressEngine {
     }
 
     private fun compress(provider: InputStreamProvider, outFile: File): File? {
-        var bitmap = BitmapFactory.decodeStream(provider.open(), null, null)
+        val inputStream = provider.open()
+        var bitmap = BitmapFactory.decodeStream(inputStream, null, null)
+
         bitmap ?: return null
 
         val media = provider.media

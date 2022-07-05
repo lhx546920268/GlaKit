@@ -1,9 +1,13 @@
 package com.lhx.glakit.base.activity
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.text.TextUtils
 import com.lhx.glakit.app.BaseApplication
 import com.lhx.glakit.event.AppEvent
 import com.lhx.glakit.extension.lastSafely
@@ -46,6 +50,14 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
                 currentContext
             }
         }
+
+    /**
+     * 启动的activity名称，主要是用来判断app是否是正常启动的，如果不是 重启app。
+     * 防止因为设置中的权限改变导致activity恢复
+     */
+    private var launchActivityName: String? = null
+    private var restartDisable = false
+
 
     /**
      * 获取对应名称的 activity
@@ -125,7 +137,9 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         activities.add(activity)
+        restartIfNeeded(activity, savedInstanceState)
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -157,5 +171,71 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
 
     override fun onActivityDestroyed(activity: Activity) {
         activities.remove(activity)
+    }
+
+
+    //是否是启动
+    fun isLaunch(activity: Activity): Boolean {
+        if (activities.size > 1) return false
+
+        getLaunchActivityNameIfNeeded(activity)
+
+        val name = activity.javaClass.canonicalName
+        if (TextUtils.isEmpty(name))
+            return false
+
+        if (launchActivityName != null && name.equals(name, true)) {
+            return true
+        }
+
+        return false
+    }
+
+    //判断是否需要重启
+    private fun restartIfNeeded(activity: Activity, savedInstanceState: Bundle?) {
+        getLaunchActivityNameIfNeeded(activity)
+
+        //重新恢复activity时 savedInstanceState 一定不是空的
+        if (TextUtils.isEmpty(launchActivityName) || savedInstanceState == null)
+            return
+
+        val name = activity.javaClass.canonicalName
+        if (TextUtils.isEmpty(name))
+            return
+
+        if (name.equals(launchActivityName, true)) {
+            restartDisable = true //是正常启动的，通过 launch activity 启动的
+        }
+
+        if (!restartDisable) {
+            activities.clear()
+            activityCount = 0
+
+            //重启
+            val intent = Intent()
+            intent.setClassName(activity, launchActivityName!!)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            activity.startActivity(intent)
+            activity.overridePendingTransition(0, 0)
+        }
+    }
+
+    private fun getLaunchActivityNameIfNeeded(activity: Activity) {
+        if (launchActivityName == null) {
+            launchActivityName = getLaunchActivityName(activity.application)
+        }
+    }
+
+    //获取启动的activity名称
+    @SuppressLint("QueryPermissionsNeeded")
+    private fun getLaunchActivityName(application: Application): String {
+        val intent = Intent(Intent.ACTION_MAIN, null)
+        intent.setPackage(application.packageName)
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
+        val resolveInfos = application.packageManager.queryIntentActivities(intent, 0)
+        if (resolveInfos.isNotEmpty()) {
+            return resolveInfos.first().activityInfo.name
+        }
+        return ""
     }
 }

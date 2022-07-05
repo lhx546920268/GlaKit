@@ -214,6 +214,21 @@ object StringUtils {
         return if (TextUtils.isEmpty(email)) false else Pattern.compile("[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}").matcher(email!!).matches()
     }
 
+    /**
+     * 是否是 http url
+     */
+    fun isHttpUrl(url: CharSequence?): Boolean {
+        if (TextUtils.isEmpty(url)) return false
+
+        val allCharacter = "0-9a-zA-Z!\\$&'\\(\\)\\*\\+,\\-\\.:;=\\?@\\[\\]_~"
+        val scheme = "((http[s]?)://)?"; //协议 可选
+        val host = "(([${allCharacter}]+\\.){2,}[a-zA-Z]{2,6}\\b)" //主机
+        val path = "[#%/${allCharacter}]*" //路径
+
+        val regex = "$scheme$host$path"
+        return Pattern.compile(regex).matcher(url!!).matches()
+    }
+
     /*********************************** 身份证验证开始 ****************************************/
     /**
      * 身份证号码验证 1、号码的结构 公民身份号码是特征组合码，由十七位数字本体码和一位校验码组成。排列顺序从左至右依次为：六位数字地址码，

@@ -44,9 +44,18 @@ class TitleBar: ViewGroup {
     //右边按钮
     private var rightItem: View? = null
 
-    ///标题视图
+    //标题视图
     private var titleView: View? = null
     private var titleViewFill = false
+
+    //标题栏离屏幕的间距
+    var titleBarMargin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
+        set(value) {
+            if(value != field) {
+                field = value
+                requestLayout()
+            }
+        }
 
     //着色
     var tintColor = context.getColorCompat(R.color.title_bar_tint_color)
@@ -222,8 +231,7 @@ class TitleBar: ViewGroup {
             textView.text = title
         }
 
-        val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
-        textView.setPadding(margin,0, margin, 0)
+        textView.setPadding(titleBarMargin,0, titleBarMargin, 0)
         textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.title_bar_item_text_size))
         textView.setBackgroundColor(Color.TRANSPARENT)
         textView.setTextColor(tintColor)
@@ -269,8 +277,7 @@ class TitleBar: ViewGroup {
 
         if(titleView != null){
             val params = titleView!!.layoutParams
-            val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
-            val padding = max(leftWidth, margin) + max(rightWidth, margin)
+            val padding = max(leftWidth, titleBarMargin) + max(rightWidth, titleBarMargin)
             val childWidthMeasureSpec = getChildMeasureSpec(widthMeasureSpec, padding, params.width)
             val childHeightMeasureSpec = getChildMeasureSpec(heightMeasureSpec, 0, params.height)
             measureChild(titleView!!, childWidthMeasureSpec, childHeightMeasureSpec)
@@ -283,28 +290,34 @@ class TitleBar: ViewGroup {
         val top = paddingTop
         val width = r - paddingRight - left
         val height = b - paddingBottom - top
-        val margin = resources.getDimensionPixelSize(R.dimen.title_bar_margin)
 
-        var leftWidth = margin
+        var leftWidth = titleBarMargin
         if(leftItem != null){
             leftWidth = leftItem!!.measuredWidth
             leftItem!!.layout(left, top,left + leftWidth, top + height)
         }
 
-        var rightWidth = margin
+        var rightWidth = titleBarMargin
         if(rightItem != null){
             rightWidth = rightItem!!.measuredWidth
             rightItem!!.layout(left + width - rightItem!!.measuredWidth, top, left + width, top + height)
         }
 
         if(titleView != null){
-            val titleWidth = min(titleView!!.measuredWidth, width - leftWidth - rightWidth)
+            val maxWidth = width - leftWidth - rightWidth
+            val titleWidth = if (titleViewFill) maxWidth else min(titleView!!.measuredWidth, maxWidth)
             val titleHeight = min(height, titleView!!.measuredHeight)
             val titleTop = top + (height - titleHeight) / 2
-            val titleLeft = if (titleViewFill) {
-                max(leftWidth, margin)
-            } else {
-                max((width - titleWidth) / 2, leftWidth)
+            var titleLeft = leftWidth
+
+            if (titleWidth < maxWidth) {
+                val avg = (width - titleWidth) / 2
+                if (avg >= leftWidth && avg + titleWidth <= width - rightWidth) {
+                    titleLeft = avg
+                } else if (avg + titleWidth > width - rightWidth) {
+                    //左移
+                    titleLeft = width - rightWidth - titleWidth
+                }
             }
 
             titleView?.layout(titleLeft, titleTop, titleLeft + titleWidth, titleTop + titleHeight)

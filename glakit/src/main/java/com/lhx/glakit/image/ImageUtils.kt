@@ -17,6 +17,15 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
 
+//图片格式
+enum class ImageFormat {
+    JPEG,
+    PNG,
+    GIF,
+    WEBP,
+    UNKNOWN
+}
+
 /**
  * 图片工具类
  */
@@ -256,6 +265,85 @@ object ImageUtils {
             return defaultSuffix
         }
         return defaultSuffix
+    }
+
+    //获取图片 mineType
+    fun getMineType(file: File?): String? {
+        return getMineType(getFormat(file))
+    }
+
+    fun getMineType(inputStream: InputStream): String? {
+        return getMineType(getFormat(inputStream))
+    }
+
+    fun getMineType(format: ImageFormat): String? {
+        return when(format) {
+            ImageFormat.JPEG -> "image/jpeg"
+            ImageFormat.PNG -> "image/png"
+            ImageFormat.WEBP -> "image/webp"
+            ImageFormat.GIF -> "image/gif"
+            ImageFormat.UNKNOWN -> null
+        }
+    }
+
+    //从图片文件获取图片格式
+    fun getFormat(file: File?): ImageFormat {
+        try {
+            val fileInputStream = FileInputStream(file)
+            return getFormat(fileInputStream)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return ImageFormat.UNKNOWN
+    }
+
+    fun getFormat(inputStream: InputStream): ImageFormat {
+        try {
+            val bufferedInputStream = BufferedInputStream(inputStream)
+            bufferedInputStream.mark(Int.MAX_VALUE)
+
+            // https://en.wikipedia.org/wiki/JPEG
+            var start = ByteArray(2)
+            bufferedInputStream.read(start)
+            if (start[0] == 0xFF.toByte() &&
+                start[1] == 0xD8.toByte()
+            ) {
+                return ImageFormat.JPEG
+            }
+            bufferedInputStream.reset()
+
+            // https://en.wikipedia.org/wiki/Portable_Network_Graphics
+            start = ByteArray(8)
+            bufferedInputStream.read(start)
+            if (start[0] == 0x89.toByte() && start[1] == 0x50.toByte() && start[2] == 0x4E.toByte() && start[3] == 0x47.toByte() && start[4] == 0x0D.toByte() && start[5] == 0x0A.toByte() && start[6] == 0x1A.toByte() && start[7] == 0x0A.toByte()) {
+                return ImageFormat.PNG
+            }
+            bufferedInputStream.reset()
+
+            // https://developers.google.com/speed/webp/docs/riff_container
+            // https://en.wikipedia.org/wiki/WebP
+            start = ByteArray(4)
+            val end = ByteArray(4)
+            bufferedInputStream.read(start)
+            bufferedInputStream.skip(4)
+            bufferedInputStream.read(end)
+            if (start[0] == 0x52.toByte() && start[1] == 0x49.toByte() && start[2] == 0x46.toByte() && start[3] == 0x46.toByte() && end[0] == 0x57.toByte() && end[1] == 0x45.toByte() && end[2] == 0x42.toByte() && end[3] == 0x50.toByte()) {
+                return ImageFormat.WEBP
+            }
+            bufferedInputStream.reset()
+
+            // https://en.wikipedia.org/wiki/File:Empty_GIF_hex.png
+            start = ByteArray(6)
+            bufferedInputStream.read(start)
+            if (start[0] == 0x47.toByte() && start[1] == 0x49.toByte() && start[2] == 0x46.toByte() && start[3] == 0x38.toByte() && start[4] == 0x39.toByte() && start[5] == 0x61.toByte()) {
+                return ImageFormat.GIF
+            }
+            bufferedInputStream.close()
+            inputStream.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return ImageFormat.UNKNOWN
     }
 }
 
