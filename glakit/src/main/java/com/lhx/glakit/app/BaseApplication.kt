@@ -2,6 +2,7 @@ package com.lhx.glakit.app
 
 import androidx.multidex.MultiDexApplication
 import com.bumptech.glide.Glide
+import com.lhx.glakit.BuildConfig
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import kotlin.system.exitProcess
 
@@ -17,10 +18,12 @@ open class BaseApplication: MultiDexApplication() {
 
     init {
         //禁止app闪退后恢复，必须放在这里，否则会覆盖掉sdk的crash收集
-        Thread.setDefaultUncaughtExceptionHandler { _, _ -> //闪退后不让恢复
-            ActivityLifeCycleManager.finishAllActivities()
-            android.os.Process.killProcess(android.os.Process.myPid())
-            exitProcess(1)
+        if (!BuildConfig.DEBUG) {
+            Thread.setDefaultUncaughtExceptionHandler { _, _ -> //闪退后不让恢复
+                ActivityLifeCycleManager.finishAllActivities()
+                android.os.Process.killProcess(android.os.Process.myPid())
+                exitProcess(1)
+            }
         }
     }
 

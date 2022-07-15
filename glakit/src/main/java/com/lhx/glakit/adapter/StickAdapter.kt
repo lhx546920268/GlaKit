@@ -15,4 +15,9 @@ interface StickAdapter {
     fun onViewStickChange(stick: Boolean, view: View, position: Int) {
 
     }
+
+    //悬浮偏移量
+    fun getStickOffset(): Int {
+        return 0
+    }
 }

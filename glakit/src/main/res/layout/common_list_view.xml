@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.lhx.glakit.widget.StickListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/listView"
-    style="@style/list_view"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:overScrollMode="never">
+    android:layout_height="match_parent">
 
-</com.lhx.glakit.widget.StickListView>
+    <com.lhx.glakit.widget.StickListView
+        android:id="@+id/listView"
+        style="@style/list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="never"/>
+</FrameLayout>

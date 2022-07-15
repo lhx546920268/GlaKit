@@ -23,6 +23,7 @@ import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.permission.PermissionHelper
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.toast.ToastContainer
+import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import com.lhx.glakit.web.WebConfig
@@ -60,15 +61,19 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {
-        return adapter.lastSectionInfo<SectionInfo>()!!.sectionBegin == position
+        return items.size + 1 == position
     }
 
     override fun getCurrentStickPosition(firstVisibleItem: Int, stickPosition: Int): Int {
-        return adapter.lastSectionInfo<SectionInfo>()!!.sectionBegin
+        return items.size + 1
     }
 
     override fun onViewStickChange(stick: Boolean, view: View, position: Int) {
         view.setBackgroundColor(if (stick) Color.RED else Color.WHITE)
+    }
+
+    override fun getStickOffset(): Int {
+        return SizeUtils.pxFormDip(40f, requireContext())
     }
 
     private inner class Decoration: RecyclerView.ItemDecoration() {
@@ -150,7 +155,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
         }
 
         override fun numberOfItems(section: Int): Int {
-            return items.size * 3
+            return items.size
         }
 
         override fun onBindItemViewHolder(

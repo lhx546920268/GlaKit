@@ -76,11 +76,15 @@ open class StickRecyclerView : RecyclerView {
                         val childCount = recyclerView.childCount
                         if (stickAdapter != null && childCount > 0) {
 
-                            val child = recyclerView.getChildAt(0)
+                            var child = recyclerView.getChildAt(0)
+                            val offset = stickAdapter!!.getStickOffset()
+                            if (child.bottom <= offset && childCount > 1) {
+                                child = recyclerView.getChildAt(1)
+                            }
                             val firstVisibleItem = recyclerView.getChildLayoutPosition(child)
 
                             if (stickAdapter!!.shouldStickAtPosition(firstVisibleItem)) {
-                                if (child.top != paddingTop) {
+                                if (child.top != paddingTop + offset) {
 
                                     //当前的悬浮item已超出recyclerView 顶部
                                     layoutStickItem(firstVisibleItem, firstVisibleItem)
@@ -145,7 +149,7 @@ open class StickRecyclerView : RecyclerView {
                 } else {
                     0f
                 }
-            _stickItem?.translationY = y
+            _stickItem?.translationY = y + stickAdapter!!.getStickOffset()
         }
     }
 }
