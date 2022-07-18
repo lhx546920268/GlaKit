@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.scwang.smartrefresh.layout.SmartRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/smartRefreshLayout">
+    >
 
     <com.lhx.glakit.nested.NestedParentRecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:overScrollMode="never"
         android:scrollbars="none"
+        android:descendantFocusability="blocksDescendants"
         android:id="@+id/recyclerView"/>
 
-</com.scwang.smartrefresh.layout.SmartRefreshLayout>
+</FrameLayout>

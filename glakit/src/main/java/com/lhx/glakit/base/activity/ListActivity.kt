@@ -19,9 +19,9 @@ open class ListActivity: RefreshableActivity() {
         var res: Int = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.list_refresh_fragment
+                res = R.layout.list_view_refresh_container
             } else {
-                res = R.layout.common_list_view
+                res = R.layout.list_view_container
             }
         }
 

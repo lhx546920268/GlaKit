@@ -18,9 +18,9 @@ open class GridActivity: RefreshableActivity() {
         var res = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.grid_refresh_fragment
+                res = R.layout.grid_view_refresh_container
             } else {
-                res = R.layout.grid_fragment
+                res = R.layout.grid_view_container
             }
         }
 

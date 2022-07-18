@@ -3,7 +3,6 @@ package com.lhx.glakit.base.fragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.BaseAdapter
-import android.widget.ListView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.widget.StickListView
@@ -20,9 +19,9 @@ open class ListFragment : RefreshableFragment() {
         var res: Int = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.list_refresh_fragment
+                res = R.layout.list_view_refresh_container
             } else {
-                res = R.layout.common_list_view
+                res = R.layout.list_view_container
             }
         }
 

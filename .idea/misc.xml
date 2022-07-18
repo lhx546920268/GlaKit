@@ -3,9 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout/nested_scroll_child_container.xml" value="0.315625" />
+        <entry key="app/src/main/res/layout/nested_scroll_item.xml" value="0.315625" />
         <entry key="glakit/src/main/res/layout/common_list_view.xml" value="0.1265625" />
         <entry key="glakit/src/main/res/layout/list_refresh_fragment.xml" value="0.1265625" />
         <entry key="glakit/src/main/res/layout/recycler_fragment.xml" value="0.1265625" />
+        <entry key="glakit/src/main/res/layout/recycler_refresh_fragment.xml" value="0.315625" />
+        <entry key="glakit/src/main/res/layout/recycler_view_container.xml" value="0.19947916666666668" />
+        <entry key="glakit/src/main/res/layout/recycler_view_refresh_container.xml" value="0.19947916666666668" />
       </map>
     </option>
   </component>

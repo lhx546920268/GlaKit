@@ -2,7 +2,6 @@ package com.lhx.glakit.base.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
-import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.widget.StickRecyclerView
@@ -19,9 +18,9 @@ open class RecyclerFragment : RefreshableFragment() {
         var res = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.recycler_refresh_fragment
+                res = R.layout.recycler_view_refresh_container
             } else {
-                res = R.layout.recycler_fragment
+                res = R.layout.recycler_view_container
             }
         }
         setContainerContentView(res)

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--可下拉刷新的recycerView-->
+    <!--可下拉刷新的recyclerView-->
     <com.lhx.glakit.widget.StickRecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

@@ -18,9 +18,9 @@ open class RecyclerActivity: RefreshableActivity(){
         var res = getRefreshableContentRes()
         if (res <= 0) {
             if (hasRefresh) {
-                res = R.layout.recycler_refresh_fragment
+                res = R.layout.recycler_view_refresh_container
             } else {
-                res = R.layout.recycler_fragment
+                res = R.layout.recycler_view_container
             }
         }
         setContainerContentView(res)

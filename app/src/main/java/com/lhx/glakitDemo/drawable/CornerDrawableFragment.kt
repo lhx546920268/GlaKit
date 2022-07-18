@@ -250,15 +250,7 @@ class MeasureParent: ViewGroup {
     )
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val widthSize = MeasureSpec.getSize(widthMeasureSpec)
-        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
-
-        println("parent width size = $widthSize, mode $widthMode")
-
-        val heightSize = MeasureSpec.getSize(heightMeasureSpec)
-        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-
         measureChildren(widthMeasureSpec, heightMeasureSpec)
     }
 
