@@ -139,7 +139,7 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         activities.add(activity)
-        restartIfNeeded(activity, savedInstanceState)
+        restartIfNeeded(activity)
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -192,11 +192,13 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     }
 
     //判断是否需要重启
-    private fun restartIfNeeded(activity: Activity, savedInstanceState: Bundle?) {
+    private fun restartIfNeeded(activity: Activity) {
+        if (restartDisable) return
+
         getLaunchActivityNameIfNeeded(activity)
 
         //重新恢复activity时 savedInstanceState 一定不是空的
-        if (TextUtils.isEmpty(launchActivityName) || savedInstanceState == null)
+        if (TextUtils.isEmpty(launchActivityName))
             return
 
         val name = activity.javaClass.canonicalName
