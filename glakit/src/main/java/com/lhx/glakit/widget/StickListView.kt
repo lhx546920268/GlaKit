@@ -6,9 +6,10 @@ import android.view.*
 import android.widget.AbsListView
 import android.widget.FrameLayout
 import android.widget.ListView
+import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.StickAdapter
 import com.lhx.glakit.base.constant.Position
-import com.lhx.glakit.extension.removeFromParent
+import com.lhx.glakit.extension.*
 import kotlin.math.min
 
 /**
@@ -31,25 +32,31 @@ class StickListView : ListView {
     //滑动监听
     private var _onScrollListener: OnScrollListener? = null
 
-    //当前要绘制的item
-    private var _stickItem: View? = null
-        set(value) {
-            if (field != value){
-                field?.removeFromParent()
-                field = value
-            }
+    //置顶容器
+    private val stickContainer: StickContainer by lazy {
+        val container = StickContainer(context)
+        require(parent is FrameLayout) {
+            "The StickRecyclerView parent must a FrameLayout"
         }
+        val frameLayout = parent as FrameLayout
+        frameLayout.addView(container, ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+        container
+    }
 
     //当前悬浮的position
-    private var _stickPosition = Position.NO_POSITION
+    private var _stickPosition = RecyclerView.NO_POSITION
         set(value) {
             if (field != value) {
-                if (field != Position.NO_POSITION && _stickItem != null) {
-                    stickAdapter?.onViewStickChange(false, _stickItem!!, field)
+                if (field != RecyclerView.NO_POSITION && stickContainer.stickItem != null) {
+                    stickAdapter?.onViewStickChange(false, stickContainer, field)
                 }
                 field = value
-                if (_stickItem != null) {
-                    stickAdapter?.onViewStickChange(true, _stickItem!!, field)
+                if (field != RecyclerView.NO_POSITION && stickContainer.stickItem != null) {
+                    stickAdapter?.onViewStickChange(true, stickContainer, field)
+                    stickContainer.visible()
+                } else {
+                    stickContainer.stickItem = null
+                    stickContainer.gone()
                 }
             }
         }
@@ -97,7 +104,6 @@ class StickListView : ListView {
                                 layoutStickItem(firstItem, firstItem)
                             } else {
                                 _stickPosition = Position.NO_POSITION
-                                _stickItem = null
                             }
                         } else {
 
@@ -108,7 +114,6 @@ class StickListView : ListView {
                                 layoutStickItem(position, firstItem)
                             } else {
                                 _stickPosition = Position.NO_POSITION
-                                _stickItem = null
                             }
                         }
                     }
@@ -120,34 +125,26 @@ class StickListView : ListView {
 
     //布局固定的item
     private fun layoutStickItem(stickPosition: Int, firstVisibleItem: Int) {
-        
-        var position = stickPosition
-        position += headerViewsCount
-        if (_stickItem == null || stickPosition != _stickPosition) {
-            require(parent is FrameLayout) {
-                "The StickListView parent must a FrameLayout"
+        if (adapter != null && stickAdapter != null) {
+            var position = stickPosition
+            position += headerViewsCount
+            if (stickContainer.stickItem == null || stickPosition != _stickPosition) {
+                stickContainer.stickItem = stickAdapter!!.getStickView(_stickPosition) ?: adapter.getView(_stickPosition, null, stickContainer)
             }
-            val frameLayout = parent as FrameLayout
-            _stickItem = adapter.getView(stickPosition, null, frameLayout)
-            val params = FrameLayout.LayoutParams(_stickItem!!.layoutParams)
-            params.topMargin = 0
-            params.leftMargin = 0
-            params.rightMargin = 0
-            frameLayout.addView(_stickItem, params)
-        }
 
-        _stickPosition = stickPosition
+            _stickPosition = stickPosition
 
-        //判断下一个item
-        val nextPosition = firstVisibleItem + 1
-        val y = if (nextPosition < adapter.count
-            && stickAdapter!!.shouldStickAtPosition(nextPosition)) {
+            //判断下一个item
+            val nextPosition = firstVisibleItem + 1
+            val y = if (nextPosition < adapter.count
+                && stickAdapter!!.shouldStickAtPosition(nextPosition)) {
                 val child: View = getChildAt(1)
-                min(child.top - _stickItem!!.bottom, 0).toFloat()
+                min(child.top - stickContainer.bottom, 0).toFloat()
             } else {
                 0f
             }
-        println("translation $y")
-        _stickItem?.translationY = y
+
+            stickContainer.translationY = y
+        }
     }
 }

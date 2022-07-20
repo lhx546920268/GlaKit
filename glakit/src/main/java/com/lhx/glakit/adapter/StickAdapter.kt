@@ -20,4 +20,9 @@ interface StickAdapter {
     fun getStickOffset(): Int {
         return 0
     }
+
+    //获取悬浮的view，默认是通过重用机制获取对应view
+    fun getStickView(position: Int): View? {
+        return null
+    }
 }

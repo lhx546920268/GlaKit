@@ -6,7 +6,10 @@ import android.view.*
 import android.widget.FrameLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.StickAdapter
-import com.lhx.glakit.extension.removeFromParent
+import com.lhx.glakit.extension.MATCH_PARENT
+import com.lhx.glakit.extension.WRAP_CONTENT
+import com.lhx.glakit.extension.gone
+import com.lhx.glakit.extension.visible
 import kotlin.math.min
 
 
@@ -35,25 +38,31 @@ open class StickRecyclerView : RecyclerView {
     //是否可以悬浮
     private var _stickEnable = false
 
-    //当前要绘制的item
-    private var _stickItem: View? = null
-        set(value) {
-            if (field != value){
-                field?.removeFromParent()
-                field = value
-            }
+    //置顶容器
+    private val stickContainer: StickContainer by lazy {
+        val container = StickContainer(context)
+        require(parent is FrameLayout) {
+            "The StickRecyclerView parent must a FrameLayout"
         }
+        val frameLayout = parent as FrameLayout
+        frameLayout.addView(container, ViewGroup.LayoutParams(MATCH_PARENT, WRAP_CONTENT))
+        container
+    }
 
     //当前悬浮的position
     private var _stickPosition = NO_POSITION
         set(value) {
             if (field != value) {
-                if (field != NO_POSITION && _stickItem != null) {
-                    stickAdapter?.onViewStickChange(false, _stickItem!!, field)
+                if (field != NO_POSITION && stickContainer.stickItem != null) {
+                    stickAdapter?.onViewStickChange(false, stickContainer, field)
                 }
                 field = value
-                if (_stickItem != null) {
-                    stickAdapter?.onViewStickChange(true, _stickItem!!, field)
+                if (field != NO_POSITION && stickContainer.stickItem != null) {
+                    stickAdapter?.onViewStickChange(true, stickContainer, field)
+                    stickContainer.visible()
+                } else {
+                    stickContainer.stickItem = null
+                    stickContainer.gone()
                 }
             }
         }
@@ -90,7 +99,6 @@ open class StickRecyclerView : RecyclerView {
                                     layoutStickItem(firstVisibleItem, firstVisibleItem)
                                 } else {
                                     _stickPosition = NO_POSITION
-                                    _stickItem = null
                                 }
                             } else {
 
@@ -101,7 +109,6 @@ open class StickRecyclerView : RecyclerView {
                                     layoutStickItem(position, firstVisibleItem)
                                 } else {
                                     _stickPosition = NO_POSITION
-                                    _stickItem = null
                                 }
                             }
                         }
@@ -125,17 +132,10 @@ open class StickRecyclerView : RecyclerView {
     //布局固定的item
     private fun layoutStickItem(stickPosition: Int, firstVisibleItem: Int) {
 
-        if(adapter != null){
+        if(adapter != null && stickAdapter != null){
 
-            if (_stickItem == null || stickPosition != _stickPosition) {
-                require(parent is FrameLayout) {
-                    "The StickRecyclerView parent must a FrameLayout"
-                }
-                val frameLayout = parent as FrameLayout
-                _stickItem = _recycler!!.getViewForPosition(stickPosition)
-                val params = FrameLayout.LayoutParams(_stickItem!!.layoutParams as MarginLayoutParams)
-                params.topMargin = 0
-                frameLayout.addView(_stickItem, params)
+            if (stickContainer.stickItem == null || stickPosition != _stickPosition) {
+                stickContainer.stickItem = stickAdapter!!.getStickView(_stickPosition) ?: _recycler!!.getViewForPosition(stickPosition)
             }
 
             _stickPosition = stickPosition
@@ -145,11 +145,11 @@ open class StickRecyclerView : RecyclerView {
             val y = if (nextPosition < adapter!!.itemCount
                 && stickAdapter!!.shouldStickAtPosition(nextPosition)) {
                     val child = getChildAt(1)
-                    min(child.top - _stickItem!!.bottom, 0).toFloat()
+                    min(child.top - stickContainer.bottom, 0).toFloat()
                 } else {
                     0f
                 }
-            _stickItem?.translationY = y + stickAdapter!!.getStickOffset()
+            stickContainer.translationY = y + stickAdapter!!.getStickOffset()
         }
     }
 }
