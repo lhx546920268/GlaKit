@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.extension.MATCH_PARENT
 import com.lhx.glakit.nested.NestedChildRecyclerView
 import com.lhx.glakit.nested.NestedScrollHelper
 import com.lhx.glakit.viewholder.RecyclerViewHolder
@@ -22,9 +23,28 @@ class NestedScrollFragment: RecyclerFragment() {
     }
 
     var nestedScrollHelper: NestedScrollHelper? = null
+    val filterView by lazy { findViewById<View>(R.id.filter)!! }
+
+    var offset: Float = 0f
+        set(value) {
+            if (value != field) {
+                field = value
+                filterView.translationY = value
+            }
+        }
+
+    var onScrollListener: RecyclerView.OnScrollListener? = null
+        set(value) {
+            field = value
+            if (value != null && isInit) {
+                recyclerView.addOnScrollListener(value)
+            }
+        }
 
     val childRecyclerView: NestedChildRecyclerView
         get() = recyclerView as NestedChildRecyclerView
+
+    var totalDy = 0
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -36,6 +56,15 @@ class NestedScrollFragment: RecyclerFragment() {
         childRecyclerView.nestedScrollHelper = nestedScrollHelper
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = Adapter(recyclerView)
+
+        if (onScrollListener != null) {
+            recyclerView.addOnScrollListener(onScrollListener!!)
+        }
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                totalDy += dy
+            }
+        })
     }
 
     override fun showTitleBar(): Boolean {
@@ -48,8 +77,21 @@ class NestedScrollFragment: RecyclerFragment() {
             return RecyclerViewHolder(LayoutInflater.from(context).inflate(R.layout.layout_item, parent, false))
         }
 
+        override fun onCreateHeaderViewHolder(
+            viewType: Int,
+            parent: ViewGroup
+        ): RecyclerViewHolder {
+            val view = View(context)
+            view.layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, pxFromDip(40f))
+            return RecyclerViewHolder(view)
+        }
+
         override fun numberOfItems(section: Int): Int {
             return 100
+        }
+
+        override fun shouldExistHeader(): Boolean {
+            return true
         }
 
         override fun onBindItemViewHolder(

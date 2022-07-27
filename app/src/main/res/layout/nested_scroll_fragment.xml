@@ -1,10 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.lhx.glakit.nested.NestedChildRecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:scrollbars="none"
-    android:overScrollMode="never"
-    android:id="@+id/recyclerView">
+    android:layout_height="match_parent">
 
 
-</com.lhx.glakit.nested.NestedChildRecyclerView>
+    <com.lhx.glakit.nested.NestedChildRecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:overScrollMode="never"
+        android:id="@+id/recyclerView"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:id="@+id/filter"
+        android:background="@color/cyan"/>
+</FrameLayout>

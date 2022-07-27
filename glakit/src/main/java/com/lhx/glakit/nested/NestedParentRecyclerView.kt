@@ -9,6 +9,7 @@ import com.lhx.glakit.widget.StickRecyclerView
 
 /**
  * 可嵌套滑动的父容器
+ * 要增加 android:descendantFocusability="blocksDescendants"  防止嵌套的recyclerView自动滑动
  */
 class NestedParentRecyclerView: StickRecyclerView {
 
@@ -27,7 +28,7 @@ class NestedParentRecyclerView: StickRecyclerView {
             val count = childCount
             if (count > 0) {
                 val last = getChildAt(count - 1)
-                return last.top == 0 && getChildAdapterPosition(last!!) == adapter!!.itemCount - 1
+                return last.bottom == height - paddingBottom && getChildAdapterPosition(last!!) == adapter!!.itemCount - 1
             }
             return false
         }

@@ -3,7 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!--recyclerView        android:descendantFocusability="blocksDescendants"  防止嵌套的recyclerView自动滑动-->
     <com.lhx.glakit.widget.StickRecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"

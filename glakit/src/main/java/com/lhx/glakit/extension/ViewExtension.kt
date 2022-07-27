@@ -37,6 +37,10 @@ fun View.gone() {
     visibility = View.GONE
 }
 
+fun View.isVisible(): Boolean {
+    return visibility == View.VISIBLE
+}
+
 fun View.removeFromParent() {
     ViewUtils.removeFromParent(this)
 }
