@@ -23,13 +23,13 @@ class NestedScrollFragment: RecyclerFragment() {
     }
 
     var nestedScrollHelper: NestedScrollHelper? = null
-    val filterView by lazy { findViewById<View>(R.id.filter)!! }
+    var filterView: View? = null
 
     var offset: Float = 0f
         set(value) {
             if (value != field) {
                 field = value
-                filterView.translationY = value
+                filterView?.translationY = value
             }
         }
 
@@ -44,7 +44,7 @@ class NestedScrollFragment: RecyclerFragment() {
     val childRecyclerView: NestedChildRecyclerView
         get() = recyclerView as NestedChildRecyclerView
 
-    var totalDy = 0
+    var hasFilter = true
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -57,14 +57,17 @@ class NestedScrollFragment: RecyclerFragment() {
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = Adapter(recyclerView)
 
+        filterView = findViewById(R.id.filter)
+
         if (onScrollListener != null) {
             recyclerView.addOnScrollListener(onScrollListener!!)
         }
-        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                totalDy += dy
-            }
-        })
+    }
+
+    fun scrollToTopIfNeeded() {
+        if (isInit && recyclerView.childCount > 0) {
+            recyclerView.scrollToPosition(0)
+        }
     }
 
     override fun showTitleBar(): Boolean {
@@ -91,7 +94,7 @@ class NestedScrollFragment: RecyclerFragment() {
         }
 
         override fun shouldExistHeader(): Boolean {
-            return true
+            return hasFilter
         }
 
         override fun onBindItemViewHolder(
