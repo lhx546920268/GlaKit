@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout/image_scale_fragment.xml" value="0.15507726269315672" />
         <entry key="app/src/main/res/layout/nested_scroll_activity.xml" value="0.23007246376811594" />
         <entry key="app/src/main/res/layout/nested_scroll_child_container.xml" value="0.315625" />
         <entry key="app/src/main/res/layout/nested_scroll_fragment.xml" value="0.12552083333333333" />

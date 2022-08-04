@@ -45,7 +45,7 @@ dependencies {
 
     implementation project(':glakit')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.github.RuffianZhong:RWidgetHelper:androidx.v0.0.2'
+    implementation 'com.github.RuffianZhong:RWidgetHelper:androidx.v0.0.9'
     testImplementation 'junit:junit:4.13.2'
 
     implementation 'com.github.hackware1993:MagicIndicator:1.7.0'

@@ -90,7 +90,7 @@ class NestedScrollFragment: RecyclerFragment() {
         }
 
         override fun numberOfItems(section: Int): Int {
-            return 100
+            return 1
         }
 
         override fun shouldExistHeader(): Boolean {

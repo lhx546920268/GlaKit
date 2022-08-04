@@ -97,7 +97,7 @@ class NestedScrollActivity: RecyclerActivity() {
                 && parentRecyclerView.getChildAdapterPosition(last!!) == parentRecyclerView.adapter!!.itemCount - 1) {
                 magicIndicator.visible()
             } else {
-                if (!magicIndicator.isVisible()) {
+                if (magicIndicator.isVisible()) {
                     magicIndicator.gone()
                     childrenScrollToTopIfNeeded()
                 }

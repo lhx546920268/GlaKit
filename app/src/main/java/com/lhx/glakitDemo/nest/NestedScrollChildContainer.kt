@@ -51,7 +51,10 @@ class NestedScrollChildContainer: LinearLayout {
             }
 
             override fun createFragment(position: Int): Fragment {
-                return fragments[position]
+                val fragment = fragments[position]
+                fragment.onScrollListener = onScrollListener
+                fragment.nestedScrollHelper = nestedScrollHelper
+                return fragment
             }
         }
     }

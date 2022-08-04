@@ -24,6 +24,7 @@ class ImageScaleFragment: BaseFragment() {
         container: BaseContainer,
         saveInstanceState: Bundle?
     ) {
+        
         setContainerContentView(R.layout.image_scale_fragment)
         val binding = ImageScaleFragmentBinding.bind(getContainerContentView()!!)
         binding.camera.setOnSingleListener {
