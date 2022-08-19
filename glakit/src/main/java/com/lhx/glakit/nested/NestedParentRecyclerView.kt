@@ -77,7 +77,6 @@ class NestedParentRecyclerView: StickRecyclerView {
             //如果父RecyclerView已经滑动到底部，需要让子RecyclerView滑动剩余的距离
             helper.child?.apply {
                 val deltaY = (lastY - e.y).toInt()
-                println("scroll end child scroll $deltaY")
                 if(deltaY != 0) {
                     scrollBy(0, deltaY)
                 }

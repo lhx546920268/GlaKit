@@ -29,7 +29,7 @@ class NestedScrollFragment: RecyclerFragment() {
         set(value) {
             if (value != field) {
                 field = value
-                filterView?.translationY = value
+//                filterView?.translationY = value
             }
         }
 
@@ -90,7 +90,7 @@ class NestedScrollFragment: RecyclerFragment() {
         }
 
         override fun numberOfItems(section: Int): Int {
-            return 1
+            return 100
         }
 
         override fun shouldExistHeader(): Boolean {

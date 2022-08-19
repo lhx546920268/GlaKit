@@ -18,6 +18,7 @@ import com.luck.picture.lib.entity.LocalMedia
 import com.luck.picture.lib.thread.PictureThreadUtils
 import com.luck.picture.lib.tools.*
 import java.io.*
+import kotlin.math.min
 
 /**
  * 压缩回调
@@ -330,9 +331,33 @@ interface ImageCompressEngine {
     }
 
     private fun compress(provider: InputStreamProvider, outFile: File): File? {
-        val inputStream = provider.open()
-        var bitmap = BitmapFactory.decodeStream(inputStream, null, null)
+        var inputStream = provider.open()
 
+        var opts: BitmapFactory.Options? = null
+        //防止图片过大导致 OOM
+        if (!config.enableCrop) {
+            val maxWidth = config.cropWidth
+            val maxHeight = config.cropHeight
+            if (maxWidth > 0 || maxHeight > 0) {
+                val options = BitmapFactory.Options()
+                options.inJustDecodeBounds = true
+                BitmapFactory.decodeStream(inputStream, null, options)
+                val width = options.outWidth
+                val height = options.outHeight
+                val result = ImageUtils.fitSize(width, height, maxWidth, maxHeight)
+                if (result.width < width || result.height < height) {
+                    //图片比裁剪大小大 才裁剪
+                    val size = min(width / result.width, height / result.height)
+                    if (size >= 2) {
+                        opts = BitmapFactory.Options()
+                        opts.inSampleSize = size
+                        inputStream = provider.open()
+                    }
+                }
+            }
+        }
+
+        var bitmap = BitmapFactory.decodeStream(inputStream, null, opts)
         bitmap ?: return null
 
         val media = provider.media

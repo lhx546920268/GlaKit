@@ -2,6 +2,7 @@ package com.lhx.glakit.image
 
 import android.app.Activity
 import android.content.Context
+import android.graphics.BitmapFactory
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.AlertUtils
 import com.lhx.glakit.utils.StringUtils
@@ -89,7 +90,19 @@ class ImagePicker(val mode: Int = PictureConfig.MULTIPLE): OnResultCallbackListe
                     } else {
                         media.realPath
                     }
-                    list.add(ImageData(path))
+
+                    var width = media.width
+                    var height = media.height
+                    if (width == 0 || height == 0) {
+                        val options = BitmapFactory.Options()
+                        options.inJustDecodeBounds = true
+                        BitmapFactory.decodeFile(media.path, options)
+                        width = options.outWidth
+                        height = options.outHeight
+                    }
+
+                    list.add(ImageData(path, width, height))
+
                 }
                 it(list)
             }
@@ -101,4 +114,4 @@ class ImagePicker(val mode: Int = PictureConfig.MULTIPLE): OnResultCallbackListe
     }
 }
 
-class ImageData(val path: String)
+class ImageData(val path: String, val width: Int, val height: Int)

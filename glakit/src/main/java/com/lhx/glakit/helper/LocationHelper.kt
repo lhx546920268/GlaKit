@@ -6,6 +6,7 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Bundle
 import com.lhx.glakit.R
 import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.base.widget.ValueCallback
@@ -96,5 +97,17 @@ class LocationHelper(val requester: PermissionRequester): LocationListener{
     //跳转到设置
     fun openAppSettings(res: Int) {
         AppUtils.openAppSettings(res)
+    }
+
+    //必须实现该方法，否则如果使用GpsProvider定位时会报找不到此方法 crash
+    @Deprecated("Deprecated in Java")
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+
+    }
+
+    override fun onProviderEnabled(provider: String) {
+    }
+
+    override fun onProviderDisabled(provider: String) {
     }
 }

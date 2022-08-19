@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.lhx.glakit.adapter.ItemType
@@ -251,12 +252,15 @@ class NestedScrollActivity: RecyclerActivity() {
                                         industryRole.visible()
                                         notifyItemInserted(0)
                                     }
+//                                    (parentRecyclerView.layoutManager as LinearLayoutManager)
+//                                        .scrollToPositionWithOffset(itemCount - 1, pxFromDip(80f))
                                 } else {
                                     if (industryRole.isVisible()) {
                                         industryRole.gone()
                                         notifyItemRemoved(0)
                                     }
-                                    parentRecyclerView.scrollToPosition(itemCount - 1)
+                                    (parentRecyclerView.layoutManager as LinearLayoutManager)
+                                        .scrollToPositionWithOffset(itemCount - 1, 0)
                                 }
                                 totalOffset = 0
                                 changeViewOffset()
