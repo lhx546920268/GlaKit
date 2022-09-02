@@ -28,10 +28,7 @@ class NestedScrollHelper(
 
     //当前子列表
     val child: NestedChildRecyclerView?
-        get() {
-            val child = childFetcher()
-            return child
-        }
+        get() = childFetcher()
 
     fun layoutCanScrollVertically(): Boolean {
         val child = childFetcher()

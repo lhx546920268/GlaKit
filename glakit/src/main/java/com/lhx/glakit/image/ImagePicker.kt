@@ -91,17 +91,11 @@ class ImagePicker(val mode: Int = PictureConfig.MULTIPLE): OnResultCallbackListe
                         media.realPath
                     }
 
-                    var width = media.width
-                    var height = media.height
-                    if (width == 0 || height == 0) {
-                        val options = BitmapFactory.Options()
-                        options.inJustDecodeBounds = true
-                        BitmapFactory.decodeFile(media.path, options)
-                        width = options.outWidth
-                        height = options.outHeight
-                    }
+                    val options = BitmapFactory.Options()
+                    options.inJustDecodeBounds = true
+                    BitmapFactory.decodeFile(media.path, options)
 
-                    list.add(ImageData(path, width, height))
+                    list.add(ImageData(path, options.outWidth, options.outHeight))
 
                 }
                 it(list)
