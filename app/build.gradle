@@ -6,20 +6,17 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     defaultConfig {
         applicationId "com.lhx.glakitDemo"
         minSdkVersion 19
-        targetSdkVersion 31
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
 
-    lintOptions {
-        disable 'GoogleAppIndexingWarning'
-    }
     buildTypes {
         release {
             minifyEnabled false
@@ -38,6 +35,9 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    lint {
+        disable 'GoogleAppIndexingWarning'
     }
 }
 

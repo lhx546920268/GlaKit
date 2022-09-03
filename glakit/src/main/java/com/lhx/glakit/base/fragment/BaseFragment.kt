@@ -20,13 +20,14 @@ import com.lhx.glakit.base.activity.BaseActivity
 import com.lhx.glakit.base.activity.ResultCallback
 import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.base.widget.BaseContainerPage
 
 
 /**
  * 基础fragment
  */
 @Suppress("unused_parameter")
-abstract class BaseFragment : Fragment(), BasePage {
+abstract class BaseFragment : Fragment(), BaseContainerPage {
 
     //容器
     private var _container: BaseContainer? = null

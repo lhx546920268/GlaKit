@@ -65,7 +65,7 @@ internal object ToastManager{
             }
             valueAnimator.duration = 200
             valueAnimator.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     removeToast()
                     if (dismissCallback != null) {
                         dismissCallback!!()
@@ -73,13 +73,13 @@ internal object ToastManager{
                     }
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                 }
 
-                override fun onAnimationRepeat(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {
                 }
 
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                 }
             })
             valueAnimator.start()

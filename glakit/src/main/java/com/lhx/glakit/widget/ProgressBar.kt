@@ -48,7 +48,7 @@ class ProgressBar : View {
     private val _animatorListenerAdapter: AnimatorListenerAdapter =
         object : AnimatorListenerAdapter() {
             var isCancelled = false
-            override fun onAnimationStart(animation: Animator?) {
+            override fun onAnimationStart(animation: Animator) {
                 isCancelled = false
             }
             override fun onAnimationEnd(animator: Animator) {
@@ -56,22 +56,22 @@ class ProgressBar : View {
                     val animation = AlphaAnimation(1.0f, 0f)
                     animation.duration = 200
                     animation.setAnimationListener(object : Animation.AnimationListener{
-                        override fun onAnimationStart(animation: Animation?) {
+                        override fun onAnimationStart(animation: Animation) {
 
                         }
 
-                        override fun onAnimationEnd(animation: Animation?) {
+                        override fun onAnimationEnd(animation: Animation) {
                             visibility = INVISIBLE
                         }
 
-                        override fun onAnimationRepeat(animation: Animation?) {
+                        override fun onAnimationRepeat(animation: Animation) {
                         }
                     })
                     startAnimation(animation)
                 }
             }
 
-            override fun onAnimationCancel(animation: Animator?) {
+            override fun onAnimationCancel(animation: Animator) {
                 isCancelled = true
             }
         }

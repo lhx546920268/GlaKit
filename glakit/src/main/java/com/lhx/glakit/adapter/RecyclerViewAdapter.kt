@@ -196,12 +196,14 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
                 holder.itemView.setOnSingleListener { v ->
                     //添加点击事件
                     val p = holder.bindingAdapterPosition
-                    val info: SectionInfo = sectionInfoForPosition(p)!!
+                    if (p != RecyclerView.NO_POSITION) {
+                        val info: SectionInfo = sectionInfoForPosition(p)!!
 
-                    when {
-                        info.isHeaderForPosition(p) -> onHeaderClick(info.section, v)
-                        info.isFooterForPosition(p) -> onFooterClick(info.section, v)
-                        else -> onItemClick(info.getItemPosition(p), info.section, v)
+                        when {
+                            info.isHeaderForPosition(p) -> onHeaderClick(info.section, v)
+                            info.isFooterForPosition(p) -> onFooterClick(info.section, v)
+                            else -> onItemClick(info.getItemPosition(p), info.section, v)
+                        }
                     }
                 }
                 holder

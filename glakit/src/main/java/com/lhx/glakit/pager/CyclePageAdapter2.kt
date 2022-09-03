@@ -27,10 +27,10 @@ fun ViewPager2.setCurrentItem(
         previousValue = currentValue
     }
     animator.addListener(object : Animator.AnimatorListener {
-        override fun onAnimationStart(animation: Animator?) { beginFakeDrag() }
-        override fun onAnimationEnd(animation: Animator?) { endFakeDrag() }
-        override fun onAnimationCancel(animation: Animator?) { /* Ignored */ }
-        override fun onAnimationRepeat(animation: Animator?) { /* Ignored */ }
+        override fun onAnimationStart(animation: Animator) { beginFakeDrag() }
+        override fun onAnimationEnd(animation: Animator) { endFakeDrag() }
+        override fun onAnimationCancel(animation: Animator) { /* Ignored */ }
+        override fun onAnimationRepeat(animation: Animator) { /* Ignored */ }
     })
     animator.interpolator = interpolator
     animator.duration = duration
@@ -87,11 +87,11 @@ abstract class CyclePageAdapter2(val viewPager2: ViewPager2): RecyclerView.Adapt
         })
 
         viewPager2.addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener {
-            override fun onViewAttachedToWindow(v: View?) {
+            override fun onViewAttachedToWindow(v: View) {
                 startAutoPlayTimer()
             }
 
-            override fun onViewDetachedFromWindow(v: View?) {
+            override fun onViewDetachedFromWindow(v: View) {
                 stopAutoPlayTimer()
             }
         })

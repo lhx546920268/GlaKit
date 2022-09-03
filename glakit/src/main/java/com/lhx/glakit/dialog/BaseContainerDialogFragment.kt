@@ -11,12 +11,13 @@ import android.widget.RelativeLayout
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.base.widget.BaseContainerPage
 
 
 /**
  * 基础内容视图弹窗
  */
-abstract class BaseContainerDialogFragment : BaseDialogFragment(), BasePage {
+abstract class BaseContainerDialogFragment : BaseDialogFragment(), BaseContainerPage {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle

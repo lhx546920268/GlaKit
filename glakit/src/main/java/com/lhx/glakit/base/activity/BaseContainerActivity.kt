@@ -9,30 +9,13 @@ import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.base.widget.BaseContainerPage
 
 
 /**
  * 基础视图activity 和 appBaseFragment 类似 不要通过 setContentView 设置内容视图
  */
-abstract class BaseContainerActivity : BaseActivity(), BasePage {
-
-    /**
-     * 获取 activity 或者 fragment 绑定的bundle
-     */
-    override val attachedBundle: Bundle?
-        get() = intent.extras
-
-    /**
-     * 获取context
-     */
-    override val attachedContext: Context?
-        get() = this
-
-    /**
-     * 关联的activity
-     */
-    override val attachedActivity: Activity?
-        get() = this
+abstract class BaseContainerActivity : BaseActivity(), BaseContainerPage {
 
     //容器
     private var _container: BaseContainer? = null

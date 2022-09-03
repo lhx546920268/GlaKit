@@ -28,6 +28,11 @@ abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.Su
 
     override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        onPermissionLauncherCreate()
+    }
+
     final override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         setContainerContentView(R.layout.scan_fragment)
         val frameLayout = getContentView(inflater, getContainerContentView() as FrameLayout) as FrameLayout

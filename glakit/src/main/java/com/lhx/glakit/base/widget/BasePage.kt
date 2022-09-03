@@ -9,6 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.base.constant.PageStatus
@@ -19,7 +22,7 @@ import java.io.Serializable
 /**
  * 关联的
  */
-interface BaseAttached {
+interface BaseAttached: LifecycleEventObserver {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
@@ -37,31 +40,25 @@ interface BaseAttached {
      * 关联的activity
      */
     val attachedActivity: Activity?
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+
+    }
 }
 
 /**
  * 基础页面接口
  */
-interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCallback, HttpProcessor {
-
-    /**
-     * 基础容器
-     */
-    val baseContainer: BaseContainer?
-
-    /**
-     * 标题栏
-     */
-    val titleBar: TitleBar?
-        get() = baseContainer?.titleBar
-
-    /**
-     * 是否已初始化
-     */
-    val isInit: Boolean
-        get() = baseContainer != null
+interface BasePage: BaseAttached, HttpProcessor {
 
     //<editor-fold desc="Getter">
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        super.onStateChanged(source, event)
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            cancelAllTasks()
+        }
+    }
 
     //获取颜色
     @ColorInt
@@ -124,6 +121,7 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
     //<editor-fold desc="Bundle">
 
     ///获取bundle内容
+    @Suppress("deprecation")
     fun <T : Parcelable> getParcelableArrayListFromBundle(key: String?): ArrayList<T>? {
         if(attachedBundle != null){
             return attachedBundle!!.getParcelableArrayList(key)
@@ -131,6 +129,7 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
         return null
     }
 
+    @Suppress("deprecation")
     fun <T : Parcelable> getParcelableFromBundle(key: String?): T? {
         if(attachedBundle != null){
             return attachedBundle!!.getParcelable(key)
@@ -192,6 +191,7 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
         return null
     }
 
+    @Suppress("deprecation")
     fun getSerializableFromBundle(key: String?): Serializable? {
         if(attachedBundle != null){
             return attachedBundle!!.getSerializable(key)
@@ -200,6 +200,26 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
     }
 
     //</editor-fold>
+}
+
+interface BaseContainerPage: BasePage, BaseContainer.OnEventCallback, InteractionCallback {
+
+    /**
+     * 基础容器
+     */
+    val baseContainer: BaseContainer?
+
+    /**
+     * 标题栏
+     */
+    val titleBar: TitleBar?
+        get() = baseContainer?.titleBar
+
+    /**
+     * 是否已初始化
+     */
+    val isInit: Boolean
+        get() = baseContainer != null
 
     //<editor-fold desc="BaseContainer.OnEventHandler">
 
@@ -216,6 +236,9 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
             attachedActivity!!.finish()
         }
     }
+
+    //子类可重写这个方法设置 contentView
+    fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?)
 
     /**
      * 页面加载视图显示
@@ -370,9 +393,6 @@ interface BasePage: BaseAttached, BaseContainer.OnEventCallback, InteractionCall
     }
 
     //</editor-fold>
-
-    //子类可重写这个方法设置 contentView
-    fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?)
 
     /**
      * 返回某个指定的 fragment

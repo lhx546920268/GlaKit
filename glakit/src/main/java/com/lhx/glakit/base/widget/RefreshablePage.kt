@@ -14,7 +14,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener
 /**
  * 可下拉刷新的页面
  */
-interface RefreshablePage: BasePage, RefreshHeader.RefreshOnScrollHandler, OnRefreshListener {
+interface RefreshablePage: BaseContainerPage, RefreshHeader.RefreshOnScrollHandler, OnRefreshListener {
 
     //<editor-fold desc="变量">
 

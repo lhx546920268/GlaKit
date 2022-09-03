@@ -1,5 +1,6 @@
 package com.lhx.glakit.system
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -7,7 +8,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import java.util.*
 
 
 /**
@@ -27,7 +27,7 @@ object SettingsPage {
      */
     fun start(context: Context, newTask: Boolean) {
 
-        val mark = Build.MANUFACTURER.toLowerCase(Locale.getDefault())
+        val mark = Build.MANUFACTURER.lowercase()
         var intent: Intent? = when{
             mark.contains("huawei") -> {
                 huawei(context)
@@ -130,7 +130,16 @@ object SettingsPage {
         return intent
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
+    @Suppress("deprecation")
     private fun hasIntent(context: Context, intent: Intent): Boolean {
-        return context.packageManager.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY).size > 0
+        val size = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.queryIntentActivities(intent,
+                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())).size
+        } else {
+            context.packageManager.queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY).size
+        }
+        return size > 0
     }
 }

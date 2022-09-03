@@ -1,10 +1,8 @@
-package com.lhx.glakit.api
+package com.lhx.glakit.extension
 
 import com.alibaba.fastjson.JSONArray
 import com.alibaba.fastjson.JSONObject
-import com.lhx.glakit.extension.intValue
 import java.math.BigDecimal
-import java.util.*
 
 
 /**
@@ -22,7 +20,7 @@ fun JSONObject.booleValue(key: String): Boolean {
             is BigDecimal -> value.intValueExact() != 0
             is Number -> value.toInt() != 0
             is String -> {
-                val str = value.toLowerCase(Locale.getDefault())
+                val str = value.lowercase()
                 str == "true" || str == "y" || str == "yes" || value.intValue() != 0
             }
             else -> false

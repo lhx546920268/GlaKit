@@ -13,9 +13,8 @@ import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
 import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
-import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.extension.getColorCompat
+import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.utils.AppUtils
 
 /**
@@ -26,7 +25,25 @@ typealias ResultCallback = (data: Intent?) -> Unit
 /**
  * 基础activity
  */
-open class BaseActivity : AppCompatActivity(), HttpProcessor {
+open class BaseActivity : AppCompatActivity(), BasePage {
+
+    /**
+     * 获取 activity 或者 fragment 绑定的bundle
+     */
+    override val attachedBundle: Bundle?
+        get() = intent.extras
+
+    /**
+     * 获取context
+     */
+    override val attachedContext: Context?
+        get() = this
+
+    /**
+     * 关联的activity
+     */
+    override val attachedActivity: Activity?
+        get() = this
 
     //activity 名称 为fragment的类名 或者 activity类名
     var name: String? = null
@@ -142,8 +159,8 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         bundle.remove("android:support:fragments")
         val keys = bundle.keySet()
         for (key in keys) {
-            val value = bundle.get(key)
-            if (value is Bundle) {
+            val value = bundle.getBundle(key)
+            if (value != null) {
                 removeFragmentStateInBundle(value)
             }
         }
@@ -285,6 +302,7 @@ open class BaseActivity : AppCompatActivity(), HttpProcessor {
         callbackEntities!![requestCode] = CallbackEntity(callback, removeAfterUse)
     }
 
+    @Deprecated("Deprecated in Java")
     @Suppress("deprecation")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK && !callbackEntities.isNullOrEmpty()) {

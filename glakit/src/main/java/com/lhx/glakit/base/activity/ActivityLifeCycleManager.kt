@@ -6,6 +6,8 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import com.lhx.glakit.app.BaseApplication
@@ -230,11 +232,17 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
 
     //获取启动的activity名称
     @SuppressLint("QueryPermissionsNeeded")
+    @Suppress("deprecation")
     private fun getLaunchActivityName(application: Application): String {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.setPackage(application.packageName)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val resolveInfos = application.packageManager.queryIntentActivities(intent, 0)
+        val resolveInfos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            application.packageManager.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(0))
+        } else {
+            application.packageManager.queryIntentActivities(intent, 0)
+        }
+
         if (resolveInfos.isNotEmpty()) {
             return resolveInfos.first().activityInfo.name
         }

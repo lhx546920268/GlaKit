@@ -172,7 +172,7 @@ open class WebFragment : BaseFragment() {
                 //适配5.0不允许http和https混合使用情况
                 settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
                 it.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            } else {
                 it.setLayerType(View.LAYER_TYPE_HARDWARE, null)
             }
 
@@ -193,7 +193,6 @@ open class WebFragment : BaseFragment() {
 
             //settings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK); //设置缓存
             settings.databaseEnabled = true
-            settings.setAppCacheEnabled(true)
             settings.setGeolocationEnabled(true)
 
             //设置定位的数据库路径
@@ -234,12 +233,7 @@ open class WebFragment : BaseFragment() {
     //调用js
     fun evaluateJavascript(js: String?) {
         if (StringUtils.isEmpty(js)) return
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            webView.evaluateJavascript(js!!, null)
-        } else {
-            webView.loadUrl(js!!)
-        }
+        webView.evaluateJavascript(js!!, null)
     }
 
     //上传文件回调
@@ -330,6 +324,7 @@ open class WebFragment : BaseFragment() {
     //
     protected var webViewClient: WebViewClient = object : WebViewClient() {
 
+        @Deprecated("Deprecated in Java", ReplaceWith("shouldOpenURL(url)"))
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
             return shouldOpenURL(url)
         }
@@ -355,6 +350,7 @@ open class WebFragment : BaseFragment() {
             }
         }
 
+        @Deprecated("Deprecated in Java")
         override fun onReceivedError(
             view: WebView?,
             errorCode: Int,
@@ -393,6 +389,7 @@ open class WebFragment : BaseFragment() {
         onBack()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {

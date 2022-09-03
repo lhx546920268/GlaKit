@@ -1,14 +1,11 @@
 package com.lhx.glakit.api
 
 import android.text.TextUtils
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 
 /**
- * http处理
+ * http处理，在声明周期结束的时候 清除task
  */
-interface HttpProcessor: LifecycleObserver, HttpTask.Callback {
+interface HttpProcessor: HttpTask.Callback {
 
     //当前任务
     var currentTasks: HashSet<HttpCancelable>?
@@ -46,7 +43,6 @@ interface HttpProcessor: LifecycleObserver, HttpTask.Callback {
     }
 
     //取消所有请求
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun cancelAllTasks() {
         if(!currentTasks.isNullOrEmpty()){
             for(task in currentTasks!!){
