@@ -1,5 +1,6 @@
 package com.lhx.glakit.refresh
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
@@ -8,15 +9,16 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.LoadingDrawable
-import com.scwang.smartrefresh.layout.api.RefreshKernel
-import com.scwang.smartrefresh.layout.api.RefreshLayout
-import com.scwang.smartrefresh.layout.constant.RefreshState
+import com.scwang.smart.refresh.layout.api.RefreshKernel
+import com.scwang.smart.refresh.layout.api.RefreshLayout
+import com.scwang.smart.refresh.layout.constant.RefreshState
 
 
 /**
  * 默认下拉刷新头部
  */
-class DefaultRefreshHeader : RefreshHeader {
+@SuppressLint("RestrictedApi")
+class DefaultRefreshHeader : BaseRefreshHeader {
 
     //菊花
     private val loadingDrawable: LoadingDrawable by lazy {
@@ -49,7 +51,6 @@ class DefaultRefreshHeader : RefreshHeader {
         loadingDrawable.stop()
         textView.text = "下拉刷新"
     }
-
 
     override fun onFinish(refreshLayout: RefreshLayout, success: Boolean): Int {
         return if (shouldCloseImmediately) 0 else 200

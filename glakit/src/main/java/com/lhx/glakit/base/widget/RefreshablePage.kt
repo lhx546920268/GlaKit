@@ -5,16 +5,16 @@ import android.view.View
 import androidx.annotation.CallSuper
 import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
+import com.lhx.glakit.refresh.BaseRefreshHeader
 import com.lhx.glakit.refresh.DefaultRefreshHeader
-import com.lhx.glakit.refresh.RefreshHeader
-import com.scwang.smartrefresh.layout.SmartRefreshLayout
-import com.scwang.smartrefresh.layout.api.RefreshLayout
-import com.scwang.smartrefresh.layout.listener.OnRefreshListener
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.api.RefreshLayout
+import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 
 /**
  * 可下拉刷新的页面
  */
-interface RefreshablePage: BaseContainerPage, RefreshHeader.RefreshOnScrollHandler, OnRefreshListener {
+interface RefreshablePage: BaseContainerPage, BaseRefreshHeader.RefreshOnScrollHandler, OnRefreshListener {
 
     //<editor-fold desc="变量">
 
@@ -25,7 +25,7 @@ interface RefreshablePage: BaseContainerPage, RefreshHeader.RefreshOnScrollHandl
     var refreshing: Boolean
 
     //刷新头部
-    var refreshHeader: RefreshHeader?
+    var refreshHeader: BaseRefreshHeader?
 
     //是否有下拉刷新功能
     val hasRefresh: Boolean
@@ -90,7 +90,7 @@ interface RefreshablePage: BaseContainerPage, RefreshHeader.RefreshOnScrollHandl
     }
 
     //获取下拉刷新头部
-    fun createRefreshHeader(): RefreshHeader {
+    fun createRefreshHeader(): BaseRefreshHeader {
         return if (GlaKitConfig.refreshHeaderCreator != null) {
             GlaKitConfig.refreshHeaderCreator!!(attachedContext!!)
         } else {

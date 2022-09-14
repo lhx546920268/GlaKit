@@ -7,10 +7,10 @@ import androidx.annotation.LayoutRes
 import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.RefreshablePage
-import com.lhx.glakit.refresh.RefreshHeader
+import com.lhx.glakit.refresh.BaseRefreshHeader
 import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.widget.BackToTopButton
-import com.scwang.smartrefresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.SmartRefreshLayout
 
 /**
  * 可下拉刷新的
@@ -21,9 +21,8 @@ abstract class RefreshableFragment: BaseFragment(), RefreshablePage {
     override var curPage = GlaKitConfig.HttpFirstPage
 
     override var refreshing = false
-    override var refreshHeader: RefreshHeader? = null
     override val hasRefresh: Boolean = false
-
+    override var refreshHeader: BaseRefreshHeader? = null
     override var smartRefreshLayout: SmartRefreshLayout? = null
 
     //</editor-fold>
