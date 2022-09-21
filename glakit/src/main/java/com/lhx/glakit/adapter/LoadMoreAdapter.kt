@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import androidx.annotation.CallSuper
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.OnSingleClickListener
-import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.refresh.LoadMoreControl
 import com.lhx.glakit.refresh.LoadMoreFooter
 import com.lhx.glakit.refresh.LoadMoreStatus
@@ -48,27 +47,22 @@ internal interface LoadMoreAdapter {
 
     //获取加载更多内容视图
     fun getLoadMoreContentView(reusedView: View?, parent: ViewGroup): View {
-
         if (loadMoreControl.loadingStatus == LoadMoreStatus.NO_MORE_DATA) {
-            var view = reusedView
-            if (view == null) {
-                view = LayoutInflater.from(parent.context).inflate(R.layout.common_load_more_no_data, parent, false)
-            }
-            return view!!
+            return if (reusedView == null) {
+                LayoutInflater.from(parent.context).inflate(R.layout.common_load_more_no_data, parent, false)
+            } else reusedView
         } else {
-            if (reusedView == null) {
-                if(loadMoreControl.loadMoreFooter == null){
-                    loadMoreControl.loadMoreFooter = LayoutInflater.from(parent.context).inflate(R.layout.load_more_footer, parent, false) as LoadMoreFooter
-                    loadMoreControl.loadMoreFooter!!.setOnSingleListener {
+            return if (reusedView == null) {
+                val loadMoreFooter = LayoutInflater.from(parent.context).inflate(R.layout.load_more_footer, parent, false) as LoadMoreFooter
+                loadMoreFooter.setOnClickListener(object : OnSingleClickListener() {
+                    override fun onSingleClick(v: View) {
                         if (loadMoreControl.loadingStatus == LoadMoreStatus.FAIL) {
                             startLoadMore()
                         }
                     }
-                }
-                return loadMoreControl.loadMoreFooter!!
-            } else{
-                return reusedView
-            }
+                })
+                loadMoreFooter
+            } else reusedView
         }
     }
 

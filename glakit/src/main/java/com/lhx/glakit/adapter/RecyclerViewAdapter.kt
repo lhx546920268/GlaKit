@@ -1,6 +1,7 @@
 package com.lhx.glakit.adapter
 
 import android.content.Context
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.refresh.LoadMoreControl
+import com.lhx.glakit.refresh.LoadMoreFooter
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 import java.lang.ref.WeakReference
@@ -59,7 +61,6 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
         LoadMoreControl()
     }
 
-    override var emptyView: View? = null
     override var emptyType: Int = EMPTY_VIEW_TYPE
     override var emptyPosition: Int = Position.NO_POSITION
     override var shouldDisplayEmptyView: Boolean = true
@@ -186,8 +187,7 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
                 RecyclerViewHolder(getLoadMoreContentView(null, parent))
             }
             emptyType -> {
-                createEmptyViewIfNeed(parent)
-                RecyclerViewHolder(emptyView!!)
+                RecyclerViewHolder(LayoutInflater.from(parent.context).inflate(getEmptyViewRes(), parent, false))
             }
             headerType -> onCreateHeaderViewHolder(viewType, parent)
             footerType -> onCreateFooterViewHolder(viewType, parent)
@@ -257,7 +257,9 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
     }
 
     open fun onBindLoadMoreViewHolder(holder: RecyclerViewHolder) {
-        loadMoreControl.loadMoreFooter?.loadingStatus = loadMoreControl.loadingStatus
+        val footer = holder.itemView as LoadMoreFooter
+        footer.loadingStatus = loadMoreControl.loadingStatus
+        loadMoreControl.loadMoreFooter = footer
         setDefaultLayoutParams(holder)
     }
 

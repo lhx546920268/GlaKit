@@ -1,5 +1,6 @@
 package com.lhx.glakit.adapter
 
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AbsListView
@@ -8,6 +9,7 @@ import com.lhx.glakit.R
 import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.refresh.LoadMoreControl
+import com.lhx.glakit.refresh.LoadMoreFooter
 import com.lhx.glakit.section.SectionInfo
 
 /**
@@ -34,7 +36,6 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
         LoadMoreControl()
     }
 
-    override var emptyView: View? = null
     override var emptyType: Int = 0
     override var emptyPosition: Int = Position.NO_POSITION
     override var shouldDisplayEmptyView: Boolean = true
@@ -110,11 +111,29 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
         //触发加载更多
         triggerLoadMoreIfNeeded(position)
 
+        //判断重用的view是否正确
+        var result = convertView
+        val type = getItemViewType(position)
+        if (convertView != null) {
+            val tag = convertView.getTag(R.id.list_view_type_tag_key)
+            if (tag is Int) {
+                if (tag != type) {
+                    result = null
+                }
+            } else {
+                result = null
+            }
+        }
+
         //显示空视图
         if (isEmptyItem(position)) {
-
-            createEmptyViewIfNeed(parent)
-            var params = emptyView!!.layoutParams
+            val emptyView = if (result == null) {
+                LayoutInflater.from(parent.context).inflate(getEmptyViewRes(), parent, false)
+            } else {
+                result
+            }
+            emptyView.setTag(R.id.list_view_type_tag_key, type)
+            var params = emptyView.layoutParams
 
             if (params !is AbsListView.LayoutParams) {
                 params = AbsListView.LayoutParams(
@@ -128,29 +147,19 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
             }
 
             params.height = height
-            return emptyView!!.apply {
+            return emptyView.apply {
                 layoutParams = params
                 onEmptyViewDisplay(this)
             }
         }
 
-        var result = convertView
-
-        //判断重用的view是否正确
-        val type = getItemViewType(position)
-        if (convertView != null) {
-            val tag = convertView.getTag(R.id.list_view_type_tag_key)
-            if (tag is Int) {
-                if (tag != type) {
-                    result = null
-                }
-            } else {
-                result = null
-            }
-        }
         if (isLoadMoreItem(position)) {
             result = getLoadMoreContentView(result, parent)
             result.setTag(R.id.list_view_type_tag_key, type)
+            if (result is LoadMoreFooter) {
+                result.loadingStatus = loadMoreControl.loadingStatus
+                loadMoreControl.loadMoreFooter = result
+            }
             return result
         }
 
