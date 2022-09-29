@@ -336,7 +336,8 @@ class CornerDrawableFragment: BaseFragment() {
             drawable.borderWidth = 0
             drawable.shouldAbsoluteCircle = false
             drawable.backgroundColor = Color.RED
-            drawable.setCornerRadius(pxFromDip(10.0f))
+            drawable.leftTopCornerRadius = pxFromDip(10f)
+            drawable.rightBottomCornerRadius = pxFromDip(10f)
             drawable.attachView(imgRect, true)
 
             slider.min = 0.2f

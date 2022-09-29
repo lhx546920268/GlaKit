@@ -87,9 +87,11 @@ class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
     }
 
     //获取绘制路径
+    private val floatArray = FloatArray(8)
+    private val path = Path()
     private fun getPath(bounds: RectF): Path {
-        val path = Path()
 
+        path.reset()
         if (shouldAbsoluteCircle) {
             //全圆
             val radius = min(bounds.width(), bounds.height()) / 2.0f
@@ -98,51 +100,17 @@ class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
                     .CW
             )
         } else {
-            //从左下角开始 绕一圈
-            path.moveTo(bounds.left, bounds.top + leftTopCornerRadius)
-            path.lineTo(bounds.left, bounds.bottom - leftBottomCornerRadius)
-            if (leftBottomCornerRadius > 0) {
-                path.arcTo(
-                    RectF(
-                        bounds.left, bounds.bottom - leftBottomCornerRadius * 2,
-                        bounds.left + leftBottomCornerRadius * 2, bounds.bottom
-                    ), 180f, -90f, false
-                )
-            }
+            //从左到右顺时针
+            floatArray[0] = leftTopCornerRadius.toFloat()
+            floatArray[1] = floatArray[0]
+            floatArray[2] = rightTopCornerRadius.toFloat()
+            floatArray[3] = floatArray[2]
+            floatArray[4] = rightBottomCornerRadius.toFloat()
+            floatArray[5] = floatArray[4]
+            floatArray[6] = leftBottomCornerRadius.toFloat()
+            floatArray[7] = floatArray[6]
 
-            path.lineTo(bounds.right - rightBottomCornerRadius, bounds.bottom)
-            if (rightBottomCornerRadius > 0) {
-                path.arcTo(
-                    RectF(
-                        bounds.right - rightBottomCornerRadius * 2,
-                        bounds.bottom - rightBottomCornerRadius * 2,
-                        bounds.right, bounds.bottom
-                    ), 90f, -90f, false
-                )
-            }
-
-            path.lineTo(bounds.right, bounds.top + rightTopCornerRadius)
-            if (rightTopCornerRadius > 0) {
-                path.arcTo(
-                    RectF(
-                        bounds.right - rightTopCornerRadius * 2, bounds.top,
-                        bounds.right, bounds.top + rightTopCornerRadius * 2
-                    ), 0f, -90f, false
-                )
-            }
-
-            path.lineTo(bounds.left + leftTopCornerRadius, bounds.top)
-            if (leftTopCornerRadius > 0) {
-                path.arcTo(
-                    RectF(
-                        bounds.left,
-                        bounds.top,
-                        bounds.left + leftTopCornerRadius * 2,
-                        bounds.top + leftTopCornerRadius * 2
-                    ), -90f, -90f,
-                    false
-                )
-            }
+            path.addRoundRect(bounds, floatArray, Path.Direction.CW)
         }
 
         return path

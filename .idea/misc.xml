@@ -3,6 +3,7 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/layout/corner_drawable_fragment.xml" value="0.31354166666666666" />
         <entry key="app/src/main/res/layout/image_scale_fragment.xml" value="0.15507726269315672" />
         <entry key="app/src/main/res/layout/nested_scroll_activity.xml" value="0.23007246376811594" />
         <entry key="app/src/main/res/layout/nested_scroll_child_container.xml" value="0.315625" />
@@ -21,7 +22,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_16" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_X" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
