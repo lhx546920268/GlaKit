@@ -5,12 +5,15 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.LayoutInflater
+import android.widget.ImageView
 import androidx.core.app.NotificationCompat
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
@@ -19,6 +22,8 @@ import com.lhx.glakit.image.ImageData
 import com.lhx.glakit.image.ImagePicker
 import com.lhx.glakitDemo.R
 import com.lhx.glakitDemo.databinding.ImageScaleFragmentBinding
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.HttpURLConnection
 
@@ -43,6 +48,22 @@ class ImageScaleFragment: BaseFragment() {
 //                sendNotification(requireContext(), "一个通知标题", "一个通知内容")
 //            }, 2000)
         }
+
+        var bitmap = BitmapFactory.decodeResource(requireActivity().resources, R.drawable.tupian)
+
+        val matrix = Matrix()
+        matrix.postRotate(180f)
+        matrix.postScale(0.5f, 0.5f)
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 10, stream)
+
+        val inputStream = ByteArrayInputStream(stream.toByteArray())
+        bitmap = BitmapFactory.decodeStream(inputStream)
+
+        val imageView = findViewById<ImageView>(R.id.bottom_image)!!
+        imageView.setImageBitmap(bitmap)
     }
 
     private fun uploadImage(data: ImageData) {

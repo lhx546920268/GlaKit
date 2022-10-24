@@ -9,6 +9,7 @@ import android.os.Environment
 import android.text.TextUtils
 import android.util.Log
 import com.lhx.glakit.base.widget.ValueCallback
+import com.lhx.glakit.utils.Size
 import com.luck.picture.lib.PictureContentResolver
 import com.luck.picture.lib.compress.InputStreamAdapter
 import com.luck.picture.lib.compress.InputStreamProvider
@@ -277,7 +278,7 @@ interface ImageCompressEngine {
 
     private fun rotatingAndScaleIfNeeded(bitmap: Bitmap, provider: InputStreamProvider): MatrixResult {
 
-        var size: ImageUtils.Size? = null
+        var size: Size? = null
         val width = bitmap.width
         val height = bitmap.height
 
@@ -317,7 +318,7 @@ interface ImageCompressEngine {
             }
 
             if (size != null) {
-                matrix.setScale(size.width / width.toFloat(),
+                matrix.postScale(size.width / width.toFloat(),
                     size.height / height.toFloat())
             }
 

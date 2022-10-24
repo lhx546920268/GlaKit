@@ -43,9 +43,6 @@ abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.Su
         }
 
         textureView = findViewById(R.id.textureView)!!
-
-        cameraManager = CameraManager(this)
-        cameraManager.cameraManagerListener = this
         textureView.surfaceTextureListener = this
     }
 
@@ -66,8 +63,7 @@ abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.Su
     }
 
     override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) {
-        cameraManager.setPreviewSize(width, height)
-        cameraManager.setSurfaceTexture(surface)
+        cameraManager = CameraManager(this, surface, width, height, this)
         view?.postDelayed({
             cameraManager.openCamera()
         }, 300)

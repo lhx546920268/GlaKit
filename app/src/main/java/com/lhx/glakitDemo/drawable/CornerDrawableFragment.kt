@@ -3,6 +3,7 @@ package com.lhx.glakitDemo.drawable
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
+import android.graphics.drawable.DrawableWrapper
 import android.os.Bundle
 import android.text.Html
 import android.util.AttributeSet
@@ -10,6 +11,7 @@ import android.view.*
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.base.widget.VoidCallback

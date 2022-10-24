@@ -1,17 +1,18 @@
 package com.lhx.glakit.drawable
 
-import android.graphics.ColorFilter
-import android.graphics.Paint
-import android.graphics.PixelFormat
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.Drawable
 import android.view.View
-import com.lhx.glakit.utils.ViewUtils
 
 /**
  * 基础drawable
  */
+@Suppress("unused_parameter")
 abstract class BaseDrawable : Drawable() {
+
+    companion object {
+        const val NO_SIZE = -1
+    }
 
     //画笔
     protected val paint = Paint()
@@ -20,10 +21,10 @@ abstract class BaseDrawable : Drawable() {
     protected val rectF = RectF()
 
     //内在宽度
-    private var intrinsicWidth = -1
+    private var intrinsicWidth = NO_SIZE
 
     //内在盖度
-    private var intrinsicHeight = -1
+    private var intrinsicHeight = NO_SIZE
 
     init {
         paint.strokeJoin = Paint.Join.ROUND
@@ -39,18 +40,20 @@ abstract class BaseDrawable : Drawable() {
         paint.colorFilter = colorFilter
     }
 
+    @Deprecated("Deprecated in Java",
+        ReplaceWith("PixelFormat.TRANSLUCENT", "android.graphics.PixelFormat")
+    )
     override fun getOpacity(): Int {
         return PixelFormat.TRANSLUCENT
     }
 
-    override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
-        super.setBounds(left, top, right, bottom)
-
+    override fun onBoundsChange(bounds: Rect) {
+        super.onBoundsChange(bounds)
         //必须的，否则会出现不可预料的bug，如键盘弹出后消失，直接getBounds() 返回越来越小的rect
-        rectF.left = left.toFloat()
-        rectF.top = top.toFloat()
-        rectF.right = right.toFloat()
-        rectF.bottom = bottom.toFloat()
+        rectF.left = bounds.left.toFloat()
+        rectF.top = bounds.top.toFloat()
+        rectF.right = bounds.right.toFloat()
+        rectF.bottom = bounds.bottom.toFloat()
     }
 
     fun setIntrinsicWidth(width: Int){
@@ -80,4 +83,7 @@ abstract class BaseDrawable : Drawable() {
 
     //复制一份
     abstract fun copy() : BaseDrawable
+    open fun copyTo(drawable: BaseDrawable) {
+
+    }
 }

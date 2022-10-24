@@ -17,28 +17,20 @@ import kotlin.math.abs
  * 相机管理
  */
 @Suppress("deprecation")
-class CameraManager(val fragment: ScanFragment) {
+class CameraManager(val fragment: ScanFragment,
+                    val surface: SurfaceTexture,
+                    val surfaceWidth: Int,
+                    val surfaceHeight: Int,
+                    val callback: Callback) {
 
     //相机
     private var _camera: android.hardware.Camera? = null
 
-    //自动聚焦回调
-    private val autoFocusCallback: CameraAutoFocusCallback by lazy{
-        CameraAutoFocusCallback()
-    }
-
     //事件
-    private val _cameraHandler = CameraHandler(this)
-
-    //预览大小
-    var surfaceWidth = 0
-    private set
-
-    var surfaceHeight = 0
-    private set
+    internal val cameraHandler = CameraHandler(this)
 
     //预览回调
-    private var previewCallback = CameraPreviewCallback(_cameraHandler, this)
+    internal val previewCallback = CameraPreviewCallback(cameraHandler, this)
 
     //是否正在暂停
     private var mPausing = false
@@ -49,9 +41,6 @@ class CameraManager(val fragment: ScanFragment) {
     //关联的
     private var mSurfaceTexture: SurfaceTexture? = null
 
-    //回调
-    var cameraManagerListener: Callback? = null
-
     //扫码框
     private var mScanRect: Rect? = null
 
@@ -61,7 +50,7 @@ class CameraManager(val fragment: ScanFragment) {
 
     fun getScanRect(): Rect? {
         if (mScanRect == null && _camera != null) {
-            mScanRect = Rect(cameraManagerListener!!.getScanRect(surfaceWidth, surfaceHeight))
+            mScanRect = Rect(callback.getScanRect(surfaceWidth, surfaceHeight))
             val size = _camera!!.parameters.previewSize
             val widthScale = size.height.toFloat() / surfaceWidth.toFloat()
             val heightScale = size.width.toFloat() / surfaceHeight.toFloat()
@@ -73,17 +62,6 @@ class CameraManager(val fragment: ScanFragment) {
             }
         }
         return mScanRect
-    }
-
-    //设置预览大小
-    fun setPreviewSize(width: Int, height: Int) {
-        surfaceWidth = width
-        surfaceHeight = height
-    }
-
-    //设置预览视图
-    fun setSurfaceTexture(surfaceTexture: SurfaceTexture) {
-        mSurfaceTexture = surfaceTexture
     }
 
     //获取当前预览大小
@@ -113,11 +91,7 @@ class CameraManager(val fragment: ScanFragment) {
             if (it) {
                 openCameraAfterGranted()
             } else {
-                var alert = true
-                if (cameraManagerListener != null) {
-                    alert = !cameraManagerListener!!.onPermissionsDenied(neededPermissions())
-                }
-                if (alert) {
+                if (!callback.onPermissionsDenied(neededPermissions())) {
                     AppUtils.openAppSettings("扫一扫需要您的相机权限才能使用")
                 }
             }
@@ -133,7 +107,7 @@ class CameraManager(val fragment: ScanFragment) {
         } else {
             try {
                 _camera!!.apply {
-                    setPreviewTexture(mSurfaceTexture)
+                    setPreviewTexture(surface)
                     setOptimalPreviewSize(surfaceWidth, surfaceHeight)
                     setDisplayOrientation(90)
                     setPreviewCallback(previewCallback)
@@ -142,9 +116,7 @@ class CameraManager(val fragment: ScanFragment) {
 
                 mPreviewing = true
                 startDecode()
-                if (cameraManagerListener != null) {
-                    cameraManagerListener!!.onCameraStart()
-                }
+                callback.onCameraStart()
                 isCameraInit = true
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -161,7 +133,6 @@ class CameraManager(val fragment: ScanFragment) {
             mPausing = true
             mPreviewing = false
             stopDecode()
-            stopFocus()
             _camera!!.stopPreview()
         }
     }
@@ -174,7 +145,6 @@ class CameraManager(val fragment: ScanFragment) {
             _camera!!.stopPreview()
             _camera!!.setPreviewCallback(null)
             mPausing = false
-            stopFocus()
             _camera!!.release()
             _camera = null
         }
@@ -186,28 +156,7 @@ class CameraManager(val fragment: ScanFragment) {
             _camera!!.startPreview()
             mPreviewing = true
             startDecode()
-            if (cameraManagerListener != null) {
-                cameraManagerListener!!.onCameraStart()
-            }
         }
-    }
-
-    //聚焦
-    fun autoFocus() {
-        if (_camera != null && mPreviewing) {
-            autoFocusCallback.startFocus(_cameraHandler)
-            _camera!!.autoFocus(autoFocusCallback)
-        }
-    }
-
-    //是否已聚焦
-    fun isAutoFocusing(): Boolean {
-        return autoFocusCallback.isAutoFocusing()
-    }
-
-    //停止聚焦
-    private fun stopFocus() {
-        autoFocusCallback.stopFocus()
     }
 
     //开始解码
@@ -260,10 +209,10 @@ class CameraManager(val fragment: ScanFragment) {
             var landScapeWidth = width
             var landScapeHeight = height
 
-            if (isPortrait()) {
-                landScapeWidth = height
-                landScapeHeight = width
-            }
+//            if (isPortrait()) {
+//                landScapeWidth = height
+//                landScapeHeight = width
+//            }
 
             var optimalSize: android.hardware.Camera.Size? = null
 
@@ -297,18 +246,9 @@ class CameraManager(val fragment: ScanFragment) {
 
     //调用扫码成功代理
     fun decodeSuccess(result: Result) {
-        if (cameraManagerListener != null) {
-            onPause()
-            cameraManagerListener!!.onScanSuccess(result)
-            cameraManagerListener!!.onCameraStop()
-        }
-    }
-
-    //获取屏幕方向 判断是否是竖屏
-    private fun isPortrait(): Boolean {
-        val configuration = fragment.resources.configuration
-        val orientation: Int = configuration.orientation
-        return orientation == Configuration.ORIENTATION_PORTRAIT
+        onPause()
+        callback.onScanSuccess(result)
+        callback.onCameraStop()
     }
 
     //回调

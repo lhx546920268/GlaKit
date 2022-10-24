@@ -1,12 +1,7 @@
 package com.lhx.glakit.drawable
 
 import android.graphics.*
-import android.content.Context
 import android.graphics.RectF
-import android.graphics.Shader
-import android.graphics.BitmapShader
-import android.graphics.BitmapFactory
-import android.graphics.Bitmap
 import com.lhx.glakit.properties.ObservableProperty
 import kotlin.math.min
 import kotlin.reflect.KProperty
@@ -16,7 +11,7 @@ import kotlin.reflect.KProperty
  * 圆角边框drawable
  */
 @Suppress("unused_parameter")
-class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
+open class CornerBorderDrawable : BaseDrawable(), ObservableProperty.Callback{
 
     //左上角圆角 px
     var leftTopCornerRadius by ObservableProperty(0, this)
@@ -42,54 +37,20 @@ class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
     //背景填充颜色
     var backgroundColor by ObservableProperty(Color.TRANSPARENT, this)
 
-    //位图
-    private var bitmap: Bitmap? = null
-
-    //位图着色器
-    private var bitmapShader: BitmapShader? = null
-
-    //位图画笔
-    private var bitmapPaint: Paint? = null
-
-    constructor() : super()
-
     override fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>) {
         invalidateSelf()
     }
-
-    /**
-     * 通过位图构建
-     * @param bitmap 位图
-     */
-    constructor(bitmap: Bitmap?): super() {
-        this.bitmap = bitmap
-        if (bitmap != null) {
-            bitmapShader = BitmapShader(bitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-            bitmapPaint = Paint()
-            bitmapPaint?.shader = bitmapShader
-            bitmapPaint?.isAntiAlias = true
-            bitmapPaint?.style = Paint.Style.FILL_AND_STROKE
-        }
-    }
-
-    /**
-     * 通过资源id构建
-     * @param res 资源id
-     * @param context context
-     */
-    constructor(res: Int, context: Context): this(BitmapFactory.decodeResource(context.resources, res))
 
     override fun draw(canvas: Canvas) {
 
         drawBorder(canvas)
         drawBackground(canvas)
-        drawBitmap(canvas)
     }
 
     //获取绘制路径
     private val floatArray = FloatArray(8)
     private val path = Path()
-    private fun getPath(bounds: RectF): Path {
+    protected fun getPath(bounds: RectF): Path {
 
         path.reset()
         if (shouldAbsoluteCircle) {
@@ -118,12 +79,7 @@ class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
 
     //设置圆角半径
     fun setCornerRadius(cornerRadius: Int){
-        
-        leftTopCornerRadius = cornerRadius
-        leftBottomCornerRadius = cornerRadius
-        rightTopCornerRadius = cornerRadius
-        rightBottomCornerRadius = cornerRadius
-        invalidateSelf()
+        setCornerRadius(cornerRadius, cornerRadius, cornerRadius, cornerRadius)
     }
 
     //设置圆角半径
@@ -133,25 +89,28 @@ class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
         this.leftBottomCornerRadius = leftBottomCornerRadius
         this.rightTopCornerRadius = rightTopCornerRadius
         this.rightBottomCornerRadius = rightBottomCornerRadius
+        invalidateSelf()
     }
 
     //复制一份
     override fun copy(): CornerBorderDrawable {
-
         val drawable = CornerBorderDrawable()
-        drawable.shouldAbsoluteCircle = shouldAbsoluteCircle
-        drawable.backgroundColor = backgroundColor
-        drawable.borderColor = borderColor
-        drawable.borderWidth = borderWidth
-        drawable.bitmap = bitmap
-        drawable.bitmapShader = bitmapShader
-        drawable.bitmapPaint = bitmapPaint
-        drawable.leftTopCornerRadius = leftTopCornerRadius
-        drawable.leftBottomCornerRadius = leftBottomCornerRadius
-        drawable.rightTopCornerRadius = rightTopCornerRadius
-        drawable.rightBottomCornerRadius = rightBottomCornerRadius
-
+        copyTo(drawable)
         return drawable
+    }
+
+    override fun copyTo(drawable: BaseDrawable) {
+        super.copyTo(drawable)
+        if (drawable is CornerBorderDrawable) {
+            drawable.shouldAbsoluteCircle = shouldAbsoluteCircle
+            drawable.backgroundColor = backgroundColor
+            drawable.borderColor = borderColor
+            drawable.borderWidth = borderWidth
+            drawable.leftTopCornerRadius = leftTopCornerRadius
+            drawable.leftBottomCornerRadius = leftBottomCornerRadius
+            drawable.rightTopCornerRadius = rightTopCornerRadius
+            drawable.rightBottomCornerRadius = rightBottomCornerRadius
+        }
     }
 
     //绘制边框
@@ -187,51 +146,6 @@ class CornerBorderDrawable : BaseDrawable, ObservableProperty.Callback{
             paint.color = backgroundColor
             paint.style = Paint.Style.FILL
             canvas.drawPath(getPath(bounds), paint)
-        }
-    }
-
-    //获取位图圆角半径
-    private fun drawBitmap(canvas: Canvas) {
-
-        //绘制位图
-        if (bitmapPaint != null) {
-
-            val bounds = RectF(rectF)
-
-            val existBorder = borderWidth > 0 && Color.alpha(borderColor) != 0
-            val margin = if (existBorder) borderWidth / 2 else 0
-            bounds.inset(margin.toFloat(), margin.toFloat())
-
-            //如果绘制区域不等于位图大小，设置缩放矩阵
-            val width = bitmap!!.width.toFloat()
-            val height = bitmap!!.height.toFloat()
-            if (bounds.width() != width || bounds.height() != height) {
-                val matrix = Matrix()
-                matrix.setScale(
-                    bounds.width() / width,
-                    bounds.height() / height
-                )
-                bitmapShader!!.setLocalMatrix(matrix)
-            }
-
-            canvas.drawPath(getPath(bounds), bitmapPaint!!)
-        }
-    }
-
-    //以下是父类方法
-    override fun getIntrinsicHeight(): Int {
-        return if (bitmap != null) {
-            bitmap!!.height
-        } else {
-            super.getIntrinsicHeight()
-        }
-    }
-
-    override fun getIntrinsicWidth(): Int {
-        return if (bitmap != null) {
-            bitmap!!.height
-        } else {
-            super.getIntrinsicWidth()
         }
     }
 }

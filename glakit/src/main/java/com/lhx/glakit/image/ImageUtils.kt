@@ -10,6 +10,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.FileUtils
+import com.lhx.glakit.utils.Size
 import com.lhx.glakit.utils.ThreadUtils
 import com.luck.picture.lib.tools.PictureFileUtils
 import java.io.*
@@ -30,8 +31,6 @@ enum class ImageFormat {
  * 图片工具类
  */
 object ImageUtils {
-
-    data class Size(val width: Int, val height: Int)
 
     /**
     通过给定的大小，获取等比例缩小后的尺寸，如果maxWidth或者maxHeight小于等于0，则缩小相对的值，
