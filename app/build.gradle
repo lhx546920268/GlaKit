@@ -3,6 +3,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'com.alibaba.arouter'
 }
 
 android {
@@ -15,6 +16,13 @@ android {
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+
+        //ARouter
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
     }
 
     buildTypes {
@@ -29,12 +37,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '11'
     }
     lint {
         disable 'GoogleAppIndexingWarning'
@@ -49,4 +57,8 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 
     implementation 'com.github.hackware1993:MagicIndicator:1.7.0'
+
+    //ARouter
+    kapt 'com.github.jadepeakpoet.ARouter:arouter-compiler:1.0.1'
+    implementation 'com.github.jadepeakpoet.ARouter:arouter-api:1.0.1'
 }

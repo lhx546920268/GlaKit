@@ -3,13 +3,14 @@ package com.lhx.glakitDemo
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import com.alibaba.android.arouter.facade.annotation.Route
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.tab.TabBarActivity
 import com.lhx.glakitDemo.home.HomeFragment
 import com.lhx.glakitDemo.home.User
 import com.lhx.glakitDemo.me.MeFragment
 
-
+@Route(path = "/app/index")
 class MainActivity : TabBarActivity() {
 
     val user = User()

@@ -138,8 +138,8 @@ class RoundImageView: AppCompatImageView, ObservableProperty.Callback {
         invalidate()
     }
 
-    override fun setImageAlpha(alpha: Int) {
-        var alpha = alpha
+    override fun setImageAlpha(a: Int) {
+        var alpha = a
         alpha = alpha and 0xFF
         if (alpha == mImageAlpha) {
             return

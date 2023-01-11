@@ -155,12 +155,13 @@ open class BaseActivity : AppCompatActivity(), BasePage {
     }
 
     //移除fragment 信息
+    @Suppress("deprecation")
     private fun removeFragmentStateInBundle(bundle: Bundle) {
         bundle.remove("android:support:fragments")
         val keys = bundle.keySet()
         for (key in keys) {
-            val value = bundle.getBundle(key)
-            if (value != null) {
+            val value = bundle.get(key)
+            if (value is Bundle) {
                 removeFragmentStateInBundle(value)
             }
         }
