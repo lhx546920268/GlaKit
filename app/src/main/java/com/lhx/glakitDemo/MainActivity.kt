@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.google.myanmartools.ZawgyiDetector
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.tab.TabBarActivity
 import com.lhx.glakitDemo.home.HomeFragment
@@ -32,6 +33,19 @@ class MainActivity : TabBarActivity() {
                 Log.d("change", "${property.name} did change oldValue = $oldValue, newValue = $newValue")
             }
         }, true)
+
+        val zawgyiDetector = ZawgyiDetector()
+
+        println("mm3 Post စစ်ဆေးနေပါသည်၊ ပင်မစာမျက်နှာသို့သွားကြစို့ ${zawgyiDetector.getZawgyiProbability("Post စစ်ဆေးနေပါသည်၊ ပင်မစာမျက်နှာသို့သွားကြစို့")}")
+        println("mm3 Post စစ်ဆေးနေပါသည်၊ ${zawgyiDetector.getZawgyiProbability("Post စစ်ဆေးနေပါသည်၊")}")
+        println("zawgyi Post စစ္ေဆးေနပါသည္၊ ပင္မစာမ်က္ႏွာသို႔သြားၾကစို႔ ${zawgyiDetector.getZawgyiProbability("သင့္ကုန္ပစၥည္းႏွင့္dataကို သူတပါးလ်င္ျမန္စြာရွာေဖြႏိုင္ရန္ ေအာက္ပါအခ်က္လက္မ်ားကိုျပည့္စုံစြာျဖည့္ဆည္းေပးပါ")}")
+
+        println("mm3 တင် ${zawgyiDetector.getZawgyiProbability("တင်")}")
+        println("zawgyi တင္ ${zawgyiDetector.getZawgyiProbability("တင္")}")
+        println("mm3 + zawgyi တင် စစ္ေဆးေနပါသည္၊ ${zawgyiDetector.getZawgyiProbability("တင် စစ္ေဆးေနပါသည္၊")}")
+        println("zawgyi + mm3 တင္ ရွေးချယ်ရန် ${zawgyiDetector.getZawgyiProbability("တင္ ရွေးချယ်ရန်")}")
+        println("nothing ${zawgyiDetector.getZawgyiProbability("No subscribers registered for event class org.greenrobot.eventbus.NoSubscriberEvent")}")
+
     }
 
     override val numberOfTabBarItems: Int

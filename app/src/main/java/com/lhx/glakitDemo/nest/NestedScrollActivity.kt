@@ -129,7 +129,8 @@ class NestedScrollActivity: RecyclerActivity() {
         layoutManager.nestedScrollHelper = helper
 
         recyclerView.layoutManager = layoutManager
-        recyclerView.adapter = Adapter(recyclerView)
+        val adapter = Adapter(recyclerView)
+        recyclerView.adapter = adapter
 
         //关闭默认动画
         recyclerView.itemAnimator = null
@@ -169,6 +170,10 @@ class NestedScrollActivity: RecyclerActivity() {
             }
         }
         magicIndicator.navigator = commonNavigator
+
+        recyclerView.postDelayed({
+            recyclerView.scrollBy(0, 300)
+        }, 2000)
     }
 
     override fun onRefresh() {

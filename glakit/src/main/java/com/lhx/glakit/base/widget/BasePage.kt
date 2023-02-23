@@ -64,7 +64,7 @@ interface BasePage: BaseAttached, HttpProcessor {
     @ColorInt
     fun getColorCompat(@ColorRes colorRes: Int): Int {
         if(attachedContext != null){
-            ContextCompat.getColor(attachedContext!!, colorRes)
+            return ContextCompat.getColor(attachedContext!!, colorRes)
         }
         return 0
     }
@@ -147,7 +147,7 @@ interface BasePage: BaseAttached, HttpProcessor {
 
     fun getDoubleFromBundle(key: String?): Double {
         if(attachedBundle != null){
-            attachedBundle!!.getDouble(key, 0.0)
+            return attachedBundle!!.getDouble(key, 0.0)
         }
 
         return 0.0

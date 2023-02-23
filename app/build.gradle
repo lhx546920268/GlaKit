@@ -61,4 +61,6 @@ dependencies {
     //ARouter
     kapt 'com.github.jadepeakpoet.ARouter:arouter-compiler:1.0.1'
     implementation 'com.github.jadepeakpoet.ARouter:arouter-api:1.0.1'
+
+    implementation 'com.google.myanmartools:myanmar-tools:1.1.3'
 }
