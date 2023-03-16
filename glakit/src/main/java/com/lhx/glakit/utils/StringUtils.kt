@@ -67,6 +67,10 @@ object StringUtils {
         } else false
     }
 
+    fun isNotEmpty(text: CharSequence?): Boolean {
+        return !isEmpty(text)
+    }
+
     fun stringFromBytes(bytes: ByteArray?): String? {
         return stringFromBytes(bytes, Charset.forName("utf-8"))
     }

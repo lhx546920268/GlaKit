@@ -46,7 +46,7 @@ object WebConfig {
 /**
  * 网页
  */
-@Suppress("SetJavaScriptEnabled", "unused_parameter", "deprecation")
+@Suppress("SetJavaScriptEnabled", "unused_parameter", "deprecation", "unused")
 open class WebFragment : BaseFragment() {
 
     companion object{

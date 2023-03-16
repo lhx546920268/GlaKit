@@ -10,7 +10,6 @@ import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.ScaleAnimation
 import androidx.core.view.ViewCompat
-import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.ViewUtils
 import kotlin.math.min
@@ -44,8 +43,8 @@ open class PopoverContainer : ViewGroup {
     private var _paddingBottom = 0
 
     //回调
-    var onShowListener: ((container: PopoverContainer) -> Unit)? = null
-    var onDismissListener: ((container: PopoverContainer) -> Unit)? = null
+    open var onShowListener: ((container: PopoverContainer) -> Unit)? = null
+    open var onDismissListener: ((container: PopoverContainer) -> Unit)? = null
 
     //是否要执行动画
     private var _shouldExecuteAnimate = true
@@ -93,14 +92,10 @@ open class PopoverContainer : ViewGroup {
         _shouldAnimate = animate
 
         _clickedView?.also {
-            it.getLocationOnScreen(_clickedLocations)
-
             //如果没有父视图，添加
             if(parent == null){
                 val parent = ViewUtils.findSuitableParent(it)
-                if(parent != null){
-                    parent.addView(this)
-                }
+                parent?.addView(this)
             }
         }
 
@@ -121,7 +116,7 @@ open class PopoverContainer : ViewGroup {
     //移除
     open fun dismiss(animate: Boolean) {
         if (animate) {
-            val animation = ScaleAnimation(1.0f, 0f, 1.0f, 0f, getCurrentPivotX(), 0f)
+            val animation = ScaleAnimation(1.0f, 0f, 1.0f, 0f, popoverLayout.arrowX, popoverLayout.arrowY)
             animation.duration = 250
             animation.setAnimationListener(object : AnimationListener {
                 override fun onAnimationStart(animation: Animation) {}
@@ -145,15 +140,6 @@ open class PopoverContainer : ViewGroup {
         if (onDismissListener != null) {
             onDismissListener!!(this)
         }
-    }
-
-    //获取动画x
-    private fun getCurrentPivotX(): Float {
-        return (if (_clickedView != null) {
-            popoverLayout.arrowOffset
-        } else {
-            popoverLayout.measuredWidth / 2
-        }).toFloat()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -212,6 +198,7 @@ open class PopoverContainer : ViewGroup {
         getLocationOnScreen(_locations)
 
         if (_clickedView != null) {
+            _clickedView?.getLocationOnScreen(_clickedLocations)
             val x1 = _clickedLocations[0]
             val y1 = _clickedLocations[1]
             val x2 = _locations[0]
@@ -265,7 +252,7 @@ open class PopoverContainer : ViewGroup {
             if (_shouldAnimate) {
                 post {
                     visibility = VISIBLE
-                    val animation = ScaleAnimation(0f, 1.0f, 0f, 1.0f, getCurrentPivotX(), 0f)
+                    val animation = ScaleAnimation(0f, 1.0f, 0f, 1.0f, popoverLayout.arrowX, popoverLayout.arrowY)
                     animation.duration = 250
                     animation.setAnimationListener(object : AnimationListener {
                         override fun onAnimationStart(animation: Animation) {}

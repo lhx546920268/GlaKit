@@ -20,7 +20,7 @@ import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.extension.getColorCompat
 import java.util.*
 
-@Suppress("deprecation")
+@Suppress("deprecation", "unused")
 object AppUtils {
 
     val context: Context
@@ -142,7 +142,7 @@ object AppUtils {
                             val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$nPhone"))
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                             context.startActivity(intent)
-                        } catch (e: SecurityException) {
+                        } catch (_: SecurityException) {
                         }
                     }
                 }
@@ -268,7 +268,7 @@ object AppUtils {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             intent.data = Uri.fromParts("package", context.packageName, null)
             context.startActivity(intent)
-        }catch (e: Exception){
+        }catch (_: Exception){
 
         }
     }
@@ -341,13 +341,17 @@ object AppUtils {
     /**
      * 判断是否为鸿蒙系统
      * */
+    private var isHarmonyOs = -1
     fun isHarmonyOs(): Boolean{
-        try {
+        if (isHarmonyOs != -1) return  isHarmonyOs != 0
+        isHarmonyOs = try {
             val clz = Class.forName("com.huawei.system.BuildEx")
             val method = clz.getMethod("getOsBrand")
-            return "harmony" == method.invoke(clz)
+            if ("harmony" == method.invoke(clz)) 1 else 0
+
         } catch (e: Exception) {
+            0
         }
-        return false
+        return isHarmonyOs != 0
     }
 }

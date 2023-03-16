@@ -23,16 +23,36 @@ open class PopoverLayout : FrameLayout, ObservableProperty.Callback{
     var cornerRadius by ObservableProperty(0, this)
 
     //箭头高度 px
-    var arrowHeight by ObservableProperty(0, this)
+    var arrowHeight = 0
+        set(value) {
+            if (value != field) {
+                field = value
+                adjustPadding()
+                postInvalidate()
+            }
+        }
 
     //箭头宽度 px
     var arrowWidth by ObservableProperty(0, this)
 
     //箭头方向
-    var arrowDirection by ObservableProperty(ArrowDirection.top, this)
+    var arrowDirection = ArrowDirection.top
+        set(value) {
+            if (value != field) {
+                field = value
+                adjustPadding()
+                postInvalidate()
+            }
+        }
 
     //设置箭头偏移量 0为居中
     var arrowOffset = 0
+
+    //箭头位置，得onLayout后才有值
+    var arrowX = 0f
+        private set
+    var arrowY = 0f
+        private set
 
     //画笔
     private val _paint by lazy{
@@ -165,8 +185,6 @@ open class PopoverLayout : FrameLayout, ObservableProperty.Callback{
         var bottom = _height.toFloat()
         val width = _width.toFloat()
         val height = _height.toFloat()
-        var arrowX = 0f
-        var arrowY = 0f
 
         _path.reset()
         when (arrowDirection) {
