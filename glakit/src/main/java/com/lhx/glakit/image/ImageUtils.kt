@@ -12,7 +12,7 @@ import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.FileUtils
 import com.lhx.glakit.utils.Size
 import com.lhx.glakit.utils.ThreadUtils
-import com.luck.picture.lib.tools.PictureFileUtils
+import com.luck.picture.lib.utils.PictureFileUtils
 import java.io.*
 import kotlin.math.floor
 import kotlin.math.max
@@ -69,10 +69,10 @@ object ImageUtils {
                         w = floor(width.toDouble() / widthScale)
                     }
                 } else {
-                    if (height >= maxHeight && width <= maxWidth) {
+                    if (height >= maxHeight) {
                         h = floor(height.toDouble() / heightScale)
                         w = floor(width.toDouble() / heightScale)
-                    } else if (height <= maxHeight && width >= maxWidth) {
+                    } else if (width >= maxWidth) {
                         h = floor(height.toDouble() / widthScale)
                         w = floor(width.toDouble() / widthScale)
                     }
@@ -193,7 +193,7 @@ object ImageUtils {
                             android.os.FileUtils.copy(inputStream, outputStream)
                             result = true
                         }
-                    }catch (e: Exception) {
+                    }catch (_: Exception) {
 
                     }finally {
                         inputStream?.close()

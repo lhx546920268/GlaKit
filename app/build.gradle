@@ -47,6 +47,7 @@ android {
     lint {
         disable 'GoogleAppIndexingWarning'
     }
+    namespace 'com.lhx.glakitDemo'
 }
 
 dependencies {
