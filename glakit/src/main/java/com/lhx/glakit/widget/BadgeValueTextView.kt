@@ -1,4 +1,4 @@
-package com.lhx.glakit.widget
+package com.common.base.widget
 
 import android.content.Context
 import android.graphics.Color
@@ -9,9 +9,9 @@ import android.view.Gravity
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.ContextCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.drawable.CornerBorderDrawable
-import com.lhx.glakit.extension.getDrawableCompat
 import com.lhx.glakit.extension.intValue
 import kotlin.math.max
 
@@ -110,7 +110,8 @@ class BadgeValueTextView : AppCompatTextView {
         var drawable: Drawable? = null
         if (text != null && text.toString().intValue() > 99) {
             if (maxValueIconRes > 0) {
-                drawable = context.getDrawableCompat(maxValueIconRes)
+                drawable = ContextCompat.getDrawable(context, maxValueIconRes)
+                value = null
             } else {
                 value = "99+"
             }
@@ -119,8 +120,14 @@ class BadgeValueTextView : AppCompatTextView {
         if (drawable != null) {
             value = ""
             drawable.setBounds(0, 0, drawable.minimumWidth, drawable.minimumHeight)
+            setCompoundDrawables(drawable, null, null, null)
+            background = null
+        }else{
+            if (background == null){
+                this.drawable.attachView(this)
+            }
         }
-        setCompoundDrawables(drawable, null, null, null)
+
 
         super.setText(value ?: "", type)
         hideIfNeeded()

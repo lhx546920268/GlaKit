@@ -1,5 +1,6 @@
 package com.lhx.glakit.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.graphics.Point
@@ -94,6 +95,7 @@ object SizeUtils {
      * @param context Context
      * @return Int
      */
+    @SuppressLint("InternalInsetResource", "DiscouragedApi")
     fun getStatusBarHeight(context: Context): Int {
         var height = 0
         val resId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
@@ -111,6 +113,7 @@ object SizeUtils {
     /**
      * 获取底部导航栏高度
      */
+    @SuppressLint("InternalInsetResource", "DiscouragedApi")
     fun getNavigationBarHeight(context: Context): Int {
         val resId = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
         return if (resId > 0) {
