@@ -10,7 +10,10 @@ import android.widget.ListView
 import androidx.recyclerview.widget.RecyclerView
 import com.lhx.glakit.adapter.StickAdapter
 import com.lhx.glakit.base.constant.Position
-import com.lhx.glakit.extension.*
+import com.lhx.glakit.extension.MATCH_PARENT
+import com.lhx.glakit.extension.WRAP_CONTENT
+import com.lhx.glakit.extension.gone
+import com.lhx.glakit.extension.visible
 import kotlin.math.min
 
 /**

@@ -1,4 +1,4 @@
-package com.common.base.widget
+package com.lhx.glakit.widget
 
 import android.content.Context
 import android.graphics.Color

@@ -3,8 +3,6 @@ package com.lhx.glakit.permission
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import com.lhx.glakit.base.widget.BaseAttached
 
 /**

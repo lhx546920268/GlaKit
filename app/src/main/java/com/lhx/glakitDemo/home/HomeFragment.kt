@@ -17,10 +17,10 @@ import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.adapter.StickAdapter
 import com.lhx.glakit.base.fragment.RecyclerFragment
-import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.permission.PermissionHelper
+import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.section.SectionInfo
 import com.lhx.glakit.toast.ToastContainer
 import com.lhx.glakit.utils.SizeUtils
@@ -36,7 +36,6 @@ import com.lhx.glakitDemo.nest.NestedScrollActivity
 import com.lhx.glakitDemo.pager.PagerFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
-import java.util.*
 
 class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 

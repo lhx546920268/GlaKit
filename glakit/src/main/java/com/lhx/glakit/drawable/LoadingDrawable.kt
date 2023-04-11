@@ -2,10 +2,10 @@ package com.lhx.glakit.drawable
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.view.animation.LinearInterpolator
 import android.animation.ValueAnimator
 import android.graphics.*
 import android.graphics.drawable.Animatable
+import android.view.animation.LinearInterpolator
 import com.lhx.glakit.properties.ObservableProperty
 import com.lhx.glakit.utils.ColorUtils
 import com.lhx.glakit.utils.MathUtils

@@ -9,8 +9,8 @@ import android.widget.FrameLayout
 import androidx.activity.result.ActivityResultLauncher
 import com.lhx.glakit.R
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.utils.ViewUtils
 
 /**

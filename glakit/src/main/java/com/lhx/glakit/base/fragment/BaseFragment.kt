@@ -18,7 +18,6 @@ import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.activity.BaseActivity
 import com.lhx.glakit.base.activity.ResultCallback
-import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.base.widget.BaseContainerPage
 

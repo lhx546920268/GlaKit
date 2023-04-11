@@ -1,6 +1,5 @@
 package com.lhx.glakit.image.compress
 
-import ImagePickerConfig
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,6 +9,7 @@ import android.text.TextUtils
 import android.util.Log
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.image.ImageFormat
+import com.lhx.glakit.image.ImagePickerConfig
 import com.lhx.glakit.image.ImageUtils
 import com.lhx.glakit.utils.Size
 import com.luck.picture.lib.config.PictureMimeType
@@ -32,12 +32,12 @@ typealias ImageCompressEngineCallback = ValueCallback<List<LocalMedia>>
 /**
  * 图片压缩
  */
-class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
+class ImageCompressFileEngine(val config: ImagePickerConfig): CompressFileEngine {
 
     private lateinit var context: Context
     private var cacheDir: String? = null
     companion object {
-        private const val CACHE_DISK_DIR = "com.lhx.compressDir"
+        private const val CACHE_DISK_DIR = "compressedDir"
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -48,16 +48,21 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
     ) {
 
         this.context = context
-        for (uri in source) {
-            GlobalScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val files = HashMap<String, File?>()
+            for (uri in source) {
                 val provider = streamProviderFromMedia(uri)
                 val file: File? = try {
                     compress(provider)
                 }finally {
                     provider.close()
                 }
-                withContext(Dispatchers.Main) {
-                    call?.onCallback(provider.getPath(), file?.absolutePath)
+                files[provider.getPath()] = file
+            }
+
+            withContext(Dispatchers.Main) {
+                for (entry in files) {
+                    call?.onCallback(entry.key, entry.value?.absolutePath)
                 }
             }
         }
@@ -78,27 +83,22 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
     }
 
     private fun compress(provider: InputStreamProvider): File {
-        val inputStream = provider.open()
-        if (inputStream != null) {
-            val mimeType = getMineType(provider)
-            val outFile = getImageCacheFile(context, extSuffix(mimeType))
-            // 如果文件存在直接返回不处理
-            if (outFile.exists()) {
-                Log.d("CompressFile", "file = ${outFile.absolutePath}")
-                return outFile
-            }
-
-            val source = sourceFromProvider(provider)
-            if (PictureMimeType.isUrlHasImage(source)
-                && !PictureMimeType.isHasHttp(source)
-                && !PictureMimeType.isUrlHasGif(source)) {
-                return File(source)
-            } else {
-                compress(provider, outFile, mimeType) ?: File(source)
-            }
+        val mimeType = getMineType(provider)
+        val outFile = getImageCacheFile(context, extSuffix(mimeType))
+        // 如果文件存在直接返回不处理
+        if (outFile.exists()) {
+            Log.d("CompressFile", "file = ${outFile.absolutePath}")
+            return outFile
         }
 
-        return File(sourceFromProvider(provider))
+        val source = sourceFromProvider(provider)
+        return if (!PictureMimeType.isUrlHasImage(source)
+            || PictureMimeType.isHasHttp(source)
+            || PictureMimeType.isUrlHasGif(source)) {
+            File(source)
+        } else {
+            compress(provider, outFile, mimeType) ?: File(source)
+        }
     }
 
     private fun sourceFromProvider(provider: InputStreamProvider): String {
@@ -179,8 +179,9 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
     }
 
     //判断格式是否支持
-    private fun supportFormat(stream: InputStream): Boolean {
-        return when(ImageUtils.getFormat(stream)) {
+    private fun supportFormat(stream: InputStream?): Boolean {
+        stream ?: false
+        return when(ImageUtils.getFormat(stream!!)) {
             ImageFormat.JPEG, ImageFormat.PNG, ImageFormat.WEBP -> true
             else -> false
         }
@@ -227,16 +228,15 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
 
             val result = Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
             return MatrixResult(
-                result != null,
+                change = result != null,
+                rotating = rotate,
                 result ?: bitmap
             )
         }
-        return MatrixResult(false, bitmap)
+        return MatrixResult(change = false, rotating = false, bitmap)
     }
 
     private fun compress(provider: InputStreamProvider, outFile: File, mimeType: String): File? {
-        var inputStream = provider.open()
-
         var opts: BitmapFactory.Options? = null
         //防止图片过大导致 OOM
         if (!config.enableCrop) {
@@ -245,7 +245,7 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
             if (maxWidth > 0 || maxHeight > 0) {
                 val options = BitmapFactory.Options()
                 options.inJustDecodeBounds = true
-                BitmapFactory.decodeStream(inputStream, null, options)
+                BitmapFactory.decodeStream(provider.open(), null, options)
                 val width = options.outWidth
                 val height = options.outHeight
                 val result = ImageUtils.fitSize(width, height, maxWidth, maxHeight)
@@ -255,13 +255,12 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
                     if (size >= 2) {
                         opts = BitmapFactory.Options()
                         opts.inSampleSize = size
-                        inputStream = provider.open()
                     }
                 }
             }
         }
 
-        var bitmap = BitmapFactory.decodeStream(inputStream, null, opts)
+        var bitmap = BitmapFactory.decodeStream(provider.open(), null, opts)
         bitmap ?: return null
 
         val stream = ByteArrayOutputStream()
@@ -271,22 +270,29 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
         val file = File(source)
 
         val isCompress = needCompressToLocalMedia(config.minimumCompressSize, file)
-        var compressed = false
-        if (isCompress || rotateResult.change) {
+        val isSupport = supportFormat(provider.open())
+        var useEnabled = false
+
+        if (isCompress || rotateResult.change || !isSupport) {
+            useEnabled = true
             var compressQuality = config.compressQuality
             if (compressQuality <= 0 || compressQuality > 100) {
-                compressQuality = 80
+                compressQuality = 90
             }
             bitmap.compress(
                 if (bitmap.hasAlpha()) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG,
                 compressQuality,
                 stream
             )
-            compressed = stream.size() < file.length()
+
+            if (stream.size() > file.length() && isSupport && !rotateResult.rotating) {
+                //压缩后变大了并且是支持的格式，用原图
+                useEnabled = false
+            }
         }
         bitmap.recycle()
 
-        if (compressed) {
+        if (useEnabled) {
             val fos = FileOutputStream(outFile)
             try {
                 fos.write(stream.toByteArray())
@@ -297,7 +303,6 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
             }
             return outFile
         }
-
         return null
     }
 
@@ -311,4 +316,4 @@ class ImageCompressEngine(val config: ImagePickerConfig): CompressFileEngine {
 }
 
 //缩放 旋转结果
-private class MatrixResult(val change: Boolean, val bitmap: Bitmap)
+private class MatrixResult(val change: Boolean, val rotating: Boolean, val bitmap: Bitmap)

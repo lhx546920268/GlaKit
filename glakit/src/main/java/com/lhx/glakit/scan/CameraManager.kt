@@ -2,7 +2,6 @@ package com.lhx.glakit.scan
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.util.Log

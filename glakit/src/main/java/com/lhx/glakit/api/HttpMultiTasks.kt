@@ -2,7 +2,6 @@ package com.lhx.glakit.api
 
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.utils.ThreadUtils
-import java.lang.IllegalArgumentException
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**

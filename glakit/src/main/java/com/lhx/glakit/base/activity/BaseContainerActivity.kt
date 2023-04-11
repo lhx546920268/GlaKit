@@ -1,13 +1,9 @@
 package com.lhx.glakit.base.activity
 
-import android.app.Activity
-import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.OnBackPressedCallback
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager.finishActivities
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.base.widget.BaseContainerPage
 

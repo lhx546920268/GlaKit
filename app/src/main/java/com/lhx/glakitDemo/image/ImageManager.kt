@@ -4,7 +4,8 @@ import android.content.Context
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Options
 import com.bumptech.glide.load.engine.cache.DiskCache
-import com.bumptech.glide.load.model.*
+import com.bumptech.glide.load.model.GlideUrl
+import com.bumptech.glide.load.model.StreamEncoder
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream

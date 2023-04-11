@@ -15,7 +15,10 @@ import com.lhx.glakit.base.constant.OverlayArea
 import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.extension.MATCH_PARENT
 import com.lhx.glakit.extension.setOnSingleListener
-import com.lhx.glakit.loading.*
+import com.lhx.glakit.loading.DefaultLoadingView
+import com.lhx.glakit.loading.InteractionCallback
+import com.lhx.glakit.loading.LoadingView
+import com.lhx.glakit.loading.PageLoadingView
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.utils.ToastUtils
 import com.lhx.glakit.utils.ViewUtils

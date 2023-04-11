@@ -1,17 +1,25 @@
 package com.lhx.glakit.image
 
+import android.app.Dialog
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.util.Log
 import com.lhx.glakit.base.widget.ValueCallback
+import com.lhx.glakit.dialog.LoadingDialog
+import com.lhx.glakit.image.compress.ImageCompressFileEngine
+import com.lhx.glakit.image.crop.ImageFileCropEngine
 import com.lhx.glakit.utils.AlertUtils
 import com.luck.picture.lib.basic.PictureSelector
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.config.SelectModeConfig
+import com.luck.picture.lib.engine.CompressFileEngine
+import com.luck.picture.lib.engine.CropFileEngine
 import com.luck.picture.lib.entity.LocalMedia
+import com.luck.picture.lib.interfaces.OnCustomLoadingListener
 import com.luck.picture.lib.interfaces.OnResultCallbackListener
 import com.luck.picture.lib.language.LanguageConfig
 import com.luck.picture.lib.utils.PictureFileUtils
+import java.io.File
 
 /**
  * 选择图片回调
@@ -21,13 +29,13 @@ typealias ImagePickerCallback = ValueCallback<List<ImageData>>
 /**
  * 图片选择器
  */
-class ImagePicker(val mode: Int = SelectModeConfig.MULTIPLE): OnResultCallbackListener<LocalMedia> {
+class ImagePicker(val allowMultiSelection: Boolean): OnResultCallbackListener<LocalMedia>, OnCustomLoadingListener {
 
     //回调
     private var callback: ImagePickerCallback? = null
 
     //配置
-//    var config: ValueCallback<ImagePickerModel>? = null
+    var config = ImagePickerConfig()
 
     fun pick(context: Context, count: Int, callback: ImagePickerCallback) {
         this.callback = callback
@@ -37,58 +45,50 @@ class ImagePicker(val mode: Int = SelectModeConfig.MULTIPLE): OnResultCallbackLi
             buttonTitles = arrayOf("拍照", "相册"),
             onItemClick = {
                 when (it) {
-                    0 -> {
-//                        val model = ImagePickerConfig
-//                            .create(context as Activity)
-//                            .openCamera(PictureMimeType.ofImage())
-//                            .setLanguage(LanguageConfig.CHINESE)
-//                            .cropImageWideHigh(1080, 0)
-//                        open(model)
-                        PictureSelector.create(context)
-                            .openCamera(SelectMimeType.ofImage())
-                            .setLanguage(LanguageConfig.CHINESE)
-                            .forResult(this)
-                    }
-                    1 -> {
-//                        val model = ImagePickerConfig
-//                            .create(context as Activity)
-//                            .openGallery(PictureMimeType.ofImage())
-//                            .setLanguage(LanguageConfig.CHINESE)
-//                            .selectionMode(mode)
-//                            .maxSelectNum(count)
-//                            .imageSpanCount(4)
-//                            .isCamera(false)
-//                            .cropImageWideHigh(1080, 0)
-//                        open(model)
-                        PictureSelector.create(context)
-                            .openGallery(SelectMimeType.ofImage())
-                            .setLanguage(LanguageConfig.CHINESE)
-                            .setSelectionMode(mode)
-                            .setMaxSelectNum(count)
-                            .setImageSpanCount(4)
-                            .isDisplayCamera(false)
-                            .forResult(this)
-                    }
+                    0 -> openCamera(context)
+                    1 -> openGallery(context, count)
                 }
             }
         ).show()
     }
 
-//    private fun open(model: ImagePickerModel) {
-//        model.compressQuality(90)
-//             .compress(true)
-//
-//        config?.also {
-//            it(model)
-//        }
-//
-//        if (!model.isCompress) {
-//            model.isAndroidQTransform(true)
-//        }
-//        model.imageEngine(GlideEngine.sharedEngine)
-//            .forResult(this)
-//    }
+    private fun openCamera(context: Context) {
+        PictureSelector.create(context)
+            .openCamera(SelectMimeType.ofImage())
+            .setLanguage(LanguageConfig.CHINESE)
+            .setCompressEngine(getImageCompressEngine())
+            .setCustomLoadingListener(this)
+            .setCropEngine(getCropEngine())
+            .forResult(this)
+    }
 
+    private fun openGallery(context: Context, count: Int) {
+        PictureSelector.create(context)
+            .openGallery(SelectMimeType.ofImage())
+            .setImageEngine(GlideEngine.sharedEngine)
+            .setLanguage(LanguageConfig.CHINESE)
+            .setCompressEngine(getImageCompressEngine())
+            .setCustomLoadingListener(this)
+            .setCropEngine(getCropEngine())
+            .setSelectionMode(if (allowMultiSelection) SelectModeConfig.MULTIPLE else SelectModeConfig.SINGLE)
+            .isDirectReturnSingle(true)
+            .setMaxSelectNum(count)
+            .setImageSpanCount(4)
+            .isDisplayCamera(false)
+            .forResult(this)
+    }
+
+    private fun getImageCompressEngine(): CompressFileEngine? {
+        return if (config.needCompress) ImageCompressFileEngine(config) else null
+    }
+
+    private fun getCropEngine(): CropFileEngine? {
+        return if (config.enableCrop) ImageFileCropEngine(config) else null
+    }
+
+    override fun create(context: Context): Dialog {
+        return LoadingDialog(context)
+    }
 
     override fun onResult(result: ArrayList<LocalMedia>?) {
         val tag = "ImagePicker"
@@ -96,20 +96,11 @@ class ImagePicker(val mode: Int = SelectModeConfig.MULTIPLE): OnResultCallbackLi
             if (!result.isNullOrEmpty()) {
                 val list = ArrayList<ImageData>()
                 for (media in result) {
-                    val path = if (media.isCompressed) {
-                        media.compressPath
-                    } else if (media.isCut) {
-                        media.cutPath
-                    }  else {
-                        media.realPath
-                    }
-
+                    val path = media.availablePath
                     val options = BitmapFactory.Options()
                     options.inJustDecodeBounds = true
-                    BitmapFactory.decodeFile(media.path, options)
-
+                    BitmapFactory.decodeFile(path, options)
                     list.add(ImageData(path, options.outWidth, options.outHeight))
-
 
                     Log.i(tag, "文件名: " + media.fileName)
                     Log.i(tag, "是否压缩:" + media.isCompressed)
@@ -124,6 +115,8 @@ class ImagePicker(val mode: Int = SelectModeConfig.MULTIPLE): OnResultCallbackLi
                     Log.i(tag, "水印路径:" + media.watermarkPath)
                     Log.i(tag, "视频缩略图:" + media.videoThumbnailPath)
                     Log.i(tag, "原始宽高: " + media.width + "x" + media.height)
+                    Log.i(tag, "压缩宽高: " + options.outWidth + "x" + options.outHeight)
+                    Log.i(tag, "压缩大小: " + PictureFileUtils.formatAccurateUnitFileSize(File(path).length()))
                     Log.i(
                         tag,
                         "裁剪宽高: " + media.cropImageWidth + "x" + media.cropImageHeight
@@ -143,5 +136,6 @@ class ImagePicker(val mode: Int = SelectModeConfig.MULTIPLE): OnResultCallbackLi
 
     }
 }
+
 
 class ImageData(val path: String, val width: Int, val height: Int)

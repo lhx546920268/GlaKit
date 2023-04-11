@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'com.alibaba.arouter'
+    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -55,6 +56,7 @@ dependencies {
     implementation project(':glakit')
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.github.RuffianZhong:RWidgetHelper:androidx.v0.0.9'
+    implementation 'androidx.core:core-ktx:1.10.0'
     testImplementation 'junit:junit:4.13.2'
 
     implementation 'com.github.hackware1993:MagicIndicator:1.7.0'
@@ -62,6 +64,4 @@ dependencies {
     //ARouter
     kapt 'com.github.jadepeakpoet.ARouter:arouter-compiler:1.0.1'
     implementation 'com.github.jadepeakpoet.ARouter:arouter-api:1.0.1'
-
-    implementation 'com.google.myanmartools:myanmar-tools:1.1.3'
 }

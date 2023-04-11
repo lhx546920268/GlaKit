@@ -6,7 +6,6 @@ import android.os.Looper
 import com.google.zxing.*
 import com.google.zxing.common.HybridBinarizer
 import java.util.*
-import kotlin.collections.HashMap
 
 /**
  * 扫描图片解码

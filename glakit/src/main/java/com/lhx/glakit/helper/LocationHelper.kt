@@ -8,9 +8,9 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import com.lhx.glakit.R
-import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.base.widget.ValueCallback
 import com.lhx.glakit.permission.PermissionHelper
+import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.utils.AppUtils
 
 /**

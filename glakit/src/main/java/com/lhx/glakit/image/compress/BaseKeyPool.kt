@@ -1,6 +1,6 @@
 package com.lhx.glakit.image.compress
 
-import java.util.Queue
+import java.util.*
 
 
 abstract class BaseKeyPool<T: PoolAble> {

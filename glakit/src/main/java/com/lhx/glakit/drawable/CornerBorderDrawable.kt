@@ -1,7 +1,6 @@
 package com.lhx.glakit.drawable
 
 import android.graphics.*
-import android.graphics.RectF
 import com.lhx.glakit.properties.ObservableProperty
 import kotlin.math.min
 import kotlin.reflect.KProperty

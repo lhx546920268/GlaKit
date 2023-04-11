@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.view.Window
 import android.widget.RelativeLayout
 import com.lhx.glakit.api.HttpCancelable
-import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.base.widget.BaseContainerPage
 

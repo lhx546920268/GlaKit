@@ -11,7 +11,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0"
         //ARouter
         classpath "com.github.jadepeakpoet.ARouter:arouter-register:1.0.1"
         // NOTE: Do not place your application dependencies here; they belong
@@ -26,6 +26,7 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
         maven { url "https://jitpack.io" }
         google()
+        mavenCentral()
     }
 }
 

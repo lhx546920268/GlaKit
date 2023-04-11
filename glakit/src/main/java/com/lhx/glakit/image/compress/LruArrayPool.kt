@@ -2,8 +2,7 @@ package com.lhx.glakit.image.compress
 
 import android.annotation.SuppressLint
 import android.util.Log
-import java.util.NavigableMap
-import java.util.TreeMap
+import java.util.*
 
 @Suppress("unchecked_cast")
 class LruArrayPool(val maxSize: Int = DEFAULT_SIZE): ArrayPool {

@@ -7,17 +7,14 @@ import android.graphics.Paint
 import android.graphics.drawable.StateListDrawable
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.appcompat.widget.LinearLayoutCompat
-import com.lhx.glakit.base.widget.OnSingleClickListener
 import com.lhx.glakit.drawable.BaseDrawable
 import com.lhx.glakit.drawable.CornerBorderDrawable
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.SizeUtils
-import com.lhx.glakit.utils.ViewUtils
 
 
 /**

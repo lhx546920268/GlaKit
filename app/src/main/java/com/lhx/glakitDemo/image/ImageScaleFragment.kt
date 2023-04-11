@@ -1,8 +1,5 @@
 package com.lhx.glakitDemo.image
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.ImageView
@@ -14,13 +11,10 @@ import com.lhx.glakit.image.ImagePicker
 import com.lhx.glakit.image.loadImage
 import com.lhx.glakitDemo.R
 import com.lhx.glakitDemo.databinding.ImageScaleFragmentBinding
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
 
 class ImageScaleFragment: BaseFragment() {
 
-    private val imagePicker by lazy { ImagePicker() }
+    private val imagePicker by lazy { ImagePicker(false) }
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -29,6 +23,10 @@ class ImageScaleFragment: BaseFragment() {
     ) {
 
         setContainerContentView(R.layout.image_scale_fragment)
+        imagePicker.config.apply {
+            cropWidth = 640
+            cropHeight = 302
+        }
         val binding = ImageScaleFragmentBinding.bind(getContainerContentView()!!)
         binding.camera.setOnSingleListener {
             imagePicker.pick(requireActivity(), 1) {

@@ -43,7 +43,7 @@ object ImageUtils {
 
     fun fitSize(width: Int, height: Int, maxWidth: Int, maxHeight: Int): Size {
 
-        if (maxWidth == 0 && maxHeight == 0) {
+        if ((maxWidth == 0 && maxHeight == 0) || (width < maxWidth && height < maxHeight)) {
             return Size(width, height)
         }
 
@@ -72,7 +72,7 @@ object ImageUtils {
                     if (height >= maxHeight) {
                         h = floor(height.toDouble() / heightScale)
                         w = floor(width.toDouble() / heightScale)
-                    } else if (width >= maxWidth) {
+                    } else {
                         h = floor(height.toDouble() / widthScale)
                         w = floor(width.toDouble() / widthScale)
                     }
