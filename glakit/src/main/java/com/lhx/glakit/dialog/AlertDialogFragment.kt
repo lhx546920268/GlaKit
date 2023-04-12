@@ -48,7 +48,7 @@ class AlertDialogFragment(style: AlertStyle = AlertStyle.ALERT,
     private var _contentView: View? = null
 
     //标题
-    var _title: String? = null
+    private var _title: String? = null
 
     //副标题
     private var _subtitle: String? = null

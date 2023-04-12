@@ -1,5 +1,6 @@
 package com.lhx.glakit.base.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
 import com.lhx.glakit.R
@@ -17,16 +18,17 @@ open class RecyclerFragment : RefreshableFragment() {
 
         var res = getRefreshableContentRes()
         if (res <= 0) {
-            if (hasRefresh) {
-                res = R.layout.recycler_view_refresh_container
+            res = if (hasRefresh) {
+                R.layout.recycler_view_refresh_container
             } else {
-                res = R.layout.recycler_view_container
+                R.layout.recycler_view_container
             }
         }
         setContainerContentView(res)
         backToTopButton?.recyclerView = recyclerView
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun notifyDataSetChanged() {
         recyclerView.adapter?.notifyDataSetChanged()
     }

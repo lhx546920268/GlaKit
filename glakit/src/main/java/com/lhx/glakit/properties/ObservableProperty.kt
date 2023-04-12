@@ -17,10 +17,7 @@ class ObservableProperty<T>(var value: T, val callback: Callback?):
         if(this.value != value){
             val oldValue = this.value
             this.value = value
-
-            if(callback != null){
-                callback.onPropertyValueChange(oldValue, value, property)
-            }
+            callback?.onPropertyValueChange(oldValue, value, property)
         }
     }
 
@@ -28,7 +25,6 @@ class ObservableProperty<T>(var value: T, val callback: Callback?):
      * 值变化回调
      */
     interface Callback {
-
         //值变化了
         fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>)
     }

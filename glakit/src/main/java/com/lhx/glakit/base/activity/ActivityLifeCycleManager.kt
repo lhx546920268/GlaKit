@@ -138,6 +138,7 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
         }
     }
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         activities.add(activity)

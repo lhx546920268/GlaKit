@@ -1,14 +1,23 @@
 package com.lhx.glakit.api
 
 import android.text.TextUtils
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * http处理，在声明周期结束的时候 清除task
  */
-interface HttpProcessor: HttpTask.Callback {
+interface HttpProcessor: HttpTask.Callback, LifecycleEventObserver {
 
     //当前任务
     var currentTasks: HashSet<HttpCancelable>?
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            cancelAllTasks()
+        }
+    }
 
     //添加可取消的任务，可取消相同的任务，在这个页面生命周期结束的时候会取消所有添加的任务
     fun addCancelableTask(task: HttpCancelable, cancelTheSame: Boolean = true) {

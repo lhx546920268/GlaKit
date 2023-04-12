@@ -3,11 +3,9 @@ package com.lhx.glakit.dialog
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.lhx.glakit.GlaKitConfig
 import com.lhx.glakit.R
-import com.lhx.glakit.loading.LoadingView
 
 /**
  * loading 弹窗
@@ -29,13 +27,11 @@ class LoadingDialog: Dialog {
     }
 
     private fun initViews() {
-        val view: LoadingView = if (GlaKitConfig.loadViewCreator != null) {
-            GlaKitConfig.loadViewCreator!!(context)
+        if (GlaKitConfig.loadViewCreator != null) {
+            setContentView(GlaKitConfig.loadViewCreator!!(context))
         } else {
-            LayoutInflater.from(context)
-                .inflate(R.layout.default_loading_view, null, false) as LoadingView
+            setContentView(R.layout.default_loading_view)
         }
-        setContentView(view)
 
         window?.also {
             val params = it.attributes

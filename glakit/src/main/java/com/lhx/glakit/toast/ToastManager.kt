@@ -6,7 +6,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
-import com.google.android.material.animation.AnimationUtils
+import android.view.animation.LinearInterpolator
+import androidx.core.animation.addListener
 import com.lhx.glakit.R
 import com.lhx.glakit.base.widget.VoidCallback
 import com.lhx.glakit.utils.ViewUtils
@@ -59,27 +60,16 @@ internal object ToastManager{
         currentAnimator?.cancel()
         if (animated) {
             val valueAnimator = ValueAnimator.ofFloat(1.0f, 0.0f)
-            valueAnimator.interpolator = AnimationUtils.LINEAR_INTERPOLATOR
+            valueAnimator.interpolator = LinearInterpolator()
             valueAnimator.addUpdateListener {
                 currentToast?.alpha = it.animatedValue as Float
             }
             valueAnimator.duration = 200
-            valueAnimator.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationEnd(animation: Animator) {
-                    removeToast()
-                    if (dismissCallback != null) {
-                        dismissCallback!!()
-                        dismissCallback = null
-                    }
-                }
-
-                override fun onAnimationCancel(animation: Animator) {
-                }
-
-                override fun onAnimationRepeat(animation: Animator) {
-                }
-
-                override fun onAnimationStart(animation: Animator) {
+            valueAnimator.addListener(onEnd = {
+                removeToast()
+                if (dismissCallback != null) {
+                    dismissCallback!!()
+                    dismissCallback = null
                 }
             })
             valueAnimator.start()

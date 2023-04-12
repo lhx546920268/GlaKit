@@ -11,11 +11,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.alibaba.android.arouter.launcher.ARouter
 import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.adapter.StickAdapter
+import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.drawable.CornerBorderDrawable
@@ -57,6 +61,11 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
         recyclerView.addItemDecoration(Decoration())
         recyclerView.adapter = adapter
         recyclerView.stickAdapter = this
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        super<RecyclerFragment>.onStateChanged(source, event)
+        super<PermissionRequester>.onStateChanged(source, event)
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {
@@ -209,8 +218,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
                    }
                 }
                 7 -> {
-                    val intent = Intent(requireContext(), NestedScrollActivity::class.java)
-                    startActivity(intent)
+                    ARouter.getInstance().build("/app/nested").navigation()
                 }
                 8 -> {
                     startActivity(PagerFragment::class.java)

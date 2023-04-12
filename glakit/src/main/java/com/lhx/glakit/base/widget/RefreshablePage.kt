@@ -1,5 +1,6 @@
 package com.lhx.glakit.base.widget
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.CallSuper
@@ -90,6 +91,7 @@ interface RefreshablePage: BaseContainerPage, BaseRefreshHeader.RefreshOnScrollH
     }
 
     //获取下拉刷新头部
+    @SuppressLint("InflateParams")
     fun createRefreshHeader(): BaseRefreshHeader {
         return if (GlaKitConfig.refreshHeaderCreator != null) {
             GlaKitConfig.refreshHeaderCreator!!(attachedContext!!)

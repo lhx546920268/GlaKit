@@ -127,11 +127,7 @@ abstract class AbsListViewAdapter : BaseAdapter(), ListAdapter, AbsListViewSecti
 
         //显示空视图
         if (isEmptyItem(position)) {
-            val emptyView = if (result == null) {
-                LayoutInflater.from(parent.context).inflate(getEmptyViewRes(), parent, false)
-            } else {
-                result
-            }
+            val emptyView = result ?: LayoutInflater.from(parent.context).inflate(getEmptyViewRes(), parent, false)
             emptyView.setTag(R.id.list_view_type_tag_key, type)
             var params = emptyView.layoutParams
 

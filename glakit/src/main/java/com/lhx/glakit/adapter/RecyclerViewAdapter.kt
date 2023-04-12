@@ -1,5 +1,6 @@
 package com.lhx.glakit.adapter
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -20,6 +21,7 @@ import java.lang.ref.WeakReference
 /**
  * Recycler 布局控制器
  */
+@SuppressLint("NotifyDataSetChanged")
 abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
     RecyclerView.Adapter<RecyclerViewHolder>(), ListAdapter, RecyclerViewSectionAdapter {
 
@@ -68,6 +70,14 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
     override var headerType: Int = HEADER_VIEW_TYPE
     override var footerType: Int = FOOTER_VIEW_TYPE
 
+    final override fun setHasStableIds(hasStableIds: Boolean) {
+        super.setHasStableIds(hasStableIds)
+    }
+
+    final override fun registerAdapterDataObserver(observer: AdapterDataObserver) {
+        super.registerAdapterDataObserver(observer)
+    }
+
     init {
 
         //关闭默认动画
@@ -104,6 +114,24 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
     override fun stopLoadMore(hasMore: Boolean) {
         super.stopLoadMore(hasMore)
         notifyDataSetChanged()
+    }
+
+    fun stopLoadMore(hasMore: Boolean, itemCount: Int) {
+        super.stopLoadMore(hasMore)
+        if (itemCount > 0) {
+            val positionStart = if (shouldExistFooter() && loadMorePosition != Position
+                    .NO_POSITION){
+                getItemCount() - 2
+            }else if (shouldExistFooter() || loadMorePosition != Position
+                    .NO_POSITION){
+                getItemCount() - 1
+            }else{
+                getItemCount()
+            }
+            notifyItemRangeInserted(positionStart, itemCount)
+        } else if (!loadMoreEnable) {
+            notifyDataSetChanged()
+        }
     }
 
     /**

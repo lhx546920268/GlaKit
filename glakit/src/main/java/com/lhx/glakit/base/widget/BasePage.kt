@@ -9,9 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.annotation.*
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.base.constant.PageStatus
@@ -22,7 +19,7 @@ import java.io.Serializable
 /**
  * 关联的
  */
-interface BaseAttached: LifecycleEventObserver {
+interface BaseAttached {
 
     /**
      * 获取 activity 或者 fragment 绑定的bundle
@@ -40,10 +37,6 @@ interface BaseAttached: LifecycleEventObserver {
      * 关联的activity
      */
     val attachedActivity: Activity?
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-
-    }
 }
 
 /**
@@ -52,13 +45,6 @@ interface BaseAttached: LifecycleEventObserver {
 interface BasePage: BaseAttached, HttpProcessor {
 
     //<editor-fold desc="Getter">
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        super.onStateChanged(source, event)
-        if (event == Lifecycle.Event.ON_DESTROY) {
-            cancelAllTasks()
-        }
-    }
 
     //获取颜色
     @ColorInt

@@ -18,10 +18,10 @@ open class GridFragment : RefreshableFragment() {
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         var res = getRefreshableContentRes()
         if (res <= 0) {
-            if (hasRefresh) {
-                res = R.layout.grid_view_refresh_container
+            res = if (hasRefresh) {
+                R.layout.grid_view_refresh_container
             } else {
-                res = R.layout.grid_view_container
+                R.layout.grid_view_container
             }
         }
 

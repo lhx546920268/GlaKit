@@ -47,12 +47,10 @@ internal interface LoadMoreAdapter {
 
     //获取加载更多内容视图
     fun getLoadMoreContentView(reusedView: View?, parent: ViewGroup): View {
-        if (loadMoreControl.loadingStatus == LoadMoreStatus.NO_MORE_DATA) {
-            return if (reusedView == null) {
-                LayoutInflater.from(parent.context).inflate(R.layout.common_load_more_no_data, parent, false)
-            } else reusedView
+        return if (loadMoreControl.loadingStatus == LoadMoreStatus.NO_MORE_DATA) {
+            reusedView ?: LayoutInflater.from(parent.context).inflate(R.layout.common_load_more_no_data, parent, false)
         } else {
-            return if (reusedView == null) {
+            if (reusedView == null) {
                 val loadMoreFooter = LayoutInflater.from(parent.context).inflate(R.layout.load_more_footer, parent, false) as LoadMoreFooter
                 loadMoreFooter.setOnClickListener(object : OnSingleClickListener() {
                     override fun onSingleClick(v: View) {

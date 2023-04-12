@@ -18,10 +18,10 @@ open class ListFragment : RefreshableFragment() {
 
         var res: Int = getRefreshableContentRes()
         if (res <= 0) {
-            if (hasRefresh) {
-                res = R.layout.list_view_refresh_container
+            res = if (hasRefresh) {
+                R.layout.list_view_refresh_container
             } else {
-                res = R.layout.list_view_container
+                R.layout.list_view_container
             }
         }
 

@@ -24,13 +24,13 @@ class RoundBitmapDrawable: CornerBorderDrawable {
     private var rebuildShader = false
 
     //位图画笔
-    private val bitmapPaint: Paint = {
+    private val bitmapPaint: Paint = run {
         val paint = Paint()
         paint.shader = bitmapShader
         paint.isAntiAlias = true
         paint.style = Paint.Style.FILL
         paint
-    }()
+    }
     
     //显示模式
     var scaleType = ImageView.ScaleType.FIT_CENTER

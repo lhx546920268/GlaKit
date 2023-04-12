@@ -54,7 +54,7 @@ abstract class HttpJSONTask : HttpTask() {
                 if (json is JSONObject) {
                     return processJSON(json)
                 }
-            } catch (e: Exception) { }
+            } catch (_: Exception) { }
         }
         return false
     }

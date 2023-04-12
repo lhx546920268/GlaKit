@@ -10,35 +10,37 @@ import kotlin.reflect.KProperty
  * 圆角边框drawable
  */
 @Suppress("unused_parameter")
-open class CornerBorderDrawable : BaseDrawable(), ObservableProperty.Callback{
+open class CornerBorderDrawable : BaseDrawable(){
+
+    val propertyCallback = object: ObservableProperty.Callback {
+        override fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>) {
+            invalidateSelf()
+        }
+    }
 
     //左上角圆角 px
-    var leftTopCornerRadius by ObservableProperty(0, this)
+    var leftTopCornerRadius by ObservableProperty(0, propertyCallback)
 
     //右上角圆角 px
-    var rightTopCornerRadius by ObservableProperty(0, this)
+    var rightTopCornerRadius by ObservableProperty(0, propertyCallback)
 
     //左下角圆角 px
-    var leftBottomCornerRadius by ObservableProperty(0, this)
+    var leftBottomCornerRadius by ObservableProperty(0, propertyCallback)
 
     //右下角圆角 px
-    var rightBottomCornerRadius by ObservableProperty(0, this)
+    var rightBottomCornerRadius by ObservableProperty(0, propertyCallback)
 
     //是否全圆
-    var shouldAbsoluteCircle by ObservableProperty(false, this)
+    var shouldAbsoluteCircle by ObservableProperty(false, propertyCallback)
 
     //边框线条厚度 px
-    var borderWidth by ObservableProperty(0, this)
+    var borderWidth by ObservableProperty(0, propertyCallback)
 
     //边框线条颜色
-    var borderColor by ObservableProperty(Color.TRANSPARENT, this)
+    var borderColor by ObservableProperty(Color.TRANSPARENT, propertyCallback)
 
     //背景填充颜色
-    var backgroundColor by ObservableProperty(Color.TRANSPARENT, this)
-
-    override fun onPropertyValueChange(oldValue: Any?, newValue: Any?, property: KProperty<*>) {
-        invalidateSelf()
-    }
+    var backgroundColor by ObservableProperty(Color.TRANSPARENT, propertyCallback)
 
     override fun draw(canvas: Canvas) {
 

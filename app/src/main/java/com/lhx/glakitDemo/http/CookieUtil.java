@@ -32,7 +32,6 @@ public class CookieUtil {
             nMap = nCookieHandler.get(URI.create(domain), nMap);
             nCookie = nMap.get("Cookie");
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return nCookie;

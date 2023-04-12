@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.alibaba.android.arouter.facade.annotation.Route
+import com.alibaba.android.arouter.launcher.ARouter
 import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.base.activity.RecyclerActivity
@@ -33,6 +35,7 @@ import net.lucode.hackware.magicindicator.buildins.commonnavigator.indicators.Li
 import net.lucode.hackware.magicindicator.buildins.commonnavigator.titles.ColorTransitionPagerTitleView
 
 //嵌套滑动
+@Route(path = "/app/nested")
 class NestedScrollActivity: RecyclerActivity() {
 
     override val hasRefresh: Boolean
@@ -124,6 +127,7 @@ class NestedScrollActivity: RecyclerActivity() {
         saveInstanceState: Bundle?
     ) {
         super.initialize(inflater, container, saveInstanceState)
+        ARouter.getInstance().inject(this)
         setBarTitle("嵌套滑动")
         val layoutManager = NestedParentLinearLayoutManager(this)
         layoutManager.nestedScrollHelper = helper
