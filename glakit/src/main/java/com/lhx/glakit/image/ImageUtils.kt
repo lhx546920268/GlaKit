@@ -52,8 +52,8 @@ object ImageUtils {
             val value = min(max, width)
             return Size(value, value)
         } else {
-            var w = width.toDouble()
-            var h = height.toDouble()
+            val w: Double
+            val h: Double
             val heightScale: Double =
                 if (maxHeight > 0) height.toDouble() / maxHeight.toDouble() else 0.0
             val widthScale: Double =

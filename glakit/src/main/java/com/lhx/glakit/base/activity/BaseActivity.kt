@@ -282,6 +282,19 @@ open class BaseActivity : AppCompatActivity(), BasePage {
         } else super.dispatchKeyEvent(event)
     }
 
+    @Deprecated("Deprecated in Java",
+        ReplaceWith("super.onBackPressed()", "androidx.appcompat.app.AppCompatActivity")
+    )
+    //点击返回键回调
+    final override fun onBackPressed(){
+        onBackPressedCompat()
+    }
+
+    @Suppress("deprecation")
+    open fun onBackPressedCompat() {
+        super.onBackPressed()
+    }
+
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         _fragment?.onWindowFocusChanged(hasFocus)
@@ -305,9 +318,17 @@ open class BaseActivity : AppCompatActivity(), BasePage {
         callbackEntities!![requestCode] = CallbackEntity(callback, removeAfterUse)
     }
 
-    @Deprecated("Deprecated in Java")
+    @Deprecated("Deprecated in Java",
+        ReplaceWith("super.onActivityResult(requestCode, resultCode, data)", "androidx.appcompat.app.AppCompatActivity"))
     @Suppress("deprecation")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    final override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (!onActivityResultCompat(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    //兼容的，return true 就不会调用super
+    open fun onActivityResultCompat(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         if (resultCode == Activity.RESULT_OK && !callbackEntities.isNullOrEmpty()) {
             val entity = callbackEntities!![requestCode]
             if (entity != null) {
@@ -315,10 +336,10 @@ open class BaseActivity : AppCompatActivity(), BasePage {
                 if (entity.removeAfterUse) {
                     callbackEntities!!.remove(requestCode)
                 }
-                return
+                return true
             }
         }
-        super.onActivityResult(requestCode, resultCode, data)
+        return false
     }
 
     //回调
