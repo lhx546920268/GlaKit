@@ -1,7 +1,6 @@
 package com.lhx.glakitDemo.home
 
 import android.Manifest
-import android.content.Intent
 import android.graphics.Canvas
 import android.graphics.Color
 import android.os.Bundle
@@ -11,15 +10,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.alibaba.android.arouter.launcher.ARouter
 import com.lhx.glakit.adapter.ItemType
 import com.lhx.glakit.adapter.RecyclerViewAdapter
 import com.lhx.glakit.adapter.StickAdapter
-import com.lhx.glakit.api.HttpProcessor
 import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.drawable.CornerBorderDrawable
@@ -36,14 +32,13 @@ import com.lhx.glakitDemo.R
 import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
 import com.lhx.glakitDemo.image.ImageScaleFragment
-import com.lhx.glakitDemo.nest.NestedScrollActivity
 import com.lhx.glakitDemo.pager.PagerFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
 
 class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
-    override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    override var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
 
     val items = arrayListOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager")
     private val adapter: Adapter by lazy { Adapter(recyclerView) }
@@ -61,11 +56,6 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
         recyclerView.addItemDecoration(Decoration())
         recyclerView.adapter = adapter
         recyclerView.stickAdapter = this
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        super<RecyclerFragment>.onStateChanged(source, event)
-        super<PermissionRequester>.onStateChanged(source, event)
     }
 
     override fun shouldStickAtPosition(position: Int): Boolean {

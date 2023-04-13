@@ -4,6 +4,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -63,6 +66,27 @@ object PermissionHelper {
      */
     private var permissionCallback: PermissionCallback? = null
 
+    private fun getPermissionLauncher(requester: PermissionRequester): ActivityResultLauncher<Array<String>> {
+        permissionLauncherCreateIfNeeded(requester)
+        return requester.permissionLauncher!!
+    }
+
+    /**
+     * 创建回调
+     */
+    private fun permissionLauncherCreateIfNeeded(requester: PermissionRequester) {
+        if (requester.permissionLauncher == null) {
+            val activity = requester.attachedActivity
+            require(activity is AppCompatActivity) {
+                "PermissionRequester 必须结合 AppCompatActivity"
+            }
+
+            requester.permissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { map ->
+                onRequestMultiplePermissions(map)
+            }
+        }
+    }
+
     /**
      * 申请权限
      */
@@ -75,7 +99,7 @@ object PermissionHelper {
             callback(true)
         } else {
             permissionCallback = callback
-            requester.permissionLauncher.launch(perms)
+            getPermissionLauncher(requester).launch(perms)
         }
     }
 
@@ -83,7 +107,6 @@ object PermissionHelper {
      * 处理
      */
     fun onRequestMultiplePermissions(map: Map<String, Boolean>) {
-        //有些机型申请权限 会马上回调，用户还没确认，这时 map的大小为空
         if (permissionCallback == null || map.isEmpty())
             return
 
@@ -109,9 +132,6 @@ object PermissionHelper {
         permissions: Array<String>,
         grantResults: IntArray
     ) {
-        if (permissions.size != grantResults.size || permissions.isEmpty())
-            return
-
         val granted = ArrayList<String>()
         val denied = ArrayList<String>()
         for (i in permissions.indices) {

@@ -7,11 +7,8 @@ import android.view.TextureView
 import android.view.View
 import android.widget.FrameLayout
 import androidx.activity.result.ActivityResultLauncher
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import com.lhx.glakit.R
 import com.lhx.glakit.base.fragment.BaseFragment
-import com.lhx.glakit.base.fragment.RecyclerFragment
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.permission.PermissionRequester
 import com.lhx.glakit.utils.ViewUtils
@@ -29,7 +26,7 @@ abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.Su
 
     private lateinit var textureView: TextureView
 
-    override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    override var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
 
     final override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
         setContainerContentView(R.layout.scan_fragment)
@@ -42,11 +39,6 @@ abstract class ScanFragment: BaseFragment(), PermissionRequester, TextureView.Su
 
         textureView = findViewById(R.id.textureView)!!
         textureView.surfaceTextureListener = this
-    }
-
-    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-        super<BaseFragment>.onStateChanged(source, event)
-        super<PermissionRequester>.onStateChanged(source, event)
     }
 
     override fun onResume() {
