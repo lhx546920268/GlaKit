@@ -1,4 +1,4 @@
-package com.lhx.glakit.scan
+package com.lhx.glakit.scan.core
 
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +13,8 @@ class CameraHandler(val cameraManager: CameraManager) : Handler(Looper.getMainLo
 
     companion object{
         //事件类型
+        //聚焦
+        const val MESSAGE_AUTO_FOCUS = 1
 
         //解码成功
         const val MESSAGE_DECODE_SUCCESS = 2
@@ -23,6 +25,9 @@ class CameraHandler(val cameraManager: CameraManager) : Handler(Looper.getMainLo
 
     override fun handleMessage(msg: Message) {
         when (msg.what) {
+            MESSAGE_AUTO_FOCUS -> {
+                cameraManager.autoFocus()
+            }
             MESSAGE_DECODE_FAIL -> {
                 cameraManager.startDecode()
             }

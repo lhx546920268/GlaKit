@@ -1,4 +1,4 @@
-package com.lhx.glakit.scan
+package com.lhx.glakit.scan.core
 
 import android.content.pm.PackageManager
 import com.lhx.glakit.utils.Size
@@ -6,7 +6,8 @@ import kotlin.math.abs
 
 @Suppress("deprecation")
 internal class ScanCamera1(cameraManager: CameraManager,
-                           callBack: CallBack)
+                           callBack: CallBack
+)
     : Camera(cameraManager, callBack)
 {
 

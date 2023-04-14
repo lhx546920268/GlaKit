@@ -1,4 +1,4 @@
-package com.lhx.glakit.scan
+package com.lhx.glakit.scan.core
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -7,8 +7,10 @@ import android.graphics.SurfaceTexture
 import android.util.Log
 import com.google.zxing.Result
 import com.lhx.glakit.permission.PermissionHelper
+import com.lhx.glakit.scan.fragment.ScanFragment
 import com.lhx.glakit.utils.AlertUtils
 import com.lhx.glakit.utils.AppUtils
+import com.lhx.glakit.utils.SizeUtils
 import java.io.IOException
 import kotlin.math.abs
 
@@ -20,7 +22,8 @@ class CameraManager(val fragment: ScanFragment,
                     val surface: SurfaceTexture,
                     val surfaceWidth: Int,
                     val surfaceHeight: Int,
-                    val callback: Callback) {
+                    val callback: Callback
+) {
 
     //相机
     private var _camera: android.hardware.Camera? = null
@@ -30,6 +33,9 @@ class CameraManager(val fragment: ScanFragment,
 
     //预览回调
     internal val previewCallback = CameraPreviewCallback(cameraHandler, this)
+
+    //聚焦回调
+    internal val autoFocusCallback = CameraAutoFocusCallback()
 
     //是否正在暂停
     private var mPausing = false
@@ -50,6 +56,8 @@ class CameraManager(val fragment: ScanFragment,
     fun getScanRect(): Rect? {
         if (mScanRect == null && _camera != null) {
             mScanRect = Rect(callback.getScanRect(surfaceWidth, surfaceHeight))
+            val inset = -SizeUtils.pxFormDip(20f, fragment.requireContext())
+            mScanRect!!.inset(inset, inset)
             val size = _camera!!.parameters.previewSize
             val widthScale = size.height.toFloat() / surfaceWidth.toFloat()
             val heightScale = size.width.toFloat() / surfaceHeight.toFloat()
@@ -124,6 +132,24 @@ class CameraManager(val fragment: ScanFragment,
                 e.printStackTrace()
             }
         }
+    }
+
+    //聚焦
+    fun autoFocus() {
+        if (_camera != null && mPreviewing) {
+            autoFocusCallback.startFocus(cameraHandler)
+            _camera?.autoFocus(autoFocusCallback)
+        }
+    }
+
+    //是否已聚焦
+    fun isAutoFocusing(): Boolean {
+        return autoFocusCallback.isAutoFocusing()
+    }
+
+    //停止聚焦
+    private fun stopFocus() {
+        autoFocusCallback.stopFocus()
     }
 
     //暂停相机
@@ -205,19 +231,12 @@ class CameraManager(val fragment: ScanFragment,
         if (_camera != null) {
             val parameters = _camera!!.parameters
             val sizes = parameters.supportedPreviewSizes
-            var landScapeWidth = width
-            var landScapeHeight = height
-
-//            if (isPortrait()) {
-//                landScapeWidth = height
-//                landScapeHeight = width
-//            }
 
             var optimalSize: android.hardware.Camera.Size? = null
 
             //如果存在相等的尺寸 直接设置
             for (size in sizes) {
-                if (size.width == landScapeWidth && size.height == landScapeHeight) {
+                if (size.width == width && size.height == height) {
                     optimalSize = size
                     break
                 }
@@ -225,12 +244,17 @@ class CameraManager(val fragment: ScanFragment,
             if (optimalSize == null) {
 
                 //使用宽高比例最接近的
-                val ratio = landScapeWidth.toFloat() / landScapeHeight.toFloat()
+                val ratio = width.toFloat() / height.toFloat()
                 var differ = Float.MAX_VALUE
                 for (size in sizes) {
-                    val r = size.width.toFloat() / size.height.toFloat()
+                    val r = if (size.width > size.height) size.height.toFloat() / size.width.toFloat() else size.width.toFloat() / size.height.toFloat()
                     val d = abs(ratio - r)
                     if (d < differ) {
+                        if (optimalSize != null) {
+                            if (differ - d < 0.1f && size.width <= optimalSize.width && size.height <= optimalSize.height) {
+                                continue
+                            }
+                        }
                         differ = d
                         optimalSize = size
                     }

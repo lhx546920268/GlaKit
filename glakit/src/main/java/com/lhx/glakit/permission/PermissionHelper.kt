@@ -4,9 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -66,27 +63,6 @@ object PermissionHelper {
      */
     private var permissionCallback: PermissionCallback? = null
 
-    private fun getPermissionLauncher(requester: PermissionRequester): ActivityResultLauncher<Array<String>> {
-        permissionLauncherCreateIfNeeded(requester)
-        return requester.permissionLauncher!!
-    }
-
-    /**
-     * 创建回调
-     */
-    private fun permissionLauncherCreateIfNeeded(requester: PermissionRequester) {
-        if (requester.permissionLauncher == null) {
-            val activity = requester.attachedActivity
-            require(activity is AppCompatActivity) {
-                "PermissionRequester 必须结合 AppCompatActivity"
-            }
-
-            requester.permissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { map ->
-                onRequestMultiplePermissions(map)
-            }
-        }
-    }
-
     /**
      * 申请权限
      */
@@ -99,7 +75,7 @@ object PermissionHelper {
             callback(true)
         } else {
             permissionCallback = callback
-            getPermissionLauncher(requester).launch(perms)
+            requester.permissionLauncher.launch(perms)
         }
     }
 

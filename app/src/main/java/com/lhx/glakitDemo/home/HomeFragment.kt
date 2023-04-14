@@ -33,15 +33,21 @@ import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
 import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.pager.PagerFragment
+import com.lhx.glakitDemo.scan.QRCodeScanFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
 
 class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
-    override var permissionLauncher: ActivityResultLauncher<Array<String>>? = null
+    override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
-    val items = arrayListOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager")
+    val items = arrayListOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager", "Scan")
     private val adapter: Adapter by lazy { Adapter(recyclerView) }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        createPermissionLauncher()
+        super.onCreate(savedInstanceState)
+    }
 
     override fun initialize(
         inflater: LayoutInflater,
@@ -212,6 +218,9 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
                 }
                 8 -> {
                     startActivity(PagerFragment::class.java)
+                }
+                9 -> {
+                    startActivity(QRCodeScanFragment::class.java)
                 }
             }
         }

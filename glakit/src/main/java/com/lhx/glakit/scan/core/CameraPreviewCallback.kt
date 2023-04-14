@@ -1,4 +1,4 @@
-package com.lhx.glakit.scan
+package com.lhx.glakit.scan.core
 
 import android.media.ImageReader
 import android.os.Handler
@@ -36,9 +36,9 @@ class CameraPreviewCallback(val handler: Handler, val cameraManager: CameraManag
 
     @Deprecated("Deprecated in Java")
     override fun onPreviewFrame(data: ByteArray?, camera: android.hardware.Camera?) {
-//        if (!cameraManager.isAutoFocusing()) {
-//            cameraManager.autoFocus()
-//        }
+        if (!cameraManager.isAutoFocusing()) {
+            cameraManager.autoFocus()
+        }
         decodeData(data)
     }
 

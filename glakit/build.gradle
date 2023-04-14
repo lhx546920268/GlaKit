@@ -71,7 +71,7 @@ dependencies {
     api 'io.github.scwang90:refresh-layout-kernel:2.0.5'
 
     //Zxing核心包
-    implementation 'com.google.zxing:core:3.4.0'
+    api 'com.google.zxing:core:3.4.0'
 
     //http
     api 'com.squareup.okhttp3:okhttp:4.9.3'

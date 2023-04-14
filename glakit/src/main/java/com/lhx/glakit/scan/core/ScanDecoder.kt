@@ -1,4 +1,4 @@
-package com.lhx.glakit.scan
+package com.lhx.glakit.scan.core
 
 import android.graphics.PixelFormat
 import android.os.Handler

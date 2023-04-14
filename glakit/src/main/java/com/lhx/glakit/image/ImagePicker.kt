@@ -63,7 +63,7 @@ class ImagePicker(val allowMultiSelection: Boolean): OnResultCallbackListener<Lo
         PictureSelector.create(context)
             .openGallery(SelectMimeType.ofImage())
             .setImageEngine(GlideEngine.sharedEngine)
-            .setLanguage(LanguageConfig.CHINESE)
+            .setLanguage(LanguageConfig.ENGLISH)
             .setCompressEngine(getImageCompressEngine())
             .setCustomLoadingListener(this)
             .setCropEngine(getCropEngine())
