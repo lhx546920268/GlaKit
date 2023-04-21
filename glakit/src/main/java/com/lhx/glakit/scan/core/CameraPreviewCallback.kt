@@ -11,26 +11,29 @@ class CameraPreviewCallback(val handler: Handler, val cameraManager: CameraManag
     : android.hardware.Camera.PreviewCallback,
     ImageReader.OnImageAvailableListener {
 
+    //解码器
+    private val scanDecoder by lazy { ScanDecoder() }
+
     //解码线程
-    private var _decoder: ScanDecoder? = null
+    private var scanThread: ScanThread? = null
 
     //是否正在解码
-    private var _decoding = false
+    private var decoding = false
 
     //开始解码
     fun startDecode() {
-        if (_decoder == null) {
-            _decoder = ScanDecoder(handler, cameraManager)
-            _decoder!!.start()
+        if (scanThread == null) {
+            scanThread = ScanThread(handler, scanDecoder, cameraManager)
+            scanThread!!.start()
         }
-        _decoding = false
+        decoding = false
     }
 
     //停止解码
     fun stopDecode() {
-        if (_decoder != null) {
-            _decoder!!.stopDecode()
-            _decoder = null
+        if (scanThread != null) {
+            scanThread!!.stopDecode()
+            scanThread = null
         }
     }
 
@@ -54,9 +57,9 @@ class CameraPreviewCallback(val handler: Handler, val cameraManager: CameraManag
     }
 
     private fun decodeData(data: ByteArray?) {
-        if (!_decoding && _decoder != null) {
-            _decoding = true
-            _decoder!!.decode(data)
+        if (!decoding && scanThread != null) {
+            decoding = true
+            scanThread!!.decode(data)
         }
     }
 }

@@ -11,7 +11,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.*
 import androidx.appcompat.app.AppCompatActivity
-import com.alibaba.android.arouter.launcher.ARouter
 import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.fragment.BaseFragment
@@ -90,7 +89,6 @@ open class BaseActivity : AppCompatActivity(), BasePage {
 
         super.onCreate(savedInstanceState)
 
-        ARouter.getInstance().inject(this)
         //状态栏
         if (shouldSetStatusBarStyle) {
             AppUtils.setStatusBarStyle(

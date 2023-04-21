@@ -13,12 +13,6 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [AROUTER_MODULE_NAME: project.getName()]
-            }
-        }
     }
 
     buildTypes {
@@ -44,11 +38,6 @@ android {
 }
 
 dependencies {
-    kapt 'com.github.jadepeakpoet.ARouter:arouter-compiler:1.0.1'
-    api 'com.github.jadepeakpoet.ARouter:arouter-api:1.0.1'
-//    implementation 'com.alibaba:arouter-api:1.5.1'
-//    //noinspection GradleDependency
-//    kapt 'com.alibaba:arouter-compiler:1.5.1'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     api "androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1"
@@ -85,7 +74,7 @@ dependencies {
     kapt 'com.github.bumptech.glide:compiler:4.15.1'
 
     //相册
-    api 'io.github.lucksiege:pictureselector:v3.11.0'
+    api 'io.github.lucksiege:pictureselector:v3.11.1'
     // 裁剪
-    api 'io.github.lucksiege:ucrop:v3.10.9'
+    api 'io.github.lucksiege:ucrop:v3.11.1'
 }

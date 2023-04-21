@@ -3,6 +3,7 @@ package com.lhx.glakitDemo.home
 import android.Manifest
 import android.graphics.Canvas
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,6 +34,7 @@ import com.lhx.glakitDemo.dialog.DialogFragment
 import com.lhx.glakitDemo.drawable.CornerDrawableFragment
 import com.lhx.glakitDemo.image.ImageScaleFragment
 import com.lhx.glakitDemo.pager.PagerFragment
+import com.lhx.glakitDemo.scan.CameraXFragment
 import com.lhx.glakitDemo.scan.QRCodeScanFragment
 import com.lhx.glakitDemo.section.SectionListFragment
 import com.lhx.glakitDemo.section.SectionRecycleViewFragment
@@ -41,7 +43,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 
     override lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
 
-    val items = arrayListOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager", "Scan")
+    val items = arrayListOf("Drawable", "RecyclerView", "ListView", "Dialog", "Image", "Web", "Permission", "NestedScroll", "Pager", "Scan", "CameraX")
     private val adapter: Adapter by lazy { Adapter(recyclerView) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -221,6 +223,11 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
                 }
                 9 -> {
                     startActivity(QRCodeScanFragment::class.java)
+                }
+                10 -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        startActivity(CameraXFragment::class.java)
+                    }
                 }
             }
         }
