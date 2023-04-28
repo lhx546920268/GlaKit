@@ -51,6 +51,10 @@ class ImageScaleFragment: BaseFragment() {
 //        imageView.setImageBitmap(bitmap)
     }
 
+    fun finalize() {
+        println("${this::class.java.name} finalize")
+    }
+
     private fun uploadImage(data: ImageData) {
         val imageView = findViewById<ImageView>(R.id.bottom_image)!!
         imageView.loadImage(data.path)

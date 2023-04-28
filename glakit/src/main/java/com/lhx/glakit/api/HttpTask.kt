@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicReference
 /**
  * http 任务
  */
-@Suppress("unused_parameter", "unchecked_cast")
 abstract class HttpTask: Callback, HttpCancelable {
 
     companion object {
