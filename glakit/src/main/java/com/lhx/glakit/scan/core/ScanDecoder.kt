@@ -8,7 +8,6 @@ import java.util.*
 /**
  * 扫描图片解码
  */
-@Suppress("deprecation")
 class ScanDecoder {
 
     //解码器

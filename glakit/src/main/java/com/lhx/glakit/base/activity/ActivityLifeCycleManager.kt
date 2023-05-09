@@ -141,9 +141,8 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            val theme = activity.theme.obtainStyledAttributes(android.R.stylable)
-            val isTransparent = theme.getBoolean(android.R.attr.windowIsTranslucent)
-            if ()
+
+            // TODO 安卓O 透明activity设置requestedOrientation 会闪退
         }
         activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         activities.add(activity)

@@ -18,11 +18,13 @@ import com.lhx.glakitDemo.R
 import java.util.concurrent.Executors
 import com.google.zxing.Result
 import com.lhx.glakit.base.widget.ValueCallback
+import com.lhx.glakit.scan.widget.DefaultScanBackgroundView
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 class CameraXFragment: BaseFragment() {
 
     private val previewView: PreviewView by lazy { findViewById(R.id.preview_view)!! }
+    private val scanBackgroundView: DefaultScanBackgroundView by lazy { findViewById(R.id.scan_background_view)!! }
 
     private val preview by lazy {
         val preview = Preview.Builder().build()
@@ -34,6 +36,8 @@ class CameraXFragment: BaseFragment() {
     private val analyzer by lazy {
         ImageAnalyzer({
             preview.resolutionInfo?.resolution
+        }, {
+            scanBackgroundView.scanRect
         }, {
             activity?.runOnUiThread {
                 if (running) {
@@ -107,7 +111,7 @@ class CameraXFragment: BaseFragment() {
         camera = null
     }
 
-    private class ImageAnalyzer(val resolution: (() -> Size?), val callback: ValueCallback<Result>): ImageAnalysis.Analyzer {
+    private class ImageAnalyzer(val resolution: (() -> Size?), val scanRect: (() -> Rect), val callback: ValueCallback<Result>): ImageAnalysis.Analyzer {
 
         private val scanDecoder by lazy { ScanDecoder() }
 
@@ -119,7 +123,7 @@ class CameraXFragment: BaseFragment() {
                 val buffer = image.planes[0].buffer
                 val bytes = ByteArray(buffer.remaining())
                 buffer.get(bytes)
-                val result = scanDecoder.decode(bytes, Rect(), imageProxy.width, imageProxy.height)
+                val result = scanDecoder.decode(bytes, scanRect(), imageProxy.width, imageProxy.height)
                 if (result != null) {
                     callback(result)
                 }

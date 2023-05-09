@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
+import androidx.recyclerview.widget.RecyclerView.NO_ID
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.extension.setOnSingleListener
@@ -70,12 +71,8 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
     override var headerType: Int = HEADER_VIEW_TYPE
     override var footerType: Int = FOOTER_VIEW_TYPE
 
-    final override fun setHasStableIds(hasStableIds: Boolean) {
-        super.setHasStableIds(hasStableIds)
-    }
-
-    final override fun registerAdapterDataObserver(observer: AdapterDataObserver) {
-        super.registerAdapterDataObserver(observer)
+    open fun shouldHasStableIds(): Boolean {
+        return true
     }
 
     init {
@@ -88,10 +85,12 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
             }
         }
 
-        setHasStableIds(true)
+        //如果需要删除动画，比如notifyItemRemoved，则需要重写 shouldHasStableIds 返回false，不能直接设置，否则会闪退
+        //或者直接重写getItemId，返回其他独一无二的值
+        this.setHasStableIds(this.shouldHasStableIds())
 
         //添加数据改变监听
-        registerAdapterDataObserver(object : AdapterDataObserver() {
+        this.registerAdapterDataObserver(object : AdapterDataObserver() {
             override fun onChanged() {
                 //数据改变，刷新数据
                 shouldReloadData = true
@@ -202,7 +201,7 @@ abstract class RecyclerViewAdapter(recyclerView: RecyclerView) :
     }
 
     override fun getItemId(position: Int): Long {
-        return position.toLong()
+        return if (hasStableIds()) position.toLong() else NO_ID
     }
 
     final override fun getItemViewType(position: Int): Int {

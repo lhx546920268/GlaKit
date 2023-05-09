@@ -1,6 +1,7 @@
 package com.lhx.glakitDemo.image
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.widget.ImageView
 import com.lhx.glakit.base.fragment.BaseFragment
@@ -28,6 +29,9 @@ class ImageScaleFragment: BaseFragment() {
             cropHeight = 302
         }
         val binding = ImageScaleFragmentBinding.bind(getContainerContentView()!!)
+        Log.i("tag", binding.imageListItem.listItem.toString())
+        Log.i("tag", binding.imageListItem.toString())
+
         binding.camera.setOnSingleListener {
             imagePicker.pick(requireActivity(), 1) {
                 uploadImage(it.first())

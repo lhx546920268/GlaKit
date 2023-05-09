@@ -10,4 +10,9 @@
         app:scaleType="fillCenter"
         android:id="@+id/preview_view"/>
 
+    <com.lhx.glakit.scan.widget.DefaultScanBackgroundView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scan_background_view"/>
+
 </FrameLayout>
