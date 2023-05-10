@@ -131,25 +131,24 @@ class ProgressBar : View {
     //开始动画
     private fun startAnimate() {
         stopAnimate()
-        _animator = ValueAnimator.ofFloat(_currentProgress, _targetProgress)
+        val animator = ValueAnimator.ofFloat(_currentProgress, _targetProgress)
         if (_targetProgress >= 0.95f) {
-            _animator!!.duration = (300 * (1.0f - _currentProgress)).toLong()
-            _animator!!.interpolator = DecelerateInterpolator()
+            animator!!.duration = (300 * (1.0f - _currentProgress)).toLong()
+            animator.interpolator = DecelerateInterpolator()
         } else {
-            _animator!!.duration = (800 * (1.0f - _currentProgress)).toLong()
-            _animator!!.interpolator = LinearInterpolator()
+            animator.duration = (800 * (1.0f - _currentProgress)).toLong()
+            animator.interpolator = LinearInterpolator()
         }
-        _animator!!.addUpdateListener(_animatorUpdateListener)
-        _animator!!.addListener(_animatorListenerAdapter)
-        _animator!!.start()
+        animator.addUpdateListener(_animatorUpdateListener)
+        animator.addListener(_animatorListenerAdapter)
+        animator.start()
+        _animator = animator
     }
 
     //停止动画
     private fun stopAnimate() {
-        if (_animator != null) {
-            _animator!!.cancel()
-            _animator = null
-        }
+        _animator?.cancel()
+        _animator = null
     }
 
     override fun onDetachedFromWindow() {

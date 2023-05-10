@@ -1,11 +1,11 @@
 package com.lhx.glakit.drawable
 
 import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.graphics.*
 import android.graphics.drawable.Animatable
 import android.view.animation.LinearInterpolator
+import androidx.core.animation.addListener
 import com.lhx.glakit.properties.ObservableProperty
 import com.lhx.glakit.utils.ColorUtils
 import com.lhx.glakit.utils.MathUtils
@@ -65,15 +65,9 @@ class LoadingDrawable : BaseDrawable(), Animatable, ObservableProperty.Callback 
         valueAnimator.addUpdateListener(mAnimatorUpdateListener)
         valueAnimator.duration = 1000
         valueAnimator.interpolator = LinearInterpolator()
-        valueAnimator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationRepeat(animation: Animator) {
-                start = 0
-            }
 
-            override fun onAnimationStart(animation: Animator) {
-                start = 0
-            }
-        })
+        val block = { _: Animator -> start = 0 }
+        valueAnimator.addListener( onRepeat = block, onStart = block)
 
         petalsPath = Path()
     }

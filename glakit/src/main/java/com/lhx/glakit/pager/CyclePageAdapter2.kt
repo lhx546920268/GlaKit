@@ -1,16 +1,18 @@
 package com.lhx.glakit.pager
 
-import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import androidx.core.animation.addListener
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
 import com.lhx.glakit.timer.CountDownTimer
 import com.lhx.glakit.viewholder.RecyclerViewHolder
 
+//设置当前位置，类似viewPager的
 fun ViewPager2.setCurrentItem(
     item: Int,
     duration: Long,
@@ -26,12 +28,13 @@ fun ViewPager2.setCurrentItem(
         fakeDragBy(-currentPxToDrag)
         previousValue = currentValue
     }
-    animator.addListener(object : Animator.AnimatorListener {
-        override fun onAnimationStart(animation: Animator) { beginFakeDrag() }
-        override fun onAnimationEnd(animation: Animator) { endFakeDrag() }
-        override fun onAnimationCancel(animation: Animator) { /* Ignored */ }
-        override fun onAnimationRepeat(animation: Animator) { /* Ignored */ }
+
+    animator.addListener (onStart = {
+        beginFakeDrag()
+    }, onEnd = {
+        endFakeDrag()
     })
+
     animator.interpolator = interpolator
     animator.duration = duration
     animator.start()
@@ -44,7 +47,7 @@ fun ViewPager2.setCurrentItem(
 abstract class CyclePageAdapter2(val viewPager2: ViewPager2): RecyclerView.Adapter<RecyclerViewHolder>() {
 
     init {
-        registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
+        this.registerAdapterDataObserver(object: RecyclerView.AdapterDataObserver() {
             override fun onChanged() {
                 super.onChanged()
                 if (shouldAutoPlay && realCount <= 1) {
@@ -142,6 +145,7 @@ abstract class CyclePageAdapter2(val viewPager2: ViewPager2): RecyclerView.Adapt
 
     //是否需要循环
     var shouldCycle = true
+        @SuppressLint("NotifyDataSetChanged")
         set(value) {
             if(value != field){
                 field = value

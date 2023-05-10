@@ -10,6 +10,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.TypedValue
 import com.lhx.glakit.app.BaseApplication
 import com.lhx.glakit.event.AppEvent
 import com.lhx.glakit.extension.lastSafely
@@ -141,12 +142,38 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-
-            // TODO 安卓O 透明activity设置requestedOrientation 会闪退
+            //安卓O 透明activity设置requestedOrientation 会闪退
+            if (!isTranslucentOrFloating(activity)) {
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+        } else {
+            activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
         activities.add(activity)
         restartIfNeeded(activity)
+    }
+
+    //主要用于安卓8.0判断activity是否透明
+    @Suppress("deprecation")
+    private fun isTranslucentOrFloating(activity: Activity): Boolean {
+        val translucentValue = TypedValue()
+        val floatingValue = TypedValue()
+        var isSwipeToDismiss = false
+
+        //TYPE_INT_BOOLEAN 类型的 data的值可能为-1（true）和0（false）
+        activity.theme.resolveAttribute(android.R.attr.windowIsTranslucent, translucentValue, true)
+        activity.theme.resolveAttribute(android.R.attr.windowIsFloating, floatingValue, true)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            val swipeToDismissValue = TypedValue()
+            activity.theme.resolveAttribute(android.R.attr.windowSwipeToDismiss, swipeToDismissValue, true)
+            isSwipeToDismiss = swipeToDismissValue.type == TypedValue.TYPE_INT_BOOLEAN && swipeToDismissValue.data != 0
+        }
+
+        val isTranslucent = translucentValue.type == TypedValue.TYPE_INT_BOOLEAN && translucentValue.data != 0
+        val isFloating = floatingValue.type == TypedValue.TYPE_INT_BOOLEAN && floatingValue.data != 0
+
+        return isTranslucent || isFloating || isSwipeToDismiss
     }
 
     override fun onActivityStarted(activity: Activity) {

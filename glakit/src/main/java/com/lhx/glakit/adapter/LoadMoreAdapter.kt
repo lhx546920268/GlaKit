@@ -16,7 +16,7 @@ import com.lhx.glakit.refresh.LoadMoreStatus
 internal interface LoadMoreAdapter {
 
     /**
-     * 是否可以加载更多
+     * 是否可以加载更多，设置后必须调用 notifyDataSetChanged
      */
     var loadMoreEnable: Boolean
 
