@@ -155,7 +155,6 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     }
 
     //主要用于安卓8.0判断activity是否透明
-    @Suppress("deprecation")
     private fun isTranslucentOrFloating(activity: Activity): Boolean {
         val translucentValue = TypedValue()
         val floatingValue = TypedValue()
@@ -166,6 +165,7 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
         activity.theme.resolveAttribute(android.R.attr.windowIsFloating, floatingValue, true)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
             val swipeToDismissValue = TypedValue()
+            @Suppress("deprecation")
             activity.theme.resolveAttribute(android.R.attr.windowSwipeToDismiss, swipeToDismissValue, true)
             isSwipeToDismiss = swipeToDismissValue.type == TypedValue.TYPE_INT_BOOLEAN && swipeToDismissValue.data != 0
         }

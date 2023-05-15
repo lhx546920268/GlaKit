@@ -4,6 +4,7 @@ import androidx.multidex.MultiDexApplication
 import com.bumptech.glide.Glide
 import com.lhx.glakit.BuildConfig
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
+import com.lhx.glakit.web.WebViewHelper
 import kotlin.system.exitProcess
 
 /**
@@ -31,6 +32,9 @@ open class BaseApplication: MultiDexApplication() {
         super.onCreate()
 
         sharedApplication = this
+
+        //修复9.0及以上多进程操作webView目录造成闪退问题
+        WebViewHelper.handleWebViewDir(this)
 
         //初始化activity声明周期管理
         registerActivityLifecycleCallbacks(ActivityLifeCycleManager)
