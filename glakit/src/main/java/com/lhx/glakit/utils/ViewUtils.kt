@@ -7,7 +7,6 @@ import android.widget.FrameLayout
 /**
  * 视图相关工具类
  */
-@Suppress("deprecation")
 object ViewUtils {
 
     /**

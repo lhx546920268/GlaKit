@@ -1,10 +1,13 @@
 package com.lhx.glakit.web
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,12 +16,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
+import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import com.lhx.glakit.R
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
+import com.lhx.glakit.extension.MATCH_PARENT
+import com.lhx.glakit.extension.gone
+import com.lhx.glakit.extension.visible
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.widget.ProgressBar
 
@@ -46,7 +53,7 @@ object WebConfig {
 /**
  * 网页
  */
-@Suppress("SetJavaScriptEnabled", "unused_parameter", "deprecation", "unused")
+@Suppress("SetJavaScriptEnabled", "unused_parameter", "unused")
 open class WebFragment : BaseFragment() {
 
     companion object{
@@ -98,11 +105,9 @@ open class WebFragment : BaseFragment() {
     override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
 
         setContainerContentView(webView)
-        container.addView(progressBar)
-        val params = progressBar.layoutParams as RelativeLayout.LayoutParams
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT
-        params.height = pxFromDip(2f)
+        val params = RelativeLayout.LayoutParams(MATCH_PARENT, pxFromDip(2f))
         params.topMargin = if (showTitleBar()) getDimenIntValue(R.dimen.title_bar_height) else 0
+        container.addView(progressBar, params)
 
         shouldUseWebTitle = getBooleanFromBundle(WebConfig.USE_WEB_TITLE, true)
         shouldDisplayProgress = getBooleanFromBundle(WebConfig.DISPLAY_PROGRESS, true)
@@ -145,6 +150,7 @@ open class WebFragment : BaseFragment() {
     }
 
     //配置webView
+    @Suppress("deprecation")
     private fun webConfig(){
 
         progressBar.progressColor = getColorCompat(R.color.web_progress_color)
@@ -222,18 +228,78 @@ open class WebFragment : BaseFragment() {
     }
 
     //是否添加移动设备头部
-    fun shouldAddMobileMeta(): Boolean {
+    open fun shouldAddMobileMeta(): Boolean {
         return true
     }
 
-    fun showNavigationBar(): Boolean {
+    open fun showNavigationBar(): Boolean {
         return true
     }
 
     //调用js
-    fun evaluateJavascript(js: String?) {
-        if (StringUtils.isEmpty(js)) return
-        webView.evaluateJavascript(js!!, null)
+    fun evaluateJavascript(js: String) {
+        if (StringUtils.isNotEmpty(js)) {
+            webView.evaluateJavascript(js, null)
+        }
+    }
+
+    //视频全屏播放
+    private var customView: View? = null
+    private var customViewCallback: WebChromeClient.CustomViewCallback? = null
+    private var originalSystemUiVisibility: Int? = null
+    private var originOrientation: Int? = null
+
+    //webView自定义视图的容器
+    private val customViewContainer: FrameLayout by lazy {
+        val container = FrameLayout(requireContext())
+        container.setBackgroundColor(Color.BLACK)
+        baseContainer?.addView(container, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        container
+    }
+
+    @Suppress("deprecation")
+    private fun showCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
+        if (customView != null) {
+            callback?.onCustomViewHidden()
+            return
+        }
+        customView = view
+        customViewCallback = callback
+
+        if (customView != null) {
+            val activity = this.activity
+            if (activity != null) {
+                originOrientation = activity.requestedOrientation
+                originalSystemUiVisibility = activity.window.decorView.systemUiVisibility
+
+                activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+                activity.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE
+            }
+            customViewContainer.addView(customView, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            customViewContainer.visible()
+        }
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    @Suppress("deprecation")
+    private fun hideCustomView() {
+        if (customView != null) {
+            val activity = this.activity
+            if (activity != null) {
+                if (originOrientation != null) activity.requestedOrientation = originOrientation!!
+                if (originalSystemUiVisibility != null) activity.window.decorView.systemUiVisibility = originalSystemUiVisibility!!
+            }
+            customViewContainer.removeView(customView)
+            customViewContainer.gone()
+            customViewCallback?.onCustomViewHidden()
+            customView = null
+            customViewCallback = null
+        }
     }
 
     //上传文件回调
@@ -288,21 +354,32 @@ open class WebFragment : BaseFragment() {
             var type: String? = null
             val types = fileChooserParams.acceptTypes
             if (!types.isNullOrEmpty()) {
-                val builder = StringBuilder()
-                for ((i, str) in types.withIndex()) {
-                    builder.append(str)
-                    if (i < types.size - 1) {
-                        builder.append(",")
-                    }
-                }
-                type = builder.toString()
+                type = types.joinToString(",")
             }
             openFileChooser(type)
             return true
         }
+
+        override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+            showCustomView(view, callback)
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun onShowCustomView(
+            view: View?,
+            requestedOrientation: Int,
+            callback: CustomViewCallback?
+        ) {
+            showCustomView(view, callback)
+        }
+
+        override fun onHideCustomView() {
+            hideCustomView()
+        }
     }
 
     //打开文件选择器
+    @Suppress("deprecation")
     private fun openFileChooser(mineType: String?) {
         var type: String? = mineType
         if (StringUtils.isEmpty(mineType)) {
@@ -390,6 +467,7 @@ open class WebFragment : BaseFragment() {
     }
 
     @Deprecated("Deprecated in Java")
+    @Suppress("deprecation")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {

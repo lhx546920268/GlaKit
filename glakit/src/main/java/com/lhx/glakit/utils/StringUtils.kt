@@ -19,7 +19,6 @@ import kotlin.math.ceil
 /**
  * 字符串工具类
  */
-@Suppress("deprecation")
 object StringUtils {
 
 
@@ -28,7 +27,7 @@ object StringUtils {
      * @param length 数字长度
      * @return 随机数
      */
-    fun getRandomNumber(length: Int): String? {
+    fun getRandomNumber(length: Int): String {
         val random = Random()
         val builder = StringBuilder()
         for (i in 0 until length) {
@@ -59,7 +58,7 @@ object StringUtils {
      * @return 是否为空
      */
     fun isEmpty(text: CharSequence?): Boolean {
-        if (text == null || text.isEmpty()) {
+        if (text.isNullOrEmpty()) {
             return true
         }
         return if (text is String) {
@@ -71,7 +70,7 @@ object StringUtils {
         return !isEmpty(text)
     }
 
-    fun stringFromBytes(bytes: ByteArray?): String? {
+    fun stringFromBytes(bytes: ByteArray?): String {
         return stringFromBytes(bytes, Charset.forName("utf-8"))
     }
 
@@ -81,7 +80,7 @@ object StringUtils {
      * @param charset 字符编码
      * @return 字符串
      */
-    fun stringFromBytes(bytes: ByteArray?, charset: Charset): String? {
+    fun stringFromBytes(bytes: ByteArray?, charset: Charset): String {
         return if (bytes == null || bytes.isEmpty()) "" else try {
             String(bytes, 0, bytes.size, charset)
         } catch (e: UnsupportedEncodingException) {
@@ -122,6 +121,7 @@ object StringUtils {
      * @param lineSpacingExtra 行距额外高度 [TextView.getLineSpacingExtra] default is 0.0f
      * @return 文字高度
      */
+    @Suppress("deprecation")
     fun measureTextHeight(text: CharSequence?, context: Context?, textSize: Int, textPaint: TextPaint?, maxWidth: Int, textAlignment: Layout.Alignment?, lineSpacingMultiplier: Float, lineSpacingExtra: Float): Int {
 
         if (TextUtils.isEmpty(text)) return 0
@@ -138,16 +138,16 @@ object StringUtils {
         if (alignment == null) {
             alignment = Layout.Alignment.ALIGN_NORMAL
         }
-        val layout : StaticLayout
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+        val layout = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
             val builder = StaticLayout.Builder.obtain(text!!,0, text.length, paint, maxWidth)
             builder.setAlignment(alignment)
             builder.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier)
             builder.setIncludePad(true)
-            layout = builder.build()
+            builder.build()
         }else{
-           layout = StaticLayout(text, paint, maxWidth, alignment, lineSpacingMultiplier, lineSpacingExtra, true)
+            StaticLayout(text, paint, maxWidth, alignment, lineSpacingMultiplier, lineSpacingExtra, true)
         }
+
         return layout.height
     }
 
@@ -207,7 +207,7 @@ object StringUtils {
     fun isTelPhoneNumber(tel: CharSequence?): Boolean {
         return if (TextUtils.isEmpty(tel)) false else Pattern.compile(
             "((\\d{12})|^((\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})|(\\d{4}|\\d{3})-(\\d{7,8})-" +
-                    "(\\d{4}|\\d{3}|\\d{2}|\\d{1})|(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d{1}))$)|(\\d{11})"
+                    "(\\d{4}|\\d{3}|\\d{2}|\\d)|(\\d{7,8})-(\\d{4}|\\d{3}|\\d{2}|\\d))$)|(\\d{11})"
         ).matcher(tel!!).matches()
     }
 
@@ -225,7 +225,7 @@ object StringUtils {
         if (TextUtils.isEmpty(url)) return false
 
         val allCharacter = "0-9a-zA-Z!\\$&'\\(\\)\\*\\+,\\-\\.:;=\\?@\\[\\]_~"
-        val scheme = "((http[s]?)://)?"; //协议 可选
+        val scheme = "((http[s]?)://)?" //协议 可选
         val host = "(([${allCharacter}]+\\.){2,}[a-zA-Z]{2,6}\\b)" //主机
         val path = "[#%/${allCharacter}]*" //路径
 
@@ -270,13 +270,12 @@ object StringUtils {
         if (str.length != 15 && str.length != 18) {
             return false
         }
-        var numberic = ""
 
         //数字 除最后以外都为数字
-        if (str.length == 18) {
-            numberic = str.substring(0, 17)
-        } else if (str.length == 15) {
-            numberic = "${str.substring(0, 6)}19${str.substring(6, 15)}"
+        var numberic = if (str.length == 18) {
+            str.substring(0, 17)
+        } else {
+            "${str.substring(0, 6)}19${str.substring(6, 15)}"
         }
 
         //身份证15位号码都应为数字 18位号码除最后一位外，都应为数字
@@ -299,7 +298,7 @@ object StringUtils {
         try { //身份证生日不在有效范围
 
             val date = s.parse("$strYear-$strMonth-$strDay")
-            val time = if(date != null) date.time else 0
+            val time = date?.time ?: 0
 
             if (gc.get(Calendar.YEAR) - strYear.toInt() > 150 || gc.time.time - time < 0) {
                 return false
@@ -337,7 +336,7 @@ object StringUtils {
         )
 
         for (i in 0..16) {
-            last += numberic[i].toInt() * arr[i]
+            last += numberic[i].code * arr[i]
         }
         val modValue = last % 11
         val codes = arrayOf(

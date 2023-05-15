@@ -177,29 +177,26 @@ class TitleBar: ViewGroup {
 
     //设置左边视图
     fun setLeftItem(item: View?) {
-
         if (item != leftItem) {
             if (leftItem != null)
                 removeView(leftItem)
-
             leftItem = item
-
             if (leftItem != null) {
                 addView(leftItem, 0)
             }
         }
     }
 
-    ///设置右边视图
-    fun setRightItem(item: View?) {
-
+    private var rightItemWarp = false
+    //设置右边视图
+    fun setRightItem(item: View?, wrap: Boolean = false) {
         if (item !== rightItem) {
             if (rightItem != null)
                 removeView(rightItem)
 
             rightItem = item
             if (rightItem != null) {
-
+                rightItemWarp = wrap
                 addView(rightItem, 0)
             }
         }
@@ -300,7 +297,14 @@ class TitleBar: ViewGroup {
         var rightWidth = titleBarMargin
         if(rightItem != null){
             rightWidth = rightItem!!.measuredWidth
-            rightItem!!.layout(left + width - rightItem!!.measuredWidth, top, left + width, top + height)
+            var rightItemTop = top
+            var rightItemBottom = top + height
+            if (rightItemWarp) {
+                rightItemTop = max(top, top + (height - rightItem!!.measuredHeight) / 2)
+                rightItemBottom = rightItemTop + min(height, rightItem!!.measuredHeight)
+            }
+
+            rightItem!!.layout(left + width - rightItem!!.measuredWidth, rightItemTop, left + width, rightItemBottom)
         }
 
         if(titleView != null){

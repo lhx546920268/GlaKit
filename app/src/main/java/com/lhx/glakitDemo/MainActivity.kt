@@ -3,6 +3,8 @@ package com.lhx.glakitDemo
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowInsetsController
+import androidx.core.view.WindowInsetsControllerCompat
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.tab.TabBarActivity

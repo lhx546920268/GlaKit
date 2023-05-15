@@ -6,7 +6,6 @@ import android.content.Context
 import android.graphics.Point
 import android.os.Build
 import android.util.TypedValue
-import android.view.Display
 import android.view.View
 import android.view.WindowManager
 import kotlin.math.ceil
@@ -17,7 +16,6 @@ import kotlin.math.min
 /**
  * 尺寸大小工具类
  */
-@Suppress("deprecation")
 object SizeUtils {
 
     /**
@@ -129,7 +127,7 @@ object SizeUtils {
             val view = context.findViewById<View>(android.R.id.content)
             if (view != null) {
                 var height = view.measuredHeight
-                if (!AppUtils.isStatusBarOverlay(context)) height += getStatusBarHeight(context)
+                if (!AppUtils.isStatusBarImmersive(context)) height += getStatusBarHeight(context)
                 return height
             }
         }
@@ -139,40 +137,46 @@ object SizeUtils {
     /**
      * 获取屏幕真实高度
      */
+    @Suppress("deprecation")
     fun getWindowRealHeight(context: Context): Int {
-        val size = Point()
-        displayCompat(context)?.getRealSize(size)
-        return size.y
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            windowManager.currentWindowMetrics.bounds.height()
+        } else {
+            val display = windowManager.defaultDisplay
+            val point = Point()
+            display.getRealSize(point)
+            point.y
+        }
     }
 
     /**
      * 是否是全面屏
      */
+    @Suppress("deprecation")
     fun isFullScreen(context: Context): Boolean {
         // 低于 API 21的，都不会是全面屏。。。
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return false
         }
 
-        val display = displayCompat(context)
-        if (display != null) {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+
+        val width: Float
+        val height: Float
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val bounds = windowManager.currentWindowMetrics.bounds
+            width = min(bounds.width(), bounds.height()).toFloat()
+            height = max(bounds.width(), bounds.height()).toFloat()
+        } else {
+            val display = windowManager.defaultDisplay
             val point = Point()
             display.getRealSize(point)
 
-            val width = min(point.x, point.y)
-            val height = max(point.x, point.y)
-
-            return height.toFloat() / width >= 1.97f
+            width = min(point.x, point.y).toFloat()
+            height = max(point.x, point.y).toFloat()
         }
-        return false
-    }
 
-    fun displayCompat(context: Context): Display? {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            context.display
-        } else {
-            val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-            windowManager.defaultDisplay
-        }
+        return width > 0 && height / width >= 1.97f
     }
 }

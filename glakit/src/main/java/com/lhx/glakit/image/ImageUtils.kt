@@ -167,7 +167,6 @@ object ImageUtils {
 
     //保存图片到相册
     //需要申请权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
-    @Suppress("deprecation")
     fun saveImageToAlbum(file: File, context: Context, completion: ValueCallback<Boolean>) {
         val mimeType = FileUtils.getMimeType(file.absolutePath)
         val filename = "${FileUtils.getUniqueFileName()}${getLastImageSuffix(mimeType)}"

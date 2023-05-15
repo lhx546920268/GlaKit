@@ -1,5 +1,6 @@
 package com.lhx.glakit.utils
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
@@ -9,72 +10,78 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.view.View
+import android.view.WindowInsets
+import android.view.WindowInsetsAnimation
 import android.view.WindowManager
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.lhx.glakit.R
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import com.lhx.glakit.extension.getColorCompat
+import com.lhx.glakit.extension.getPackageInfoCompat
 import java.util.*
 
-@Suppress("deprecation", "unused")
+@Suppress( "unused")
 object AppUtils {
 
     val context: Context
         get() = ActivityLifeCycleManager.currentContext
 
-
     /**
-     * 设备id 有可能重复
+     * 设备id
      */
-    val deviceId: String by lazy {
-        "35${Build.BRAND.length % 10}" +
-                "${Build.CPU_ABI.length % 10}" +
-                "${Build.DEVICE.length % 10}" +
-                "${Build.DISPLAY.length % 10}" +
-                "${Build.HOST.length % 10}" +
-                "${Build.ID.length % 10}" +
-                "${Build.MANUFACTURER.length % 10}" +
-                "${Build.MODEL.length % 10}" +
-                "${Build.PRODUCT.length % 10}" +
-                "${Build.TAGS.length % 10}" +
-                "${Build.TYPE.length % 10}" +
-                "${Build.USER.length % 10}"
-    }
+    private var mDeviceId: String? = null
+    private const val deviceIdKey = "glakit_device_uuid"
+    val deviceId: String
+        @SuppressLint("HardwareIds")
+        get() {
+            if (StringUtils.isEmpty(mDeviceId)) {
+                mDeviceId = PrefsUtils.loadString(deviceIdKey)
+                if (StringUtils.isEmpty(mDeviceId)) {
+                    val androidId = Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+                    mDeviceId = if (StringUtils.isEmpty(androidId)) {
+                        UUID.randomUUID().toString()
+                    } else {
+                        val hashCode = androidId.hashCode().toLong()
+                        UUID(hashCode, hashCode).toString()
+                    }
+                    PrefsUtils.save(deviceIdKey, mDeviceId)
+                }
+            }
+
+            return mDeviceId!!
+        }
 
     /**
      * 获取app版本号
      */
     val appVersionCode: Long
-        get() {
-            return try {
-                val packageName = context.packageName
-                val packageManager = context.packageManager
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.P){
-                    packageManager.getPackageInfo(packageName, 0).longVersionCode
-                }else{
-                    packageManager.getPackageInfo(packageName, 0).versionCode.toLong()
-                }
-            } catch (e: PackageManager.NameNotFoundException) {
-                0
+        get() = try {
+            val packageName = context.packageName
+            val packageManager = context.packageManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageManager.getPackageInfoCompat(packageName).longVersionCode
+            } else {
+                @Suppress("deprecation")
+                packageManager.getPackageInfoCompat(packageName).versionCode.toLong()
             }
+        } catch (e: PackageManager.NameNotFoundException) {
+            0
         }
 
     /**
      * 获取app版本名
      */
     val appVersionName: String
-        get() {
-            return try {
-                val packageName: String = context.packageName
-                val packageManager: PackageManager = context.packageManager
-                packageManager.getPackageInfo(packageName, 0).versionName
-            } catch (e: PackageManager.NameNotFoundException) {
-                ""
-            }
+        get() = try {
+            context.packageManager.getPackageInfoCompat(appPackageName).versionName
+        } catch (e: PackageManager.NameNotFoundException) {
+            ""
         }
 
     /**
@@ -91,6 +98,7 @@ object AppUtils {
      * @param appName app名称
      * @param appIconRes app图标
      */
+    @Suppress("deprecation")
     fun createShortcut(appName: String?, @DrawableRes appIconRes: Int) {
         if (!PrefsUtils.loadBoolean(SHORTCUT_INSTALLED, false)) {
             PrefsUtils.save(SHORTCUT_INSTALLED, true)
@@ -158,14 +166,12 @@ object AppUtils {
      * @param view 当前焦点
      */
     fun hideSoftInputMethod(view: View?) {
-        view?.also {
-            try {
-                // 隐藏软键盘
-                (it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .hideSoftInputFromWindow(it.windowToken, 0)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        view ?: return
+        val context = view.context
+        if (context is Activity) {
+            val window = context.window
+            window ?: return
+            WindowCompat.getInsetsController(window, view).hide(WindowInsetsCompat.Type.ime())
         }
     }
 
@@ -174,15 +180,12 @@ object AppUtils {
      * @param view 当前焦点
      */
     fun showSoftInputMethod(view: View?) {
-        view?.also {
-            try {
-                // 打开软键盘
-                it.requestFocus()
-                (it.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .showSoftInput(it, InputMethodManager.SHOW_FORCED)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+        view ?: return
+        val context = view.context
+        if (context is Activity) {
+            val window = context.window
+            window ?: return
+            WindowCompat.getInsetsController(window, view).show(WindowInsetsCompat.Type.ime())
         }
     }
 
@@ -237,7 +240,7 @@ object AppUtils {
     //判断是否安装了某个应用
     fun isInstall(packageName: String): Boolean {
         val packageInfo = try {
-            context.packageManager.getPackageInfo(packageName, 0)
+            context.packageManager.getPackageInfoCompat(packageName)
         } catch (e: PackageManager.NameNotFoundException) {
             null
         }
@@ -277,54 +280,31 @@ object AppUtils {
      * 设置状态栏样式dow
      * @param backgroundColor 背景颜色 0不改变并且全屏
      * @param isLight 内容是否是浅色(白色）
-     * @param overlay 状态栏是否是否覆盖在布局上面
-     * @return 是否成功
+     * @param immersive 是否是沉浸式
      */
     fun setStatusBarStyle(
         context: Context,
         @ColorInt backgroundColor: Int?,
         isLight: Boolean,
-        overlay: Boolean = backgroundColor == 0
-    ): Boolean {
-        if (context !is Activity) return false
+        immersive: Boolean = backgroundColor == 0
+    ) {
+        if (context !is Activity) return
+
         val window = context.window
+        WindowCompat.setDecorFitsSystemWindows(window, !immersive)
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        controller.isAppearanceLightStatusBars = !isLight
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             window.statusBarColor = backgroundColor ?: context.getColorCompat(R.color.status_bar_background_color)
-            if (isLight) {
-                var flags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                if (overlay) {
-                    flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                }
-                window.decorView.systemUiVisibility = flags
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) { //android6.0以后可以对状态栏文字颜色和图标进行修改
-                    var flags = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                    if (overlay) {
-                        flags = flags or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    }
-                    window.decorView.systemUiVisibility = flags
-                } else {
-                    if (overlay) {
-                        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    }
-                }
-            }
-            return true
-        }else{
-            if (overlay) {
-                window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            } else {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-            }
         }
-        return false
     }
 
     /**
      * 判断是否是沉浸式状态栏
      */
-    fun isStatusBarOverlay(context: Context): Boolean {
+    @Suppress("deprecation")
+    fun isStatusBarImmersive(context: Context): Boolean {
         if (context !is Activity) return false
         val window = context.window
 
@@ -353,5 +333,30 @@ object AppUtils {
             0
         }
         return isHarmonyOs != 0
+    }
+
+    /**
+     * 监听键盘高度, api 21 以上生效
+     */
+    fun addKeyboardHeightChangedCallback(view: View, callback:(Int) -> Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val cb = object: WindowInsetsAnimation.Callback(DISPATCH_MODE_STOP) {
+                override fun onProgress(
+                    insets: WindowInsets,
+                    runningAnimations: MutableList<WindowInsetsAnimation>
+                ): WindowInsets {
+                    val bottom = insets.getInsets(WindowInsets.Type.ime()).bottom + insets.getInsets(WindowInsets.Type.systemBars()).bottom
+                    callback(bottom)
+                    return insets
+                }
+            }
+            view.setWindowInsetsAnimationCallback(cb)
+        } else {
+            ViewCompat.setOnApplyWindowInsetsListener(view) {_, insets ->
+                val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom + insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+                callback(bottom)
+                insets
+            }
+        }
     }
 }
