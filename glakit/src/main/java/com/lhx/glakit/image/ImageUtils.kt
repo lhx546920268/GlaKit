@@ -1,5 +1,6 @@
 package com.lhx.glakit.image
 
+import android.Manifest
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
@@ -165,8 +166,15 @@ object ImageUtils {
         return file
     }
 
-    //保存图片到相册
-    //需要申请权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
+    //保存图片需要的权限
+    val saveImageNeededPermissions: Array<String>?
+        get() {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) null
+            else arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        }
+
+    //保存图片
+    //需要申请权限 saveImageNeededPermissions
     fun saveImageToAlbum(file: File, context: Context, completion: ValueCallback<Boolean>) {
         val mimeType = FileUtils.getMimeType(file.absolutePath)
         val filename = "${FileUtils.getUniqueFileName()}${getLastImageSuffix(mimeType)}"

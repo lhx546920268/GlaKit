@@ -97,7 +97,7 @@ class ImageCompressFileEngine(val config: ImagePickerConfig): CompressFileEngine
             || PictureMimeType.isUrlHasGif(source)) {
             File(source)
         } else {
-            compress(provider, outFile, mimeType) ?: File(source)
+            compress(provider, outFile, mimeType)
         }
     }
 
@@ -236,7 +236,7 @@ class ImageCompressFileEngine(val config: ImagePickerConfig): CompressFileEngine
         return MatrixResult(change = false, rotating = false, bitmap)
     }
 
-    private fun compress(provider: InputStreamProvider, outFile: File, mimeType: String): File? {
+    private fun compress(provider: InputStreamProvider, outFile: File, mimeType: String): File {
         var opts: BitmapFactory.Options? = null
         //防止图片过大导致 OOM
         if (!config.enableCrop) {
@@ -260,14 +260,14 @@ class ImageCompressFileEngine(val config: ImagePickerConfig): CompressFileEngine
             }
         }
 
+        val source = sourceFromProvider(provider)
+        val file = File(source)
         var bitmap = BitmapFactory.decodeStream(provider.open(), null, opts)
-        bitmap ?: return null
+        bitmap ?: return file
 
         val stream = ByteArrayOutputStream()
         val rotateResult = rotatingAndScaleIfNeeded(bitmap, provider, mimeType)
         bitmap = rotateResult.bitmap
-        val source = sourceFromProvider(provider)
-        val file = File(source)
 
         val isCompress = needCompressToLocalMedia(config.minimumCompressSize, file)
         val isSupport = supportFormat(provider.open())
@@ -303,7 +303,7 @@ class ImageCompressFileEngine(val config: ImagePickerConfig): CompressFileEngine
             }
             return outFile
         }
-        return null
+        return file
     }
 
     private fun isJPG(mimeType: String): Boolean {

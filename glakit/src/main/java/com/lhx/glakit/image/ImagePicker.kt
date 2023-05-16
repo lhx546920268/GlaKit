@@ -9,6 +9,7 @@ import com.lhx.glakit.image.compress.ImageCompressFileEngine
 import com.lhx.glakit.image.crop.ImageFileCropEngine
 import com.lhx.glakit.utils.AlertUtils
 import com.luck.picture.lib.basic.PictureSelector
+import com.luck.picture.lib.config.PictureMimeType
 import com.luck.picture.lib.config.SelectMimeType
 import com.luck.picture.lib.config.SelectModeConfig
 import com.luck.picture.lib.engine.CompressFileEngine
@@ -92,7 +93,11 @@ class ImagePicker(val allowMultiSelection: Boolean): OnResultCallbackListener<Lo
             if (!result.isNullOrEmpty()) {
                 val list = ArrayList<ImageData>()
                 for (media in result) {
-                    val path = media.availablePath
+                    var path = media.availablePath
+                    if (PictureMimeType.isContent(path)) {
+                        path = media.realPath
+                    }
+
                     val options = BitmapFactory.Options()
                     options.inJustDecodeBounds = true
                     BitmapFactory.decodeFile(path, options)

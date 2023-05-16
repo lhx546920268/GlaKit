@@ -371,6 +371,30 @@ object FileUtils {
     }
 
     /**
+     * 复制文件到outputStream
+     * @return 写的长度
+     */
+    fun copy(file: File, out: OutputStream): Long {
+        var nread = 0L
+        if (file.exists()) {
+            var inputStream: FileInputStream? = null
+            try {
+                inputStream = FileInputStream(file)
+                val buf = ByteArray(8192)
+                var n: Int
+                while (inputStream.read(buf).also { n = it } > 0) {
+                    out.write(buf, 0, n)
+                    nread += n.toLong()
+                }
+            } finally {
+                inputStream?.close()
+            }
+        }
+        return nread
+    }
+
+
+    /**
      * 获取文件大小
      * @param file 文件或文件夹
      * @return 字节

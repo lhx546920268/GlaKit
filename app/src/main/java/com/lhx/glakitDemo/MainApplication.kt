@@ -10,5 +10,7 @@ class MainApplication : BaseApplication() {
         ARouter.openDebug()
         ARouter.openLog()
         ARouter.init(this)
+
+        "".startsWith("fjiefjeofji")
     }
 }

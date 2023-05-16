@@ -152,7 +152,7 @@ class MyBottomSheetFragment: DialogFragment() {
     private fun getDialogHeight() : Int {
         return if (parent != null) {
             var height = parent!!.measuredHeight
-            if (!AppUtils.isStatusBarOverlay(requireContext())) height += SizeUtils.getStatusBarHeight(requireContext())
+            if (!AppUtils.isStatusBarImmersive(requireContext())) height += SizeUtils.getStatusBarHeight(requireContext())
             height
         } else {
             MATCH_PARENT
