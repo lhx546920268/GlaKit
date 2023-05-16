@@ -41,9 +41,9 @@ object WebConfig {
 
     const val USE_WEB_TITLE = "useWebTitle" //是否使用网页标题 默认使用
 
-    const val DISPLAY_PROGRESS = "display_progress" //是否显示进度条 默认显示
+    const val DISPLAY_PROGRESS = "displayProgress" //是否显示进度条 默认显示
 
-    const val DISPLAY_INDICATOR = "display_indicator" //是否显示菊花，默认不显示
+    const val DISPLAY_INDICATOR = "displayIndicator" //是否显示菊花，默认不显示
 
     const val HIDE_BAR = "hideBar" //是否隐藏导航栏 默认不隐藏
 

@@ -53,7 +53,6 @@ class ImagePicker(val allowMultiSelection: Boolean): OnResultCallbackListener<Lo
     private fun openCamera(context: Context) {
         PictureSelector.create(context)
             .openCamera(SelectMimeType.ofImage())
-            .setLanguage(LanguageConfig.CHINESE)
             .setCompressEngine(getImageCompressEngine())
             .setCustomLoadingListener(this)
             .setCropEngine(getCropEngine())
@@ -64,7 +63,7 @@ class ImagePicker(val allowMultiSelection: Boolean): OnResultCallbackListener<Lo
         PictureSelector.create(context)
             .openGallery(SelectMimeType.ofImage())
             .setImageEngine(GlideEngine.sharedEngine)
-            .setLanguage(LanguageConfig.ENGLISH)
+            .setLanguage(LanguageConfig.CHINESE)
             .setCompressEngine(getImageCompressEngine())
             .setCustomLoadingListener(this)
             .setCropEngine(getCropEngine())
