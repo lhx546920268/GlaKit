@@ -158,27 +158,15 @@ open class PopoverContainer : ViewGroup {
         popoverLayout.measure(childWidthMeasureSpec, childHeightMeasureSpec)
 
         val width = when (widthMode) {
-            MeasureSpec.EXACTLY -> {
-                widthSize
-            }
-            MeasureSpec.AT_MOST -> {
-                min(widthSize, popoverLayout.measuredWidth)
-            }
-            MeasureSpec.UNSPECIFIED -> {
-                popoverLayout.measuredWidth
-            }
+            MeasureSpec.EXACTLY -> widthSize
+            MeasureSpec.AT_MOST -> min(widthSize, popoverLayout.measuredWidth)
+            MeasureSpec.UNSPECIFIED -> popoverLayout.measuredWidth
             else -> widthSize
         }
         val height = when (heightMode) {
-            MeasureSpec.EXACTLY -> {
-                heightSize
-            }
-            MeasureSpec.AT_MOST -> {
-                min(heightSize, popoverLayout.measuredHeight)
-            }
-            MeasureSpec.UNSPECIFIED -> {
-                popoverLayout.measuredHeight
-            }
+            MeasureSpec.EXACTLY -> heightSize
+            MeasureSpec.AT_MOST -> min(heightSize, popoverLayout.measuredHeight)
+            MeasureSpec.UNSPECIFIED -> popoverLayout.measuredHeight
             else -> heightSize
         }
         setMeasuredDimension(width, height)

@@ -107,7 +107,7 @@ object DateUtils {
      */
     fun timestampFromTime(time: String?, format: String): Long {
         val date = parseTime(time, format)
-        return if(date != null ) date.time else 0
+        return date?.time ?: 0
     }
 
     /**

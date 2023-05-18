@@ -29,7 +29,7 @@ abstract class HttpJSONTask : HttpTask() {
     var apiCode = 0
 
     //原始json数据
-    var rowData: JSONObject? = null
+    var rawData: JSONObject? = null
         protected set
 
     //使用的数据
@@ -52,6 +52,7 @@ abstract class HttpJSONTask : HttpTask() {
             try {
                 val json = JSONObject.parse(body.string())
                 if (json is JSONObject) {
+                    rawData = json
                     return processJSON(json)
                 }
             } catch (_: Exception) { }

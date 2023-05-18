@@ -13,7 +13,7 @@ import kotlin.reflect.KProperty
 /**
  * 气泡弹窗
  */
-@Suppress("unused_parameter", "LeakingThis")
+@Suppress("LeakingThis")
 open class PopoverLayout : FrameLayout, ObservableProperty.Callback{
 
     //气泡颜色

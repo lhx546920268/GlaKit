@@ -3,8 +3,8 @@ package com.lhx.glakit.utils
 import android.content.Context
 import android.content.SharedPreferences
 import android.text.TextUtils
-import android.util.Base64
 import androidx.preference.PreferenceManager
+import com.alibaba.fastjson.JSONObject
 import com.lhx.glakit.base.activity.ActivityLifeCycleManager
 import java.io.*
 
@@ -75,17 +75,18 @@ object PrefsUtils {
         return prefs.contains(getKey(key))
     }
 
+    //以下方法中的对象要做混淆处理
+    //-keep class com.xx{*;}
+
     //保存对象
-    fun saveObject(key: String, obj: Serializable) {
+    fun saveObject(key: String, obj: Any) {
         if (TextUtils.isEmpty(key))
             return
+
         val prefsKey = getKey(key)
         val editor = prefs.edit()
-        val outputStream = ByteArrayOutputStream()
         try {
-            val oos = ObjectOutputStream(outputStream)
-            oos.writeObject(obj)
-            val temp = String(Base64.encode(outputStream.toByteArray(), Base64.DEFAULT))
+            val temp = JSONObject.toJSONString(obj)
             editor.putString(prefsKey, temp)
             editor.apply()
         } catch (e: IOException) {
@@ -100,18 +101,14 @@ object PrefsUtils {
         val prefsKey = getKey(key)
         val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
-        val temp = prefs.getString(prefsKey, "")
-        val inputStream = ByteArrayInputStream(Base64.decode(temp!!.toByteArray(), Base64.DEFAULT))
-        var obj: T? = null
-        try {
-            val ois = ObjectInputStream(inputStream)
-            val result = ois.readObject()
-            if(result is T){
-                obj = result
-            }
+        val temp = prefs.getString(prefsKey, null)
+        if (StringUtils.isEmpty(temp)) return null
+
+        return try {
+            JSONObject.parseObject(temp, T::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
+            null
         }
-        return obj
     }
 }

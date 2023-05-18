@@ -51,6 +51,7 @@ class PopoverMenu: PopoverContainer {
         override fun onCreateViewHolder(viewType: Int, parent: ViewGroup): RecyclerViewHolder {
             val view = LayoutInflater.from(context).inflate(R.layout.section_header, parent, false)
             view.layoutParams.width = LayoutParams.WRAP_CONTENT
+            view.setBackgroundColor(Color.TRANSPARENT)
             return RecyclerViewHolder(view)
         }
 

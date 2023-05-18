@@ -3,6 +3,7 @@ package com.lhx.glakit.base.widget
 import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -106,36 +107,14 @@ interface BasePage: BaseAttached, HttpProcessor {
 
     //<editor-fold desc="Bundle">
 
-    ///获取bundle内容
-    @Suppress("deprecation")
-    fun <T : Parcelable> getParcelableArrayListFromBundle(key: String?): ArrayList<T>? {
-        if(attachedBundle != null){
-            return attachedBundle!!.getParcelableArrayList(key)
-        }
-        return null
-    }
-
-    @Suppress("deprecation")
-    fun <T : Parcelable> getParcelableFromBundle(key: String?): T? {
-        if(attachedBundle != null){
-            return attachedBundle!!.getParcelable(key)
-        }
-        return null
-    }
-
     fun getStringFromBundle(key: String?): String? {
-        if(attachedBundle != null){
-            return attachedBundle!!.getString(key)
-        }
-
-        return null
+        return attachedBundle?.getString(key)
     }
 
     fun getDoubleFromBundle(key: String?): Double {
         if(attachedBundle != null){
             return attachedBundle!!.getDouble(key, 0.0)
         }
-
         return 0.0
     }
 
@@ -154,7 +133,6 @@ interface BasePage: BaseAttached, HttpProcessor {
         if(attachedBundle != null){
             return attachedBundle!!.getLong(key, 0)
         }
-
         return 0
     }
 
@@ -166,26 +144,47 @@ interface BasePage: BaseAttached, HttpProcessor {
         if(attachedBundle != null){
             return attachedBundle!!.getBoolean(key, defValue)
         }
-
         return defValue
     }
 
     fun getStringListFromBundle(key: String?): List<String>? {
-        if(attachedBundle != null){
-            return attachedBundle!!.getStringArrayList(key)
-        }
-        return null
-    }
-
-    @Suppress("deprecation")
-    fun getSerializableFromBundle(key: String?): Serializable? {
-        if(attachedBundle != null){
-            return attachedBundle!!.getSerializable(key)
-        }
-        return null
+        return attachedBundle?.getStringArrayList(key)
     }
 
     //</editor-fold>
+}
+
+inline fun <reified T : Parcelable> BasePage.getParcelableArrayListFromBundle(key: String?): ArrayList<T>? {
+    if(attachedBundle != null){
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            attachedBundle!!.getParcelableArrayList(key, T::class.java)
+        } else {
+            @Suppress("deprecation") attachedBundle!!.getParcelableArrayList(key)
+        }
+    }
+    return null
+}
+
+inline fun <reified T : Parcelable> BasePage.getParcelableFromBundle(key: String?): T? {
+    if(attachedBundle != null){
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            attachedBundle!!.getParcelable(key, T::class.java)
+        } else {
+            @Suppress("deprecation") return attachedBundle!!.getParcelable(key)
+        }
+    }
+    return null
+}
+
+inline fun <reified T : Serializable> BasePage.getSerializableFromBundle(key: String?): T? {
+    if(attachedBundle != null){
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            attachedBundle!!.getSerializable(key, T::class.java)
+        } else {
+            @Suppress("deprecation") attachedBundle!!.getSerializable(key) as T
+        }
+    }
+    return null
 }
 
 interface BaseContainerPage: BasePage, BaseContainer.OnEventCallback, InteractionCallback {

@@ -16,7 +16,7 @@ import java.io.RandomAccessFile
  * （Fatal Exception: java.lang.RuntimeException:
  * Using WebView from more than one process at once with the same data directory is not supported.）
  */
-object WebViewHelper {
+object WebViewBugFix {
 
     fun handleWebViewDir(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {

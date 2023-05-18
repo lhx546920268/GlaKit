@@ -63,19 +63,7 @@ object ColorUtils {
         }
 
         val a = (0xff * tValue).toInt()
-        return hexFromInt(a / 16) + hexFromInt(a % 16)
-    }
-
-    private fun hexFromInt(value: Int): String {
-        when (value) {
-            10 -> return "A"
-            11 -> return "B"
-            12 -> return "C"
-            13 -> return "D"
-            14 -> return "E"
-            15 -> return "F"
-        }
-        return value.toString()
+        return Integer.toHexString(a / 16) + Integer.toHexString(a % 16)
     }
 
     //判断是否是浅色

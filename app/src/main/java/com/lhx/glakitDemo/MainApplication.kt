@@ -1,5 +1,6 @@
 package com.lhx.glakitDemo
 
+import android.util.Log
 import com.alibaba.android.arouter.launcher.ARouter
 import com.lhx.glakit.app.BaseApplication
 
@@ -11,6 +12,6 @@ class MainApplication : BaseApplication() {
         ARouter.openLog()
         ARouter.init(this)
 
-        "".startsWith("fjiefjeofji")
+        Log.i("hex", Integer.toHexString(12))
     }
 }

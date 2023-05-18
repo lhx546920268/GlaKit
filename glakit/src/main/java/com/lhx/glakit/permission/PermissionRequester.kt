@@ -1,5 +1,6 @@
 package com.lhx.glakit.permission
 
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -19,8 +20,8 @@ interface PermissionRequester: BaseAttached {
      */
     fun createPermissionLauncher() {
         val activity = attachedActivity
-        require(activity is AppCompatActivity) {
-            "PermissionRequester 必须结合 AppCompatActivity"
+        require(activity is ComponentActivity) {
+            "PermissionRequester 必须结合 ComponentActivity"
         }
 
         permissionLauncher = activity.registerForActivityResult(

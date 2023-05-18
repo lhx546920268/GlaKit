@@ -13,9 +13,9 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.core.view.isGone
 import com.lhx.glakit.R
-import com.lhx.glakit.drawable.DrawableUtils
 import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.extension.getDrawableCompat
+import com.lhx.glakit.extension.getTintDrawable
 import kotlin.math.max
 import kotlin.math.min
 
@@ -67,7 +67,7 @@ class TitleBar: ViewGroup {
                     val drawables = textView.compoundDrawables
                     val drawable = drawables[0]
                     if (drawable != null) {
-                        textView.setCompoundDrawables(DrawableUtils.getTintDrawable(drawable, field), null, null, null)
+                        textView.setCompoundDrawables(drawable.getTintDrawable(field), null, null, null)
                     }
                     textView.setTextColor(field)
                 }
@@ -77,7 +77,7 @@ class TitleBar: ViewGroup {
                     val drawables = textView.compoundDrawables
                     val drawable = drawables[2]
                     if (drawable != null) {
-                        textView.setCompoundDrawables(null, null, DrawableUtils.getTintDrawable(drawable, field), null)
+                        textView.setCompoundDrawables(null, null, drawable.getTintDrawable(field), null)
                     }
                     textView.setTextColor(field)
                 }
@@ -157,7 +157,7 @@ class TitleBar: ViewGroup {
             var title: String? = null
             if (icon != 0) {
                 drawable = context.getDrawableCompat(icon)
-                drawable = DrawableUtils.getTintDrawable(drawable!!, tintColor)
+                drawable = drawable?.getTintDrawable(tintColor)
             }
             if (drawable == null) {
                 title = context.getString(R.string.title_bar_back_title)
@@ -235,7 +235,7 @@ class TitleBar: ViewGroup {
         textView.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT)
 
         if (drawable != null) {
-            drawable = DrawableUtils.getTintDrawable(drawable, tintColor)
+            drawable = drawable.getTintDrawable(tintColor)
         }
         drawable?.setBounds(0, 0, drawable.minimumWidth, drawable.minimumHeight)
 

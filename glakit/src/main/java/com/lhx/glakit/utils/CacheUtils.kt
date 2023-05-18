@@ -8,8 +8,6 @@ import java.io.*
 /**
  * 缓存工具类
  */
-
-@Suppress("unchecked_cast")
 object CacheUtils {
 
     // 删除缓存目录

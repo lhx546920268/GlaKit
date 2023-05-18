@@ -9,7 +9,7 @@ import okio.ForwardingSink
 import okio.buffer
 
 //可观察进度的
-class ObservableMultipartBody internal constructor(
+internal class ObservableMultipartBody internal constructor(
     private val requestBody: RequestBody,
     private val progressCallback: ValueCallback<Double>
 ) : RequestBody() {

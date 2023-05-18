@@ -13,7 +13,7 @@ import com.lhx.glakit.base.activity.BaseContainerActivity
 import com.lhx.glakit.base.constant.Position
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.base.widget.BaseContainer
-import com.lhx.glakit.drawable.DrawableUtils
+import com.lhx.glakit.extension.getTintDrawable
 import com.lhx.glakit.extension.setOnSingleListener
 import com.lhx.glakit.utils.ViewUtils
 
@@ -188,7 +188,7 @@ abstract class TabBarActivity : BaseContainerActivity() {
         } else {
             val color = checkedTintColor
             if (color != 0) {
-                checkDrawable = DrawableUtils.getTintDrawable(checkDrawable, color)
+                checkDrawable = checkDrawable.getTintDrawable(color)
             }
         }
 
@@ -200,7 +200,7 @@ abstract class TabBarActivity : BaseContainerActivity() {
         stateListDrawable.addState(intArrayOf(android.R.attr.state_selected), checkDrawable)
         val color = normalTitleColor
         if (color != 0) {
-            drawable = DrawableUtils.getTintDrawable(drawable, color)
+            drawable = drawable.getTintDrawable(color)
         }
         drawable.setBounds(0, 0, width, height)
         stateListDrawable.addState(intArrayOf(), drawable)

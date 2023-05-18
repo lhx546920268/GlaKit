@@ -37,7 +37,6 @@ object FileUtils {
             cacheFolder = context.cacheDir.path
         }
 
-
         val appFolder = "${cacheFolder}${File.separator}${AppUtils.appPackageName}${File.separator}"
         val file = File(appFolder)
         if (!file.exists()) {
@@ -206,17 +205,23 @@ object FileUtils {
      */
     fun readFile(file: File): ByteArray? {
         if (file.exists()) {
+            var fileInputStream: FileInputStream? = null
+            var bufferedInputStream: BufferedInputStream? = null
+            var outputStream: ByteArrayOutputStream ? = null
             try {
-                val inputStream = BufferedInputStream(FileInputStream(file))
-                val outputStream = ByteArrayOutputStream()
+                fileInputStream = FileInputStream(file)
+                bufferedInputStream = BufferedInputStream(fileInputStream)
+                outputStream = ByteArrayOutputStream()
                 val bytes = ByteArray(1024 * 256)
                 var len: Int
-                while (inputStream.read(bytes).also{ len = it } != -1) {
+                while (bufferedInputStream.read(bytes).also{ len = it } != -1) {
                     outputStream.write(bytes, 0, len)
                 }
                 return outputStream.toByteArray()
-            } catch (e: IOException) {
-                e.printStackTrace()
+            } finally {
+                fileInputStream?.close()
+                bufferedInputStream?.close()
+                outputStream?.close()
             }
         }
         return null
@@ -436,21 +441,24 @@ object FileUtils {
     /**
      * 生成base64字符串
      */
-    fun getBase64(path: String): String {
-        var uploadBuffer = ""
-        try {
-            val fis = FileInputStream(path)
-            val baos = ByteArrayOutputStream()
+    fun getBase64(path: String): String? {
+        var inputStream: FileInputStream? = null
+        var outputStream: ByteArrayOutputStream? = null
+        return try {
+            inputStream = FileInputStream(path)
+            outputStream = ByteArrayOutputStream()
             val buffer = ByteArray(1024)
             var count: Int
-            while (fis.read(buffer).also { count = it } >= 0) {
-                baos.write(buffer, 0, count)
+            while (inputStream.read(buffer).also { count = it } >= 0) {
+                outputStream.write(buffer, 0, count)
             }
-            uploadBuffer = String(Base64.encode(baos.toByteArray(), Base64.NO_WRAP)) //进行Base64
-        } catch (e: Exception) {
-            e.printStackTrace()
+            String(Base64.encode(outputStream.toByteArray(), Base64.NO_WRAP)) //进行Base64
+        } catch (_: Exception) {
+            null
+        } finally {
+            inputStream?.close()
+            outputStream?.close()
         }
-        return uploadBuffer
     }
 
 }

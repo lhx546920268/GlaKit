@@ -21,6 +21,7 @@ object SizeUtils {
     /**
      * 将dip转换为px
      * @param dipValue 要转换的dip值
+     * @waring 不要这样获取值 pxFormDip(1) + pxFormDip(2), 否则某些手机计算出的值会是错的
      * @return px值
      */
     fun pxFormDip(dipValue: Float, context: Context): Int {
@@ -29,6 +30,9 @@ object SizeUtils {
         )).toInt()
     }
 
+    /**
+     * 获取浮点型的，直接获取整型有时候会有偏差
+     */
     fun pxFormDipF(dipValue: Float, context: Context): Float {
         return if (dipValue == 0f) 0f else TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP, dipValue, context.resources.displayMetrics

@@ -52,7 +52,7 @@ open class BasePopupContainer: FrameLayout, PopupAnimation {
     }
 
     init {
-        addView(backgroundView)
+        this.addView(backgroundView)
         if (context is AppCompatActivity) {
             val activity = context as AppCompatActivity
             activity.onBackPressedDispatcher.addCallback(onBackPressedCallback)
