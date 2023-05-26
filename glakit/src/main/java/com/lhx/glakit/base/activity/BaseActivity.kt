@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.lhx.glakit.R
 import com.lhx.glakit.api.HttpCancelable
 import com.lhx.glakit.base.fragment.BaseFragment
+import com.lhx.glakit.base.widget.BaseContextWrapper
 import com.lhx.glakit.base.widget.BasePage
 import com.lhx.glakit.utils.AppUtils
 
@@ -155,22 +156,21 @@ open class BaseActivity : AppCompatActivity(), BasePage {
     }
 
     //移除fragment 信息
-    @Suppress("deprecation")
     private fun removeFragmentStateInBundle(bundle: Bundle) {
         bundle.remove("android:support:fragments")
         val keys = bundle.keySet()
         for (key in keys) {
-            val value = bundle.get(key)
+            val value = @Suppress("deprecation") bundle.get(key)
             if (value is Bundle) {
                 removeFragmentStateInBundle(value)
             }
         }
     }
 
-    //语言国际化
-//    override fun attachBaseContext(newBase: Context) {
-//        super.attachBaseContext(BaseContextWrapper.wrap(newBase, ""))
-//    }
+    //修改语言、字体缩放
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(BaseContextWrapper.wrap(newBase, null))
+    }
 
     //</editor-fold>
 
@@ -255,6 +255,13 @@ open class BaseActivity : AppCompatActivity(), BasePage {
         if (extras != null) {
             intent.putExtras(extras)
         }
+        startActivityForResult(intent, callback)
+    }
+
+    fun startActivityForResult(
+        intent: Intent,
+        callback: ResultCallback
+    ) {
         resultCallback = callback
         activityLauncher.launch(intent)
     }
@@ -300,49 +307,4 @@ open class BaseActivity : AppCompatActivity(), BasePage {
 
     //http可取消的任务
     override var currentTasks: HashSet<HttpCancelable>? = null
-
-    //回调
-    private var callbackEntities: HashMap<Int, CallbackEntity>? = null
-
-    //添加一个回调 onActivityResult
-    fun addCallback(
-        callback: ResultCallback,
-        requestCode: Int,
-        removeAfterUse: Boolean = true
-    ) {
-        if (callbackEntities == null) {
-            callbackEntities = HashMap()
-        }
-        callbackEntities!![requestCode] = CallbackEntity(callback, removeAfterUse)
-    }
-
-    @Deprecated("Deprecated in Java",
-        ReplaceWith("super.onActivityResult(requestCode, resultCode, data)", "androidx.appcompat.app.AppCompatActivity"))
-    @Suppress("deprecation")
-    final override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (!onActivityResultCompat(requestCode, resultCode, data)) {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
-
-    //兼容的，return true 就不会调用super
-    open fun onActivityResultCompat(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
-        if (resultCode == Activity.RESULT_OK && !callbackEntities.isNullOrEmpty()) {
-            val entity = callbackEntities!![requestCode]
-            if (entity != null) {
-                entity.callback(data)
-                if (entity.removeAfterUse) {
-                    callbackEntities!!.remove(requestCode)
-                }
-                return true
-            }
-        }
-        return false
-    }
-
-    //回调
-    private class CallbackEntity(
-        val callback: ResultCallback,
-        val removeAfterUse: Boolean
-    )
 }

@@ -45,9 +45,7 @@ object ImageManager {
                 val encoder = StreamEncoder(Glide.get(context).arrayPool)
                 inputStream = FileInputStream(file)
                 diskCache?.put(GlideUrl(url), DataCacheWriter(encoder, inputStream, Options()))
-            }catch (e: Exception) {
-
-            }finally {
+            } finally {
                 inputStream?.close()
             }
         }

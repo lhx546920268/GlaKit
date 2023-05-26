@@ -12,115 +12,92 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.*
+import android.webkit.GeolocationPermissions
+import android.webkit.JsResult
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
-import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
 import com.lhx.glakit.R
-import com.lhx.glakit.base.fragment.BaseFragment
+import com.lhx.glakit.base.activity.BaseActivity
+import com.lhx.glakit.base.constant.PageStatus
 import com.lhx.glakit.base.widget.BaseContainer
 import com.lhx.glakit.extension.MATCH_PARENT
+import com.lhx.glakit.extension.getColorCompat
 import com.lhx.glakit.extension.gone
 import com.lhx.glakit.extension.visible
+import com.lhx.glakit.utils.SizeUtils
 import com.lhx.glakit.utils.StringUtils
 import com.lhx.glakit.widget.ProgressBar
 
 /**
- * 网页配置
+ * 公用的web
  */
-object WebConfig {
-    const val URL = "url" //要打开的链接
+@Suppress("unused_parameter", "unused")
+class WebHolder(val container: BaseContainer, bundle: Bundle?, val adapter: WebAdapter) {
 
-    const val HTML_STRING = "html" //要加载的html
-
-    const val TITLE = "title" //默认显示的标题
-
-    const val USE_WEB_TITLE = "useWebTitle" //是否使用网页标题 默认使用
-
-    const val DISPLAY_PROGRESS = "displayProgress" //是否显示进度条 默认显示
-
-    const val DISPLAY_INDICATOR = "displayIndicator" //是否显示菊花，默认不显示
-
-    const val HIDE_BAR = "hideBar" //是否隐藏导航栏 默认不隐藏
-
-    const val GO_BACK_ENABLED = "goBackEnabled" //是否可以返回上一级网页，默认可以
-}
-
-/**
- * 网页
- */
-@Suppress("SetJavaScriptEnabled", "unused_parameter", "unused")
-open class WebFragment : BaseFragment() {
-
-    companion object{
-
-        //文件选择
-        private const val FILE_CHOOSER_REQUEST_CODE = 1101
-    }
+    val context: Context
+        get() = container.context
 
     //是否需要使用网页标题
-    protected var shouldUseWebTitle = true
+    var shouldUseWebTitle = true
 
     //html
     var htmlString: String? = null
 
     //链接
-    protected var toBeOpenedURL: String? = null
+    var toBeOpenedURL: String? = null
 
     //原始链接
-    protected var originURL: String? = null
+    var originURL: String? = null
 
     //原始标题
-    protected var originTitle: String? = null
+    var originTitle: String? = null
 
     //是否显示加载进度条
-    protected var shouldDisplayProgress = true
+    var shouldDisplayProgress = true
 
     //是否显示菊花 与进度条互斥
-    protected var shouldDisplayIndicator = false
-
-    //是否隐藏导航栏
-    protected var hideTitleBar = false
+    var shouldDisplayIndicator = false
 
     //是否可以返回
-    protected var goBackEnabled = true
+    var goBackEnabled = true
 
-    protected val webView: CustomWebView by lazy {
-        CustomWebView(requireContext())
-    }
-    protected val progressBar: ProgressBar by lazy {
-        ProgressBar(requireContext())
+    val webView: CustomWebView by lazy {
+        CustomWebView(context)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        hideTitleBar = getBooleanFromBundle(WebConfig.HIDE_BAR, false)
-        super.onCreate(savedInstanceState)
+    val progressBar: ProgressBar by lazy {
+        ProgressBar(context)
     }
 
-    @CallSuper
-    override fun initialize(inflater: LayoutInflater, container: BaseContainer, saveInstanceState: Bundle?) {
+    init {
+        if (bundle != null) {
+            shouldUseWebTitle = bundle.getBoolean(WebConfig.USE_WEB_TITLE, true)
+            shouldDisplayProgress = bundle.getBoolean(WebConfig.DISPLAY_PROGRESS, true)
+            shouldDisplayIndicator = bundle.getBoolean(WebConfig.DISPLAY_INDICATOR, false)
+            goBackEnabled = bundle.getBoolean(WebConfig.GO_BACK_ENABLED, true)
+        }
 
-        setContainerContentView(webView)
-        val params = RelativeLayout.LayoutParams(MATCH_PARENT, pxFromDip(2f))
-        params.topMargin = if (showTitleBar()) getDimenIntValue(R.dimen.title_bar_height) else 0
+        val hideTitleBar = bundle?.getBoolean(WebConfig.HIDE_BAR, false) ?: false
+        container.setContentView(webView)
+        val params = RelativeLayout.LayoutParams(MATCH_PARENT, SizeUtils.pxFormDip(2f, context))
+        params.topMargin = if (!hideTitleBar) context.resources.getDimensionPixelOffset(R.dimen.title_bar_height) else 0
         container.addView(progressBar, params)
 
-        shouldUseWebTitle = getBooleanFromBundle(WebConfig.USE_WEB_TITLE, true)
-        shouldDisplayProgress = getBooleanFromBundle(WebConfig.DISPLAY_PROGRESS, true)
-        shouldDisplayIndicator = getBooleanFromBundle(WebConfig.DISPLAY_INDICATOR, false)
-        goBackEnabled = getBooleanFromBundle(WebConfig.GO_BACK_ENABLED, true)
-
-        webConfig()
+        configWebSettings()
 
         if (shouldDisplayIndicator) {
             shouldDisplayProgress = false
         }
         if (StringUtils.isEmpty(toBeOpenedURL)) {
-            var url = getStringFromBundle(WebConfig.URL)
+            var url = bundle?.getString(WebConfig.URL)
 
             //没有 scheme 的加上
             if (!TextUtils.isEmpty(url)) {
@@ -131,35 +108,24 @@ open class WebFragment : BaseFragment() {
             toBeOpenedURL = url
         }
         if (StringUtils.isEmpty(htmlString)) {
-            htmlString = getStringFromBundle(WebConfig.HTML_STRING)
-        }
-
-        val title = getStringFromBundle(WebConfig.TITLE)
-        if (!TextUtils.isEmpty(title)) {
-            setBarTitle(title)
+            htmlString = bundle?.getString(WebConfig.HTML_STRING)
         }
 
         originURL = toBeOpenedURL
-        originTitle = title
-
-        loadWebContent()
-    }
-
-    override fun showTitleBar(): Boolean {
-        return !hideTitleBar
     }
 
     //配置webView
+    @SuppressLint("SetJavaScriptEnabled")
     @Suppress("deprecation")
-    private fun webConfig(){
+    private fun configWebSettings(){
 
-        progressBar.progressColor = getColorCompat(R.color.web_progress_color)
+        progressBar.progressColor = context.getColorCompat(R.color.web_progress_color)
         webView.also {
             it.webChromeClient = webChromeClient
             it.webViewClient = webViewClient
 
             val settings = it.settings
-            val userAgent = getCustomUserAgent()
+            val userAgent = adapter.getCustomUserAgent()
             if (!StringUtils.isEmpty(userAgent)) {
                 settings.userAgentString = "${settings.userAgentString} $userAgent"
             }
@@ -202,14 +168,13 @@ open class WebFragment : BaseFragment() {
             settings.setGeolocationEnabled(true)
 
             //设置定位的数据库路径
-            val dir = context?.applicationContext?.getDir("database", Context.MODE_PRIVATE)?.path
+            val dir = context.applicationContext?.getDir("database", Context.MODE_PRIVATE)?.path
             settings.setGeolocationDatabasePath(dir)
         }
     }
 
-    override fun onDestroy() {
+    fun onDestroy() {
         webView.destroy()
-        super.onDestroy()
     }
 
     //加载
@@ -219,21 +184,12 @@ open class WebFragment : BaseFragment() {
                 webView.loadUrl(toBeOpenedURL!!)
             } else {
                 var html = htmlString
-                if (shouldAddMobileMeta()) {
+                if (adapter.shouldAddMobileMeta()) {
                     html = "<style>img {width:100%;}</style><meta name='viewport' content='width=device-width, initial-scale=1'/>${htmlString}"
                 }
                 webView.loadDataWithBaseURL(null, html!!, "text/html", "utf8", null)
             }
         }
-    }
-
-    //是否添加移动设备头部
-    open fun shouldAddMobileMeta(): Boolean {
-        return true
-    }
-
-    open fun showNavigationBar(): Boolean {
-        return true
     }
 
     //调用js
@@ -251,10 +207,10 @@ open class WebFragment : BaseFragment() {
 
     //webView自定义视图的容器
     private val customViewContainer: FrameLayout by lazy {
-        val container = FrameLayout(requireContext())
-        container.setBackgroundColor(Color.BLACK)
-        baseContainer?.addView(container, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
-        container
+        val frameLayout = FrameLayout(context)
+        frameLayout.setBackgroundColor(Color.BLACK)
+        container.addView(frameLayout, ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+        frameLayout
     }
 
     @Suppress("deprecation")
@@ -267,8 +223,8 @@ open class WebFragment : BaseFragment() {
         customViewCallback = callback
 
         if (customView != null) {
-            val activity = this.activity
-            if (activity != null) {
+            val activity = context
+            if (activity is Activity) {
                 originOrientation = activity.requestedOrientation
                 originalSystemUiVisibility = activity.window.decorView.systemUiVisibility
 
@@ -289,8 +245,8 @@ open class WebFragment : BaseFragment() {
     @Suppress("deprecation")
     private fun hideCustomView() {
         if (customView != null) {
-            val activity = this.activity
-            if (activity != null) {
+            val activity = context
+            if (activity is Activity) {
                 if (originOrientation != null) activity.requestedOrientation = originOrientation!!
                 if (originalSystemUiVisibility != null) activity.window.decorView.systemUiVisibility = originalSystemUiVisibility!!
             }
@@ -307,13 +263,9 @@ open class WebFragment : BaseFragment() {
     private var mUploadMsg: ValueCallback<Uri>? = null
 
     //
-    protected var webChromeClient: WebChromeClient = object : WebChromeClient() {
+    private var webChromeClient: WebChromeClient = object : WebChromeClient() {
         override fun onReceivedTitle(view: WebView, title: String) {
-            if (shouldUseWebTitle) {
-                if (showNavigationBar()) {
-                    setBarTitle(title)
-                }
-            }
+            adapter.onTitleChanged(title)
         }
 
         override fun onProgressChanged(view: WebView, newProgress: Int) {
@@ -379,19 +331,35 @@ open class WebFragment : BaseFragment() {
     }
 
     //打开文件选择器
-    @Suppress("deprecation")
     private fun openFileChooser(mineType: String?) {
-        var type: String? = mineType
-        if (StringUtils.isEmpty(mineType)) {
-            type = "*/*"
-        }
-        try {
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = type
-            startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE)
-        } catch (e: ActivityNotFoundException) {
-            e.printStackTrace()
+        val activity = context
+        if(activity is BaseActivity) {
+            var type: String? = mineType
+            if (StringUtils.isEmpty(mineType)) {
+                type = "*/*"
+            }
+            try {
+                val intent = Intent(Intent.ACTION_GET_CONTENT)
+                intent.addCategory(Intent.CATEGORY_OPENABLE)
+                intent.type = type
+                activity.startActivityForResult(intent) {
+                    //文件选择完成
+                    it?.also {
+                        val uri = it.data
+                        if (uri != null) {
+                            if (mUploadFileCallback != null) {
+                                mUploadFileCallback!!.onReceiveValue(arrayOf(uri))
+                            } else if (mUploadMsg != null) {
+                                mUploadMsg!!.onReceiveValue(uri)
+                            }
+                        }
+                        mUploadFileCallback = null
+                        mUploadMsg = null
+                    }
+                }
+            } catch (e: ActivityNotFoundException) {
+                e.printStackTrace()
+            }
         }
     }
 
@@ -399,28 +367,25 @@ open class WebFragment : BaseFragment() {
     var hasError = false
 
     //
-    protected var webViewClient: WebViewClient = object : WebViewClient() {
+    private var webViewClient: WebViewClient = object : WebViewClient() {
 
         @Deprecated("Deprecated in Java", ReplaceWith("shouldOpenURL(url)"))
         override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-            return shouldOpenURL(url)
+            return adapter.shouldOpenURL(url)
         }
 
         override fun onPageFinished(view: WebView, url: String) {
-            if (shouldDisplayIndicator) {
-                setPageLoading(false)
+            if (shouldDisplayIndicator || !hasError) {
+                container.setPageStatus(PageStatus.NORMAL)
                 shouldDisplayIndicator = false
             }
-            if(!hasError){
-                setPageLoadFail(false)
-            }
-            onPageFinish(url)
+            adapter.onPageFinish(url)
         }
 
         override fun onPageStarted(view: WebView, url: String, favicon: Bitmap?) {
             hasError = false
             if (shouldDisplayIndicator) {
-                setPageLoading(true)
+                container.setPageStatus(PageStatus.LOADING)
             }
             if(shouldDisplayProgress){
                 progressBar.bringToFront()
@@ -444,67 +409,9 @@ open class WebFragment : BaseFragment() {
                 ERROR_FAILED_SSL_HANDSHAKE,
                 ERROR_BAD_URL -> {
                     hasError = true
-                    setPageLoadFail(true)
+                    container.setPageStatus(PageStatus.FAIL)
                 }
             }
         }
-    }
-
-    override fun onReloadPage() {
-        webView.reload()
-    }
-
-    override fun onBack() {
-        if (!hideTitleBar && goBackEnabled && webView.canGoBack()) {
-            webView.goBack()
-            return
-        }
-        super.onBack()
-    }
-
-    override fun back() {
-        onBack()
-    }
-
-    @Deprecated("Deprecated in Java")
-    @Suppress("deprecation")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                FILE_CHOOSER_REQUEST_CODE -> {
-
-                    //文件选择完成
-                    if (data != null) {
-                        val uri = data.data
-                        if (uri != null) {
-                            if (mUploadFileCallback != null) {
-                                mUploadFileCallback!!.onReceiveValue(arrayOf(uri))
-                            } else if (mUploadMsg != null) {
-                                mUploadMsg!!.onReceiveValue(uri)
-                            }
-                        }
-                        mUploadFileCallback = null
-                        mUploadMsg = null
-                    }
-                }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    //加载完成
-    protected fun onPageFinish(url: String?) {}
-
-    //当前url是否可以打开
-    fun shouldOpenURL(url: String): Boolean {
-
-        return if (!StringUtils.isEmpty(url)) {
-            url.startsWith("http://") || url.startsWith("https://")
-        } else true
-    }
-
-    //返回需要设置的自定义 userAgent 会拼在系统的userAgent后面
-    fun getCustomUserAgent(): String? {
-        return null
     }
 }

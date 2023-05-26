@@ -40,15 +40,13 @@ class ImageCompressFileEngine(val config: ImagePickerConfig): CompressFileEngine
         private const val CACHE_DISK_DIR = "compressedDir"
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     override fun onStartCompress(
         context: Context,
         source: ArrayList<Uri>,
         call: OnKeyValueResultCallbackListener?
     ) {
-
         this.context = context
-        GlobalScope.launch(Dispatchers.IO) {
+        CoroutineScope(SupervisorJob()).launch(Dispatchers.IO) {
             val files = HashMap<String, File?>()
             for (uri in source) {
                 val provider = streamProviderFromMedia(uri)

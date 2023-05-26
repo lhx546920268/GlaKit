@@ -6,14 +6,14 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.TypedValue
 import com.lhx.glakit.app.BaseApplication
 import com.lhx.glakit.event.AppEvent
+import com.lhx.glakit.extension.isTranslucentOrFloating
 import com.lhx.glakit.extension.lastSafely
+import com.lhx.glakit.extension.queryIntentActivitiesCompat
 
 import org.greenrobot.eventbus.EventBus
 
@@ -142,8 +142,8 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            //安卓O 透明activity设置requestedOrientation 会闪退
-            if (!isTranslucentOrFloating(activity)) {
+            //安卓8.O 透明activity设置requestedOrientation 会闪退
+            if (!activity.isTranslucentOrFloating()) {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
         } else {
@@ -152,28 +152,6 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
 
         activities.add(activity)
         restartIfNeeded(activity)
-    }
-
-    //主要用于安卓8.0判断activity是否透明
-    private fun isTranslucentOrFloating(activity: Activity): Boolean {
-        val translucentValue = TypedValue()
-        val floatingValue = TypedValue()
-        var isSwipeToDismiss = false
-
-        //TYPE_INT_BOOLEAN 类型的 data的值可能为-1（true）和0（false）
-        activity.theme.resolveAttribute(android.R.attr.windowIsTranslucent, translucentValue, true)
-        activity.theme.resolveAttribute(android.R.attr.windowIsFloating, floatingValue, true)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-            val swipeToDismissValue = TypedValue()
-            @Suppress("deprecation")
-            activity.theme.resolveAttribute(android.R.attr.windowSwipeToDismiss, swipeToDismissValue, true)
-            isSwipeToDismiss = swipeToDismissValue.type == TypedValue.TYPE_INT_BOOLEAN && swipeToDismissValue.data != 0
-        }
-
-        val isTranslucent = translucentValue.type == TypedValue.TYPE_INT_BOOLEAN && translucentValue.data != 0
-        val isFloating = floatingValue.type == TypedValue.TYPE_INT_BOOLEAN && floatingValue.data != 0
-
-        return isTranslucent || isFloating || isSwipeToDismiss
     }
 
     override fun onActivityStarted(activity: Activity) {
@@ -263,18 +241,12 @@ object ActivityLifeCycleManager: Application.ActivityLifecycleCallbacks {
     }
 
     //获取启动的activity名称
-    @SuppressLint("QueryPermissionsNeeded")
-    @Suppress("deprecation")
     private fun getLaunchActivityName(application: Application): String {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.setPackage(application.packageName)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
-        val resolveInfos = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            application.packageManager.queryIntentActivities(intent, PackageManager.ResolveInfoFlags.of(0))
-        } else {
-            application.packageManager.queryIntentActivities(intent, 0)
-        }
 
+        val resolveInfos = application.packageManager.queryIntentActivitiesCompat(intent)
         if (resolveInfos.isNotEmpty()) {
             return resolveInfos.first().activityInfo.name
         }

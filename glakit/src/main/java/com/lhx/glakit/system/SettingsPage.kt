@@ -1,6 +1,5 @@
 package com.lhx.glakit.system
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -8,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.lhx.glakit.extension.queryIntentActivitiesCompat
 
 
 /**
@@ -130,16 +130,7 @@ object SettingsPage {
         return intent
     }
 
-    @SuppressLint("QueryPermissionsNeeded")
-    @Suppress("deprecation")
     private fun hasIntent(context: Context, intent: Intent): Boolean {
-        val size = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.packageManager.queryIntentActivities(intent,
-                PackageManager.ResolveInfoFlags.of(PackageManager.MATCH_DEFAULT_ONLY.toLong())).size
-        } else {
-            context.packageManager.queryIntentActivities(intent,
-                PackageManager.MATCH_DEFAULT_ONLY).size
-        }
-        return size > 0
+        return context.packageManager.queryIntentActivitiesCompat(intent, PackageManager.MATCH_DEFAULT_ONLY).isNotEmpty()
     }
 }

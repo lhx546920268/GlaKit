@@ -3,8 +3,6 @@ package com.lhx.glakit.utils
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.os.Environment
-import android.os.Environment.MEDIA_MOUNTED
 import android.provider.MediaStore
 import android.text.TextUtils
 import android.util.Base64
@@ -17,55 +15,6 @@ import java.nio.channels.FileChannel
  * 文件工具类
  */
 object FileUtils {
-
-    //app缓存文件夹
-    private var cacheFolder: String? = null
-
-    //app缓存图片文件夹
-    private var imageCacheFolder: String? = null
-
-    fun getAppFolder(context: Context): String {
-
-        //当sd卡可用并且
-        var cacheFolder: String? = null
-
-        if (MEDIA_MOUNTED == Environment.getExternalStorageState()) {
-           cacheFolder = context.externalCacheDir?.path
-        }
-
-        if(cacheFolder == null){
-            cacheFolder = context.cacheDir.path
-        }
-
-        val appFolder = "${cacheFolder}${File.separator}${AppUtils.appPackageName}${File.separator}"
-        val file = File(appFolder)
-        if (!file.exists()) {
-            file.mkdirs()
-        }
-        return appFolder
-    }
-
-    fun getCacheFolder(context: Context): String {
-        if (cacheFolder == null) {
-            cacheFolder = "${getAppFolder(context)}.cache${File.separator}"
-            val file = File(cacheFolder!!)
-            if (!file.exists()) {
-                file.mkdirs()
-            }
-        }
-        return cacheFolder!!
-    }
-
-    fun getImageCacheFolder(context: Context): String {
-        if (imageCacheFolder == null) {
-            imageCacheFolder = "${getAppFolder(context)}imageCache${File.separator}"
-            val file = File(imageCacheFolder!!)
-            if (!file.exists()) {
-                file.mkdirs()
-            }
-        }
-        return imageCacheFolder!!
-    }
 
     /**
      * 获取文件的 MIME TYPE

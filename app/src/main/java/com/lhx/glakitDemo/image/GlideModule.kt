@@ -1,6 +1,7 @@
 package com.lhx.glakitDemo.image
 
 import android.content.Context
+import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.annotation.GlideModule
 import com.bumptech.glide.load.engine.cache.DiskCache
@@ -25,6 +26,10 @@ class GlideModule: AppGlideModule() {
         ImageManager.init(diskCacheFactory)
         builder.setDiskCache(diskCacheFactory)
     }
+}
+
+fun Glide.getCacheDirectory(): File {
+    return File(context.externalCacheDir, DiskLruCacheFactory.DEFAULT_DISK_CACHE_DIR)
 }
 
 //外部存储，最大500MB

@@ -143,9 +143,9 @@ abstract class BaseFragment : Fragment(), BaseContainerPage {
     }
 
     //打开activity 不要动画
-    fun closeAnimate() {
+//    fun closeAnimate() {
 //        activity?.overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
-    }
+//    }
 
     //</editor-fold>
 
@@ -193,6 +193,26 @@ abstract class BaseFragment : Fragment(), BaseContainerPage {
             extras.remove(BaseActivity.FRAGMENT_STRING)
             intent.putExtras(extras)
         }
+        resultCallback = callback
+        activityLauncher.launch(intent)
+    }
+
+    fun startActivityForResult(
+        activityClass: Class<out Activity>,
+        extras: Bundle? = null,
+        callback: ResultCallback
+    ) {
+        val intent = Intent(requireContext(), activityClass)
+        if (extras != null) {
+            intent.putExtras(extras)
+        }
+        startActivityForResult(intent, callback)
+    }
+
+    fun startActivityForResult(
+        intent: Intent,
+        callback: ResultCallback
+    ) {
         resultCallback = callback
         activityLauncher.launch(intent)
     }

@@ -166,7 +166,7 @@ object ImageUtils {
         return file
     }
 
-    //保存图片需要的权限
+    //保存图片需要的权限，WRITE_EXTERNAL_STORAGE 在api 33已弃用，申请该权限会返回失败
     val saveImageNeededPermissions: Array<String>?
         get() {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) null

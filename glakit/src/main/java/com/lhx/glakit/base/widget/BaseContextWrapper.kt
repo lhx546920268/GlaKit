@@ -16,21 +16,23 @@ import java.util.*
 class BaseContextWrapper(base: Context): ContextWrapper(base) {
 
     companion object {
-        fun wrap(context: Context, language: String): ContextWrapper {
+        fun wrap(context: Context, language: String?): ContextWrapper {
             val configuration = context.resources.configuration
             configuration.fontScale = 1.0f
-            val sysLocal = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
-                getSystemLocale(configuration)
-            } else {
-                getSystemLocaleLegacy(configuration)
-            }
-            if (sysLocal.language != language) {
-                val locale = Locale(language)
-                Locale.setDefault(locale)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    setSystemLocale(configuration, locale)
+            if (language != null) {
+                val sysLocal = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+                    getSystemLocale(configuration)
                 } else {
-                    setSystemLocaleLegacy(configuration, locale)
+                    getSystemLocaleLegacy(configuration)
+                }
+                if (sysLocal.language != language) {
+                    val locale = Locale(language)
+                    Locale.setDefault(locale)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        setSystemLocale(configuration, locale)
+                    } else {
+                        setSystemLocaleLegacy(configuration, locale)
+                    }
                 }
             }
 
@@ -67,7 +69,7 @@ class BaseContextWrapper(base: Context): ContextWrapper(base) {
 /**
  * 解决androidx 1.2.0 切换语言失败的问题
  */
-class BaseContextThemeWrapper(context: Context, res: Int): ContextThemeWrapper(context, res) {
+private class BaseContextThemeWrapper(context: Context, res: Int): ContextThemeWrapper(context, res) {
 
     override fun applyOverrideConfiguration(overrideConfiguration: Configuration?) {
         overrideConfiguration?.setTo(baseContext.resources.configuration)
