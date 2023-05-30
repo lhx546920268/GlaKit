@@ -182,7 +182,7 @@ class HomeFragment: RecyclerFragment(), PermissionRequester, StickAdapter {
 //            notifyDataSetChanged()
             when(position % items.size) {
                 0 -> {
-                    startActivityForResult(CornerDrawableFragment::class.java) {
+                    startFragmentForResult(CornerDrawableFragment::class.java) {
                         Log.d("fragment", "back callback")
                     }
                 }

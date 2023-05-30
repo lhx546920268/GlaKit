@@ -83,7 +83,7 @@ abstract class BaseFragment : Fragment(), BaseContainerPage {
         savedInstanceState: Bundle?
     ): View? {
         if (_container == null) { //创建容器视图
-            _container = BaseContainer(context)
+            _container = BaseContainer(requireContext())
             _container?.mOnEventCallback = this
             _container?.setShowTitleBar(showTitleBar())
             //内容视图
@@ -183,7 +183,7 @@ abstract class BaseFragment : Fragment(), BaseContainerPage {
         startActivity(intent)
     }
 
-    fun startActivityForResult(
+    fun startFragmentForResult(
         fragmentClass: Class<out BaseFragment>,
         extras: Bundle? = null,
         callback: ResultCallback

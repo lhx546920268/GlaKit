@@ -59,6 +59,9 @@ open class BaseActivity : AppCompatActivity(), BasePage {
     val isVisible: Boolean
         get() = _visible
 
+    val contentView: View?
+        get() = window?.decorView?.findViewById(android.R.id.content)
+
     /**
      * 内容视图 需要设置id为 current_content
      */
