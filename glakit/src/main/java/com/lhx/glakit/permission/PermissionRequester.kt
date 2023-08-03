@@ -24,9 +24,13 @@ interface PermissionRequester: BaseAttached {
             "PermissionRequester 必须结合 ComponentActivity"
         }
 
-        permissionLauncher = activity.registerForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()) { map ->
-            PermissionHelper.onRequestMultiplePermissions(map)
+        if (activity != this && activity is PermissionRequester) {
+            permissionLauncher = activity.permissionLauncher
+        } else {
+            permissionLauncher = activity.registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions()) { map ->
+                PermissionHelper.onRequestMultiplePermissions(map)
+            }
         }
     }
 }

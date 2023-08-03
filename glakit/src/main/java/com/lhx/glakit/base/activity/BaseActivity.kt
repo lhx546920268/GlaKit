@@ -100,7 +100,7 @@ open class BaseActivity : AppCompatActivity(), BasePage {
                 resources.getBoolean(R.bool.status_bar_is_light)
             )
         }
-
+        
         val layoutRes = getContentViewRes()
         if (layoutRes != 0) {
             setContentView(layoutRes)

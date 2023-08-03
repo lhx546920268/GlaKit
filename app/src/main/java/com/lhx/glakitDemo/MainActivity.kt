@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.WindowInsetsController
 import androidx.core.view.WindowInsetsControllerCompat
 import com.alibaba.android.arouter.facade.annotation.Route
+import com.alibaba.fastjson.JSONArray
 import com.lhx.glakit.base.fragment.BaseFragment
 import com.lhx.glakit.tab.TabBarActivity
 import com.lhx.glakitDemo.home.HomeFragment
@@ -26,7 +27,6 @@ class MainActivity : TabBarActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         println("MainActivity $this")
         application.registerActivityLifecycleCallbacks(LifeCycle)
         user.addObserver(this, arrayOf("title", "subtitle"), {oldValue, newValue, property ->

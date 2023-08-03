@@ -128,7 +128,6 @@ class BadgeValueTextView : AppCompatTextView {
             }
         }
 
-
         super.setText(value ?: "", type)
         hideIfNeeded()
     }
